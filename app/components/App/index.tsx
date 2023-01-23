@@ -7,14 +7,14 @@ import { useOverlay } from "../Overlay";
 let canvas: HTMLCanvasElement
 
 const App: Component = () => {
-  const [view, { setPosition, setDimensions, scaleViewUpTo, scaleViewDownTo }] = useView();
+  const [view, { setPosition, setLastMousePosition, setDimensions, scaleViewUpTo, scaleViewDownTo }] = useView();
   const [_, { toggleEditOverlay }] = useOverlay();
 
   function handleMousemove(e: MouseEvent) {
     if (e.buttons == 1) {
-      // todo change movement
-      setPosition(new Vec2D(-e.movementX, e.movementY))
+      setPosition(new Vec2D(-e.clientX, e.clientY))
     }
+    setLastMousePosition(new Vec2D(-e.clientX, e.clientY))
   }
 
   function handleScroll(e: WheelEvent) {
