@@ -11,7 +11,9 @@
     "lint": "npx eslint app",
     "lint:fix": "npm run lint -- --fix",
     "prettier": "npx prettier app --check",
-    "prettier:fix": "npm run prettier -- --write"
+    "prettier:fix": "npm run prettier -- --write",
+    "clippy": "cargo clippy --manifest-path tauri/Cargo.toml --all-features --all-targets",
+    "clippy:fix": "npm run clippy -- --fix"
   },
   "license": "MIT",
   "devDependencies": {
