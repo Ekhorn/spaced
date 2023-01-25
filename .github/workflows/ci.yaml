@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  app_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
+  tauri_fmt_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm run fmt
+
+  tauri_clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0 libayatana-appindicator3-dev
+          mkdir dist
+      - run: npm run clippy
