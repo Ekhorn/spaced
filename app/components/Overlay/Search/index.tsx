@@ -21,7 +21,7 @@ export const Search: Component = () => {
           />
         </svg>
         <input
-          onkeydown={(e) => setState(e.currentTarget.value)}
+          onKeyDown={(e) => setState(e.currentTarget.value)}
           class="pl-6 py-1 mt-1 rounded focus:border-blue-300 focus:shadow-blue-300 shadow border-2 outline-none"
         />
       </div>

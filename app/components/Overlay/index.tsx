@@ -34,12 +34,8 @@ const OverlayContext = createContext<OverlayContextValue>([
   },
 ]);
 
-export const OverlayProvider: ParentComponent<{
-  isEdit?: boolean;
-}> = (props) => {
-  const [state, setState] = createStore<OverlayState>({
-    isEdit: props.isEdit ?? defaultState.isEdit,
-  });
+export const OverlayProvider: ParentComponent = (props) => {
+  const [state, setState] = createStore<OverlayState>(defaultState);
 
   const [view] = useView();
 
@@ -47,9 +43,11 @@ export const OverlayProvider: ParentComponent<{
 
   function createControl() {
     const d = document.createElement('div');
+    const x = createMemo(() => view.position.x);
+    const y = createMemo(() => view.position.y);
     d.classList.add('absolute', 'z-50');
-    d.appendChild((<span>{createMemo(() => view.position.x)}</span>) as Node);
-    d.appendChild((<span>{createMemo(() => view.position.y)}</span>) as Node);
+    d.appendChild((<span>{x()}</span>) as Node);
+    d.appendChild((<span>{y()}</span>) as Node);
     setEls((e) => [...e, d]);
   }
 
@@ -72,19 +70,19 @@ export const OverlayProvider: ParentComponent<{
   return (
     <OverlayContext.Provider value={[state, { toggleEditOverlay }]}>
       {props.children}
-      <Index each={els()}>{(el) => el()}</Index>
+      <Index each={els()}>{(el) => <>{el()}</>}</Index>
       <Show when={state.isEdit}>
         <canvas
           class="absolute z-40 w-screen h-screen bg-black opacity-50"
-          oncontextmenu={handleContextMenu}
+          onContextMenu={handleContextMenu}
         />
         <Show when={menu()}>
           <div
             ref={menuRef}
-            onblur={handleBlur}
+            onBlur={handleBlur}
             class="flex flex-col absolute z-50 rounded w-16 bg-slate-200"
           >
-            <button tabindex="-1" onclick={createControl} class="">
+            <button tabindex="-1" onClick={createControl} class="">
               test
             </button>
           </div>

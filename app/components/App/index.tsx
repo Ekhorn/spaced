@@ -17,7 +17,7 @@ const App: Component = () => {
       scaleViewDownTo,
     },
   ] = useView();
-  const [_, { toggleEditOverlay }] = useOverlay();
+  const [, { toggleEditOverlay }] = useOverlay();
 
   function handleMousemove(e: MouseEvent) {
     if (e.buttons == 1) {
@@ -65,8 +65,8 @@ const App: Component = () => {
     <main class="absolute">
       <canvas
         class="w-screen h-screen"
-        onmousemove={handleMousemove}
-        onwheel={handleScroll}
+        onMouseMove={handleMousemove}
+        onWheel={handleScroll}
         ref={canvas}
       />
     </main>

@@ -2,11 +2,7 @@ import { ViewportState } from '../components/Viewport';
 import { globalToView } from './utils';
 import Vec2D from './vector';
 
-export const draw = (
-  canvas: HTMLCanvasElement,
-  view: ViewportState,
-  drawableState?: [],
-) => {
+export const draw = (canvas: HTMLCanvasElement, view: ViewportState) => {
   const ctx = canvas?.getContext('2d');
   const level = view.scale.level;
   const viewPos = globalToView(new Vec2D(-100, 0), view.position, level);

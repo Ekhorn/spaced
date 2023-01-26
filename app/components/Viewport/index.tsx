@@ -44,22 +44,8 @@ const ViewContext = createContext<ViewContextValue>([
   },
 ]);
 
-export const ViewProvider: ParentComponent<{
-  position?: Vec2D;
-  lastMousePosition?: Vec2D;
-  zoom?: Scale;
-  width?: number;
-  height?: number;
-  count?: number;
-}> = (props) => {
-  const [state, setState] = createStore<ViewportState>({
-    position: props.position ?? defaultState.position,
-    lastMousePosition:
-      props.lastMousePosition ?? defaultState.lastMousePosition,
-    scale: props.zoom ?? defaultState.scale,
-    width: props.width ?? defaultState.width,
-    height: props.height ?? defaultState.height,
-  });
+export const ViewProvider: ParentComponent = (props) => {
+  const [state, setState] = createStore<ViewportState>(defaultState);
 
   // todo rename
   const setPosition = (coords: Vec2D) =>
