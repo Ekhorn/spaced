@@ -1,16 +1,13 @@
-import { Component } from "solid-js";
+import { Component } from 'solid-js';
 
-type Control = {
-
-}
+type Control = {};
 
 export const Control: Component = () => {
+  return (<div></div>) as
+    | HTMLDivElement
+    | HTMLButtonElement
+    | HTMLInputElement
+    | HTMLSpanElement;
+};
 
-  return (
-    <div></div>
-  ) as HTMLDivElement | HTMLButtonElement | HTMLInputElement | HTMLSpanElement;
-}
-
-function generateControl() {
-
-}
+function generateControl() {}

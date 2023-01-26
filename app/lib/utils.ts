@@ -1,4 +1,4 @@
-import Vec2D from "./vector";
+import Vec2D from './vector';
 
 // todo rename global
 export function globalToView(coords: Vec2D, view: Vec2D, level: number) {
