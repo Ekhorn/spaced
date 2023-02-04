@@ -32,8 +32,8 @@ function drawGrid(
   // 25
   // 2**... *= 25 = 1
 
-  const rows = view.width / dist;
-  const cols = view.height / dist;
+  const rows = view.height / dist;
+  const cols = view.width / dist;
 
   const { x, y } = globalToView(
     new Vec2D(0, 0),

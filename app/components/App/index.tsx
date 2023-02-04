@@ -43,7 +43,7 @@ const App: Component = () => {
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
-        setDimensions(height, width);
+        setDimensions(width, height);
       }
     };
     handleResize();
