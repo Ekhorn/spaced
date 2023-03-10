@@ -8,6 +8,7 @@ on:
 
 env:
   RUSTFLAGS: "-Dwarnings"
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
 
 jobs:
   app_lint:
