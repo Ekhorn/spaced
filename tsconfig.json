@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "target": "ES2019",
+    "module": "Node16",
+    "moduleResolution": "Node16",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "solid-js",
     "types": ["vite/client"],
     "noEmit": true,
     "isolatedModules": true,
     "skipLibCheck": true
   },
+  "ts-node": {
+    "experimentalResolver": true
+  },
+  "exclude": ["**/dist"]
 }
