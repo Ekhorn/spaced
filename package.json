@@ -17,7 +17,8 @@
     "prettier:fix": "npm run prettier -- --write",
     "serve": "vite preview",
     "start": "vite",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "bin": "tauri/target/release/spaced"
   },
   "lint-staged": {
     "*.{html,json,md,yaml,yml}": [
