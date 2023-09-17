@@ -1,16 +1,22 @@
+import type { Vec2D } from '../lib/vector.js';
+
 type ContainerProperties = {
   text: string;
-  x: number;
-  y: number;
+  translation: Vec2D;
   scale: number;
 };
+let ref: HTMLDivElement;
 
 export function Container(properties: ContainerProperties) {
   return (
     <div
-      class="absolute h-12 w-12 border"
+      ref={ref}
+      class="absolute h-12 w-12 rounded border bg-white"
       style={{
-        translate: `${properties.x}px ${properties.y}px`,
+        translate: `
+          ${properties.translation.x}px
+          ${-properties.translation.y}px
+        `,
         scale: `${properties.scale}`,
       }}
     >

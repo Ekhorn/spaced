@@ -3,48 +3,52 @@ import { createSignal, For } from 'solid-js';
 import { Background } from './Background.js';
 import { Container } from './Container.js';
 import {
-  globalToView,
-  scaleViewAwayFrom,
-  scaleViewUpTo,
-} from '../lib/utils.js';
-import Vec2D from '../lib/vector.js';
+  absoluteToRelative,
+  scaleViewportOutFrom,
+  scaleViewportUpTo,
+  Vec2D,
+} from '../lib/vector.js';
 
-let lastMousePosition = new Vec2D(0, 0);
+let pointerDelta = new Vec2D(0, 0);
+let lastRelativePointerPosition = new Vec2D(0, 0);
 
-const [zoom, setZoom] = createSignal({ level: 1, factor: 1.2 });
-const [gpos, setGpos] = createSignal(new Vec2D(0, 0));
-const vpos = () => globalToView(new Vec2D(0, 0), gpos(), zoom().level);
+const [factor] = createSignal(1.2);
+const [scalar, setScalar] = createSignal(1);
+const [absoluteViewportPosition, setAbsoluteViewportPosition] = createSignal(
+  new Vec2D(0, 0),
+);
 
 function handlePointerMove(event: PointerEvent) {
+  pointerDelta = new Vec2D(event.clientX, -event.clientY)
+    .sub(lastRelativePointerPosition)
+    .div(scalar());
   if (event.buttons === 1) {
-    setGpos((prev) =>
-      prev.add(
-        new Vec2D(-event.clientX, event.clientY)
-          .sub(lastMousePosition)
-          .div(zoom().level),
-      ),
-    );
+    setAbsoluteViewportPosition((prev) => prev.add(pointerDelta.neg()));
   }
-  lastMousePosition = new Vec2D(-event.clientX, event.clientY);
+  lastRelativePointerPosition = new Vec2D(event.clientX, -event.clientY);
 }
 
 function handleWheel(event: WheelEvent) {
-  if (event.deltaY < 0 && zoom().level < 160) {
-    setGpos((prev) =>
-      scaleViewUpTo(new Vec2D(event.clientX, -event.clientY), prev, zoom()),
+  if (event.deltaY < 0 && scalar() < 160) {
+    setAbsoluteViewportPosition((prev) =>
+      scaleViewportUpTo(
+        new Vec2D(event.clientX, -event.clientY),
+        prev,
+        scalar(),
+        factor(),
+      ),
     );
-    setZoom(({ factor, level }) => ({
-      level: level * factor,
-      factor,
-    }));
-  } else if (event.deltaY > 0 && zoom().level > 0.01) {
-    setGpos((prev) =>
-      scaleViewAwayFrom(new Vec2D(event.clientX, -event.clientY), prev, zoom()),
+    setScalar((prev) => prev * factor());
+  } else if (event.deltaY > 0 && scalar() > 0.01) {
+    setAbsoluteViewportPosition((prev) =>
+      scaleViewportOutFrom(
+        new Vec2D(event.clientX, -event.clientY),
+        prev,
+        scalar(),
+        factor(),
+      ),
     );
-    setZoom(({ factor, level }) => ({
-      level: level / factor,
-      factor,
-    }));
+    setScalar((prev) => prev / factor());
   }
 }
 
@@ -68,9 +72,12 @@ export function App() {
           {(item) => (
             <Container
               text={item.text}
-              x={item.x * zoom().level + vpos().x}
-              y={item.y * zoom().level - vpos().y}
-              scale={zoom().level}
+              translation={absoluteToRelative(
+                new Vec2D(item.x, item.y),
+                absoluteViewportPosition(),
+                scalar(),
+              )}
+              scale={scalar()}
             />
           )}
         </For>
