@@ -13,6 +13,7 @@ export function Container(properties: ContainerProperties) {
       ref={ref}
       class="absolute h-12 w-12 rounded border bg-white"
       style={{
+        'transform-origin': 'top left',
         translate: `
           ${properties.translation.x}px
           ${-properties.translation.y}px
