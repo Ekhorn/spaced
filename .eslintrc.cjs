@@ -29,6 +29,13 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:unicorn/recommended',
   ],
+  overrides: [
+    {
+      files: ['**/*.md'],
+      plugins: ['markdown'],
+      processor: 'markdown/markdown',
+    },
+  ],
   rules: {
     'import/order': [
       'error',
