@@ -16,7 +16,6 @@
     "prettier": "npx prettier app --check",
     "prettier:fix": "npm run prettier -- --write",
     "serve": "vite preview",
-    "start": "vite",
     "tauri": "tauri",
     "bin": "tauri/target/release/spaced"
   },
