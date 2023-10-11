@@ -1,0 +1,58 @@
+@startuml C4_Elements
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(user, "User")
+
+System_Boundary(boundry, "Spaced"){
+
+  Container(desktop_client, Desktop client, "Tauri + SolidJS + Typescript", "Provides the user's the functionality to interact with their items, settings and spaces in a desktop app.")
+
+  Container(browser_client, Browser client, "SolidJS + Typescript", "Provides the user's the functionality to interact with their items, settings and spaces via their web browser.")
+
+  Container(item_producer, Item producer service, "gRPC + Protobuf", "Manages live interactions with items and spaces between multiple clients.")
+
+  Container(reverse_proxy, Reverse proxy, "Nginx", "Traffics the users request to right server.")
+
+  Container(message_broker, Message broker, "Apache Kafka", "Receives messages and queues them up for consumer services to process further")
+
+  Container(item_consumer, Item consumer service, "Rust + rdfkafka", "Handles items fetching them from redis first and otherwise object storage or a postgres database.")
+
+  ContainerDb(cache, Cache, "Redis", "Provides quick in memory access to recently used items.")
+
+  ContainerDb(object_storage, Large file storage, "S3 compatible", "Stores files too large to hold in the database, such as videos.")
+
+  Container(user_service, User service, "Rust + rdfkafka", "Handles user registration, login and settings.")
+
+  Container(search_service, Search service, "Rust + rdfkafka", "Handles search queries, full-text and spatial.")
+
+	ContainerDb(postgres, "Database", "PostgreSQL (+ PostGIS)", "To store at least some item data or atleast item metadata and user settings.")
+}
+
+Rel_D(user, desktop_client, "Manages their items in Spaced via the desktop app.")
+
+Rel_D(user, browser_client, "Manages their items in Spaced via the browser.")
+
+
+Rel_D(desktop_client, item_producer, "Realtime bi-directional communication", "HTTP2.0 + Protobuf")
+Rel_D(browser_client, item_producer, "Realtime bi-directional communication", "HTTP2.0 + Protobuf")
+
+Rel_D(desktop_client, reverse_proxy, "Requests data", "HTTPS + JSON")
+Rel_D(browser_client, reverse_proxy, "Requests data", "HTTPS + JSON")
+
+Rel_D(reverse_proxy, user_service, "Requests data", "HTTPS + JSON")
+
+Rel_R(item_producer, message_broker, "Messaging", "TCP")
+Rel_L(reverse_proxy, message_broker, "Messaging", "TCP")
+
+Rel_D(message_broker, item_consumer, "Messaging", "TCP")
+Rel_D(message_broker, user_service, "Messaging", "TCP")
+Rel_D(message_broker, search_service, "Messaging", "TCP")
+
+Rel_D(item_consumer, postgres, "Retrieves data from and write to.", "TCP")
+Rel_D(item_consumer, cache, "Retrieves data from and write to.", "TCP")
+Rel_D(item_consumer, object_storage, "Retrieves data from and write to.", "TCP")
+Rel_D(user_service, postgres, "Retrieves data from and write to.", "TCP")
+Rel_D(search_service, postgres, "Retrieves data from and write to.", "TCP")
+@enduml
