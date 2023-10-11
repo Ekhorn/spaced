@@ -3,11 +3,12 @@ name: ci
 on:
   push:
     branches:
-      - "main"
+      - 'main'
   pull_request:
+  workflow_dispatch:
 
 env:
-  RUSTFLAGS: "-Dwarnings"
+  RUSTFLAGS: '-Dwarnings'
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
 
 jobs:
