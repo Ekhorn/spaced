@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: k3d-spaced:5000/user-service:debug
+          env:
+            - name: HOST
+              value: '0.0.0.0'
+            - name: DATABASE_HOST
+              value: 'postgres://admin:password@debug-postgres-postgresql:5432/spaced'
+            - name: JWT_SECRET
+              value: test
+          ports:
+            - containerPort: 8081
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'

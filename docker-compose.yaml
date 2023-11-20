@@ -39,3 +39,15 @@ services:
       dockerfile: srcs/services/item_producer/Dockerfile
       args: [*x-distroless-tag]
     ports: ['8080:8080']
+  user_service:
+    image: spaced/user_service:${IMAGE_TAG:-latest}
+    restart: always
+    profiles: ['services']
+    depends_on: [postgres-dev]
+    environment:
+      - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
+      - HOST=0.0.0.0
+    build:
+      dockerfile: srcs/services/user_service/Dockerfile
+      args: [*x-distroless-tag]
+    ports: ['8081:8081']

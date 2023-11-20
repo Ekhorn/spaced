@@ -10,11 +10,10 @@ COPY .sqlx .sqlx
 COPY migrations migrations
 COPY Cargo.toml Cargo.lock ./
 
-RUN apt-get update && apt-get install -y protobuf-compiler libprotobuf-dev
-RUN cargo build -p item_producer --release
+RUN cargo build -p user_service --release
 
 # TODO: use static and copy dynamically linked libraries or build with static linking
 FROM gcr.io/distroless/cc:$DISTROLESS_TAG
 WORKDIR /home/nonroot
-COPY --from=build --chown=nonroot:nonroot --chmod=544 /app/target/release/item_producer /usr/bin
-ENTRYPOINT ["item_producer"]
+COPY --from=build --chown=nonroot:nonroot --chmod=544 /app/target/release/user_service /usr/bin
+ENTRYPOINT ["user_service"]

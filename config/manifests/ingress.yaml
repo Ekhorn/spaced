@@ -19,10 +19,17 @@ spec:
     - host: localhost
       http:
         paths:
-          - path: /
+          - path: /socket.io
             pathType: Prefix
             backend:
               service:
                 name: item-producer
                 port:
                   number: 8080
+          - path: /api/user
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8081

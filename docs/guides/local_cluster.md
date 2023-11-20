@@ -14,6 +14,7 @@ Tag services
 
 ```sh
 docker tag spaced/item_producer:debug localhost:5001/item-producer:debug
+docker tag spaced/user_service:debug localhost:5001/user-service:debug
 ```
 
 Create / reset cluster and registry
@@ -31,6 +32,7 @@ Push services to registry
 
 ```sh
 docker push localhost:5001/item-producer:debug
+docker push localhost:5001/user-service:debug
 ```
 
 Finally deploy everything with the following script
