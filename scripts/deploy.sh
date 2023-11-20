@@ -32,7 +32,9 @@ done
 
 # Apply manifests
 kubectl apply -f config/manifests/ingress.yaml
-kubectl apply -f config/manifests/service.yaml
+kubectl apply -f config/manifests/item-producer-service.yaml
 kubectl apply -f config/manifests/item-producer-deployment.yaml
+kubectl apply -f config/manifests/user-service.yaml
+kubectl apply -f config/manifests/user-service-deployment.yaml
 
 echo "URL: http://localhost:8888/"
