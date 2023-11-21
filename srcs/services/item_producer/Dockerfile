@@ -9,6 +9,7 @@ COPY srcs srcs
 COPY .sqlx .sqlx
 COPY Cargo.toml Cargo.lock ./
 
+RUN apt-get update && apt-get install -y protobuf-compiler libprotobuf-dev
 RUN cargo build -p item_producer --release
 
 # TODO: use static and copy dynamically linked libraries or build with static linking
