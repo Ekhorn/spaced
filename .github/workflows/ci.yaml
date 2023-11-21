@@ -47,7 +47,7 @@ jobs:
       - name: prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.0 libayatana-appindicator3-dev
+          sudo apt-get install -y webkit2gtk-4.0 libayatana-appindicator3-dev protobuf-compiler
           rustup set auto-self-update disable
           rustup toolchain install stable --profile minimal --component clippy
           mkdir dist

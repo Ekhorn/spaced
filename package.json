@@ -4,20 +4,22 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "vite build --emptyOutDir",
-    "clippy": "cargo clippy --manifest-path tauri/Cargo.toml --all-features --all-targets",
-    "clippy:fix": "npm run clippy -- --fix",
     "dev": "vite",
-    "fmt": "cargo fmt --manifest-path tauri/Cargo.toml --check",
-    "fmt:fix": "cargo fmt --manifest-path tauri/Cargo.toml",
-    "lint": "npx eslint app",
-    "lint:fix": "npm run lint -- --fix",
-    "prepare": "husky install",
-    "prettier": "npx prettier app --check",
-    "prettier:fix": "npm run prettier -- --write",
+    "build": "vite build --emptyOutDir",
     "serve": "vite preview",
+    "lint": "npx eslint srcs/app",
+    "lint:fix": "npx eslint srcs/app --fix",
+    "prettier": "npx prettier srcs/app --check",
+    "prettier:fix": "npx prettier srcs/app --write",
+    "clippy": "cargo clippy --all-features --all-targets",
+    "clippy:fix": "cargo clippy --all-features --all-targets --fix",
+    "fmt": "cargo fmt --check --all",
+    "fmt:fix": "cargo fmt --all",
     "tauri": "tauri",
-    "bin": "tauri/target/release/spaced"
+    "bin": "target/release/spaced",
+    "migrate": "DATABASE_URL=\"postgres://admin:password@localhost:5432/spaced\" sqlx migrate run",
+    "services": "./scripts/start.sh",
+    "prepare": "husky install"
   },
   "lint-staged": {
     "*.{html,json,md,yaml,yml}": [
@@ -28,19 +30,23 @@
     ]
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.0.0",
     "@tauri-apps/api": "^1.0.0",
+    "@tauri-apps/cli": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "autoprefixer": "^10.0.0",
+    "axios": "^1.0.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-markdown": "^3.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-solid": "^0.13.0",
     "eslint-plugin-sort-destructure-keys": "^1.0.0",
     "eslint-plugin-unicorn": "^48.0.0",
-    "eslint-plugin-markdown": "^3.0.0",
+    "google-protobuf": "^3.6.1",
+    "grpc": "file:app/grpc",
+    "grpc-web": "^1.0.0",
     "husky": "^8.0.0",
     "postcss": "^8.0.0",
     "prettier": "^3.0.0",
@@ -50,6 +56,7 @@
     "tailwindcss": "^3.0.0",
     "typescript": "^5.0.0",
     "vite": "^4.0.0",
-    "vite-plugin-solid": "^2.0.0"
+    "vite-plugin-solid": "^2.0.0",
+    "socket.io-client": "^4.0.0"
   }
 }

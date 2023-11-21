@@ -1,0 +1,26 @@
+[package]
+name = "spaced"
+version.workspace = true
+description = "Desktop app for Spaced"
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "1", features = [] }
+tonic-build = { version = "0.10", features = [] }
+
+[dependencies]
+anyhow.workspace = true
+prost.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tauri = { version = "1", features = [] }
+tokio.workspace = true
+tonic = { version = "0.10", features = [] }
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

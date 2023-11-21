@@ -1,0 +1,34 @@
+[package]
+name = "item_producer"
+version.workspace = true
+description = "A websocket server to manage item updates in real-time."
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "item_producer"
+path = "src/main.rs"
+
+[build-dependencies]
+prost-build.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+amqprs = { workspace = true, features = ["traces"] }
+async-trait = "0.1"
+axum.workspace = true
+bytes.workspace = true
+clap.workspace = true
+prost.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+socketioxide = { version = "0.7", features = ["tracing", "extensions"] }
+sqlx.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+futures.workspace = true
+futures-util.workspace = true

@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT *\n        FROM item\n        WHERE x BETWEEN $1 AND $3\n          AND y BETWEEN $2 AND $4;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "x",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "y",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "w",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "h",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "schema",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Int4", "Int4", "Int4", "Int4"]
+    },
+    "nullable": [false, false, false, false, false, true, true]
+  },
+  "hash": "d314ad2f0cb976daf7821b5e1cf5981d352305196eeb5c95d5112ab07bd8ff3f"
+}
