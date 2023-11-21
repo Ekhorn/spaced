@@ -1,3 +1,5 @@
+# Contributing
+
 ## Development
 
 ### Updating migrations
