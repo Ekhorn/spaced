@@ -15,7 +15,7 @@ jobs:
   app_lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -26,7 +26,7 @@ jobs:
   tsc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -34,16 +34,16 @@ jobs:
       - run: npm ci
       - run: npx tsc
 
-  tauri_fmt_check:
+  fmt_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: npm run fmt
 
-  tauri_clippy_check:
+  clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: prerequisites
         run: |
           sudo apt-get update
@@ -55,3 +55,10 @@ jobs:
         with:
           workspaces: tauri
       - run: npm run clippy
+
+  docker_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build
+        uses: docker/bake-action@v4
