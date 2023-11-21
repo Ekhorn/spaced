@@ -1,5 +1,9 @@
 version: '3.8'
 
+# Available tags: latest, nonroot, debug, debug-nonroot
+# For more, see https://github.com/GoogleContainerTools/distroless#how-do-i-use-distroless-images
+x-services-image-tag: &x-services-image-tag IMAGE_TAG=${SERVICES_IMAGE_TAG:-nonroot}
+
 services:
   # A persistent database for local development.
   postgres-dev:
@@ -9,5 +13,19 @@ services:
       POSTGRES_DB: spaced
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
+    ports: ['5432:5432']
+  rabbitmq:
+    image: bitnami/rabbitmq
     ports:
-      - '5432:5432'
+      - 5672:5672
+      - 15672:15672
+  ###################################
+  ###           OPTIONAL          ###
+  ###################################
+  item_producer:
+    image: spaced/item_producer:${IMAGE_TAG:-latest}
+    profiles: ['services']
+    build:
+      dockerfile: srcs/services/item_producer/Dockerfile
+      args: [*x-services-image-tag]
+    ports: ['8080:8080']

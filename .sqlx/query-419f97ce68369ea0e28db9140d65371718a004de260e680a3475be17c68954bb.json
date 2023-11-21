@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO item (id, x, y, w, h, name, schema)\n        VALUES (DEFAULT, $1, $2, $3, $4, $5, $6)\n        RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "x",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "y",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "w",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "h",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "schema",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Int4", "Int4", "Int4", "Int4", "Varchar", "Text"]
+    },
+    "nullable": [false, false, false, false, false, true, true]
+  },
+  "hash": "419f97ce68369ea0e28db9140d65371718a004de260e680a3475be17c68954bb"
+}

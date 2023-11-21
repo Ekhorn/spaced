@@ -1,0 +1,11 @@
+[package]
+name = "utils"
+version.workspace = true
+description = "Utils"
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "utils"
+crate-type = ["cdylib"]

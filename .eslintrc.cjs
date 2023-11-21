@@ -52,6 +52,7 @@ module.exports = {
         warnOnUnassignedImports: true,
       },
     ],
+    'unicorn/no-console-spaces': 'off',
     'import/first': 'error',
     'import/extensions': ['error', 'ignorePackages'],
     'solid/reactivity': 'error',
