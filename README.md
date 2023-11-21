@@ -58,4 +58,8 @@ To allow a shell to be attached for debugging use the following argument.
 IMAGE_TAG=debug-nonroot docker buildx bake
 ```
 
-_`docker buildx bake` ignores profiles and builds the services anway. It uses the [docker-compose.yaml](./docker-compose.yaml) file [as build definition](https://docs.docker.com/engine/reference/commandline/buildx_bake/#file)._
+_The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definition](https://docs.docker.com/engine/reference/commandline/buildx_bake/#file). `docker buildx bake` ignores profiles and builds the services anway._
+
+## Contributing
+
+Please read the [contributing guidelines](CONTRIBUTING.md).
