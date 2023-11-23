@@ -60,7 +60,7 @@ function handlePointerMove(event: PointerEvent) {
     .div(scalar());
   if (event.shiftKey && event.buttons === 1) {
     const selected = getSelected();
-    const moved_items = items().map((item) =>
+    const moved_items = items.map((item) =>
       selected.has(item.id!)
         ? {
             ...item,

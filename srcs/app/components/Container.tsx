@@ -1,4 +1,4 @@
-import { createMemo, type Setter } from 'solid-js';
+import { createMemo, createSignal, type Setter } from 'solid-js';
 
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
@@ -29,6 +29,8 @@ function handleBeforeInput(event: InputEvent) {
 }
 
 export function Container(properties: ContainerProps) {
+  // eslint-disable-next-line solid/reactivity
+  const [schema, setSchema] = createSignal(properties.schema);
   const { absoluteViewportPosition, scalar } = useViewport();
   const { getSelected, holdingCtrl, holdingShift, register, unregister } =
     useSelection();
@@ -54,10 +56,14 @@ export function Container(properties: ContainerProps) {
     unregister(properties.id!);
   }
 
+  socket.on('item:updates', (item: Item) => {
+    setSchema(item.schema);
+  });
+
   function handleKeyUp() {
     socket.emit('item:update_inner', {
       ...properties,
-      schema: ref.textContent,
+      schema: ref.textContent!,
     } as Item);
   }
 
@@ -86,7 +92,7 @@ export function Container(properties: ContainerProps) {
         scale: `${scalar()}`,
       }}
     >
-      {properties.schema}
+      {schema()}
     </div>
   );
 }

@@ -1,27 +1,11 @@
 import { io } from 'socket.io-client';
 import { type JSXElement, useContext, createContext } from 'solid-js';
 
-import { useState } from './StateProvider.js';
-import { type Item } from '../lib/types.js';
-
 const socket = io(window.location.origin, {
   autoConnect: false,
   auth: {
     user: 'test',
   },
-});
-
-const { setItems } = useState();
-
-socket.on('item:updates', (item: Item) => {
-  setItems((value) =>
-    value.map((i) => {
-      if (item.id === i.id) {
-        item.schema = i.schema;
-      }
-      return item;
-    }),
-  );
 });
 
 const WebSocketContext = createContext({ socket });

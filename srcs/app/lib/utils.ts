@@ -29,11 +29,17 @@ export function throttle<T>(cb: Callback<T>, delay = 1000): Callback<T> {
   };
 }
 
-export function getBoundingBox(pos: Vec2D) {
+export function getBoundingBox(pos: Vec2D, scalar = 2) {
+  const roundedX = Math.round(pos.x);
+  const roundedY = Math.round(pos.y);
+
+  const halfWidth = Math.round(window.innerWidth / 2);
+  const halfHeight = Math.round(window.innerHeight / 2);
+
   return {
-    xmin: Math.round(pos.x),
-    ymin: -Math.round(pos.y) - Math.round(window.innerHeight),
-    xmax: Math.round(pos.x) + Math.round(window.innerWidth),
-    ymax: -Math.round(pos.y),
+    xmin: roundedX - halfWidth * scalar,
+    ymin: -roundedY - halfHeight * scalar,
+    xmax: roundedX + halfWidth * scalar,
+    ymax: -roundedY + halfHeight * scalar,
   };
 }

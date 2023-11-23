@@ -40,8 +40,8 @@ impl AsyncConsumer for ItemConsumer {
     self
       .socket
       .emit(
-        "/",
-        serde_json::to_string(&Item {
+        "item:updates",
+        Item {
           id: item.id,
           x: item.x,
           y: item.y,
@@ -49,8 +49,7 @@ impl AsyncConsumer for ItemConsumer {
           h: item.h,
           name: item.name,
           schema: item.schema,
-        })
-        .unwrap(),
+        }
       )
       .unwrap();
   }

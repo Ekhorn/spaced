@@ -54,7 +54,7 @@ export function App() {
               <Background />
               <main class="absolute h-full w-full">
                 <CreateButton />
-                <For each={items()}>
+                <For each={items}>
                   {(item, index) => (
                     <Container
                       index={index()}
