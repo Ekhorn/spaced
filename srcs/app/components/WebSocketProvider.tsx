@@ -8,7 +8,7 @@ import {
 } from 'solid-js';
 
 import { useState } from './StateProvider.js';
-import type { Item } from '../lib/types.js';
+import { type Item } from '../lib/types.js';
 
 const [connected, setConnected] = createSignal(false);
 

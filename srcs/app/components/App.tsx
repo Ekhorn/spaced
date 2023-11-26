@@ -7,9 +7,9 @@ import { CreateButton } from './CreateButton.js';
 import { StateProvider, useState } from './StateProvider.js';
 import { useViewport, ViewportProvider } from './ViewportProvider.js';
 import { useWebSocket, WebSocketProvider } from './WebSocketProvider.js';
-import type { Item } from '../lib/types.js';
+import { type Item } from '../lib/types.js';
 import { getBoundingBox, throttle } from '../lib/utils.js';
-import type { Vec2D } from '../lib/vector.js';
+import { type Vec2D } from '../lib/vector.js';
 
 export function App() {
   const { absoluteViewportPosition } = useViewport();
