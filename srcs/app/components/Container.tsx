@@ -5,7 +5,7 @@ import { createMemo, type Setter } from 'solid-js';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
 import { useWebSocket } from './WebSocketProvider.js';
-import type { Item } from '../lib/types.js';
+import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
 type ContainerProps = {

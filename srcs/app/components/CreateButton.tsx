@@ -1,7 +1,7 @@
 import { useState } from './StateProvider.js';
 import { useViewport } from './ViewportProvider.js';
 import { useWebSocket } from './WebSocketProvider.js';
-import type { Item } from '../lib/types.js';
+import { type Item } from '../lib/types.js';
 import { Vec2D, relativeToAbsolute } from '../lib/vector.js';
 
 export function CreateButton() {

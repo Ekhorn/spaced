@@ -1,4 +1,4 @@
-import type { Vec2D } from './vector.js';
+import { type Vec2D } from './vector.js';
 
 type Callback<T> = (...args: unknown[]) => Promise<T> | T;
 
