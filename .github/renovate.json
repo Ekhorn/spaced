@@ -1,0 +1,14 @@
+{
+  "extends": ["config:recommended"],
+  "schedule": "every weekday",
+  "labels": ["dependencies", "{{manager}}"],
+  "enabledManagers": [
+    "cargo",
+    "npm",
+    "docker-compose",
+    "dockerfile",
+    "github-actions"
+  ],
+  "semanticCommits": "enabled",
+  "commitMessageTopic": "{{depName}} from {{currentVersion}}"
+}
