@@ -52,8 +52,6 @@ jobs:
           rustup toolchain install stable --profile minimal --component clippy
           mkdir dist
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: tauri
       - run: npm run clippy
 
   docker_build:
