@@ -4,6 +4,7 @@ members = [
   "srcs/services/user_service",
   "srcs/tauri",
   "srcs/utils",
+  "srcs/cli",
 ]
 resolver = "2"
 
@@ -20,6 +21,7 @@ axum = { version = "0.7" }
 axum-extra = { version = "0.9" }
 bytes = "1"
 clap = { version = "4", features = ["derive", "env"] }
+clap_complete = "4"
 futures = "0.3"
 futures-util = "0.3"
 jsonwebtoken = "9"

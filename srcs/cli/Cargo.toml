@@ -1,0 +1,15 @@
+[package]
+name = "cli"
+version.workspace = true
+description = "The Spaced CLI"
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "cli"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true, features = ["cargo"] }
+clap_complete = { workspace = true, optional = true }
