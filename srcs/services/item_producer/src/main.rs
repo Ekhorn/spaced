@@ -1,4 +1,4 @@
-use std::{sync::Arc, net::ToSocketAddrs};
+use std::{net::ToSocketAddrs, sync::Arc};
 
 use amqprs::{
   callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
