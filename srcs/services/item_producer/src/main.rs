@@ -1,7 +1,4 @@
-use std::{
-  net::{IpAddr, Ipv4Addr, SocketAddr},
-  sync::Arc,
-};
+use std::{sync::Arc, net::ToSocketAddrs};
 
 use amqprs::{
   callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
