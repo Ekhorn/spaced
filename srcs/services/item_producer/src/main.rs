@@ -27,10 +27,10 @@ mod handlers;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-  #[arg(long, default_value_t = 8080)]
+  #[arg(long, env, default_value_t = String::from("localhost"))]
+  host: String,
+  #[arg(long, env, default_value_t = 8080)]
   port: u16,
-  #[arg(long, default_value_t = std::net::IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))]
-  host: IpAddr,
 
   #[arg(long, default_value_t = String::from("localhost"))]
   amqp_host: String,
@@ -101,9 +101,15 @@ async fn main() -> Result<()> {
         .layer(io_layer),
     );
 
-  let addr = &SocketAddr::new(args.host, args.port);
-  info!("Server starting on {}://{}", "http", addr);
-  Server::bind(addr).serve(app.into_make_service()).await?;
+  info!(
+    "Server starting on {}://{}:{}",
+    "http", args.host, args.port
+  );
+  let addr = format!("{}:{}", args.host, args.port)
+    .to_socket_addrs()?
+    .next()
+    .expect("No socket address found");
+  Server::bind(&addr).serve(app.into_make_service()).await?;
 
   Ok(())
 }
