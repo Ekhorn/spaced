@@ -13,11 +13,11 @@
   "commitMessageTopic": "{{depName}} from {{currentVersion}}",
   "packageRules": [
     {
-      "groupName": "cargo updates",
+      "groupName": "cargo dependencies",
       "matchManagers": ["cargo"]
     },
     {
-      "groupName": "npm updates",
+      "groupName": "npm dependencies",
       "matchManagers": ["npm"]
     }
   ]
