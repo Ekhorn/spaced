@@ -10,5 +10,15 @@
     "github-actions"
   ],
   "semanticCommits": "enabled",
-  "commitMessageTopic": "{{depName}} from {{currentVersion}}"
+  "commitMessageTopic": "{{depName}} from {{currentVersion}}",
+  "packageRules": [
+    {
+      "groupName": "cargo updates",
+      "matchManagers": ["cargo"]
+    },
+    {
+      "groupName": "npm updates",
+      "matchManagers": ["npm"]
+    }
+  ]
 }
