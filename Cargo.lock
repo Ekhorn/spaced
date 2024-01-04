@@ -3517,6 +3517,7 @@ dependencies = [
  "pin-project-lite",
  "serde",
  "serde_json",
+ "state 0.6.0",
  "thiserror",
  "tokio",
  "tower",
@@ -3816,6 +3817,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "state"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b8c4a4445d81357df8b1a650d0d0d6fbbbfe99d064aa5e02f3e4022061476d8"
+dependencies = [
+ "loom",
+]
+
+[[package]]
 name = "string_cache"
 version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4022,7 +4032,7 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "serialize-to-javascript",
- "state",
+ "state 0.5.3",
  "tar",
  "tauri-macros",
  "tauri-runtime",
