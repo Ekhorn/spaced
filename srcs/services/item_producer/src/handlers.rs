@@ -1,18 +1,14 @@
-use std::sync::Arc;
-
-use amqprs::{
-  channel::{BasicPublishArguments, Channel},
-  BasicProperties,
-};
+use amqprs::{channel::BasicPublishArguments, BasicProperties};
 use serde::{Deserialize, Serialize};
-use socketioxide::extract::{AckSender, Data, SocketRef};
-use sqlx::PgPool;
+use socketioxide::extract::{AckSender, Data, State};
 
 pub mod item {
   include!(concat!(env!("OUT_DIR"), "/item.rs"));
 }
 use item::ItemResponse;
 use prost::Message as ProtoMessage;
+
+use crate::GlobalState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item {
@@ -33,8 +29,14 @@ pub struct BoundingBox {
   ymax: i32,
 }
 
-pub async fn get_nearby(socket: SocketRef, Data(data): Data<BoundingBox>, ack: AckSender) {
-  let pool = socket.extensions.get::<PgPool>().unwrap().clone();
+pub async fn get_nearby(
+  ack: AckSender,
+  Data(data): Data<BoundingBox>,
+  State(GlobalState {
+    db_pool,
+    shared_amqp_channel: _,
+  }): State<GlobalState>,
+) {
   let records: Vec<Item> = sqlx::query_as!(
     Item,
     r#"
@@ -48,15 +50,21 @@ pub async fn get_nearby(socket: SocketRef, Data(data): Data<BoundingBox>, ack: A
     data.xmax,
     data.ymax
   )
-  .fetch_all(&pool)
+  .fetch_all(db_pool)
   .await
   .unwrap();
 
   ack.send(records).ok();
 }
 
-pub async fn create(socket: SocketRef, Data(data): Data<Item>, ack: AckSender) {
-  let pool = socket.extensions.get::<PgPool>().unwrap().clone();
+pub async fn create(
+  ack: AckSender,
+  Data(data): Data<Item>,
+  State(GlobalState {
+    db_pool,
+    shared_amqp_channel: _,
+  }): State<GlobalState>,
+) {
   let record: Item = sqlx::query_as!(
     Item,
     r#"
@@ -71,19 +79,24 @@ pub async fn create(socket: SocketRef, Data(data): Data<Item>, ack: AckSender) {
     data.name,
     data.schema,
   )
-  .fetch_one(&pool)
+  .fetch_one(db_pool)
   .await
   .unwrap();
 
   ack.send(record).ok();
 }
 
-pub async fn update_outer(socket: SocketRef, Data(data): Data<Item>, _ack: AckSender) {
-  let channel = socket.extensions.get::<Arc<Channel>>().unwrap().clone();
+pub async fn update_outer(
+  Data(data): Data<Item>,
+  State(GlobalState {
+    db_pool: _,
+    shared_amqp_channel,
+  }): State<GlobalState>,
+) {
   let exchange_name = "amq.topic";
   let routing_key = "item.update";
   let args = BasicPublishArguments::new(exchange_name, routing_key);
-  channel
+  shared_amqp_channel
     .basic_publish(
       BasicProperties::default(),
       ItemResponse::encode_to_vec(&ItemResponse {
@@ -101,13 +114,18 @@ pub async fn update_outer(socket: SocketRef, Data(data): Data<Item>, _ack: AckSe
     .unwrap();
 }
 
-pub async fn update_inner(socket: SocketRef, Data(data): Data<Item>, _ack: AckSender) {
-  let channel = socket.extensions.get::<Arc<Channel>>().unwrap().clone();
+pub async fn update_inner(
+  Data(data): Data<Item>,
+  State(GlobalState {
+    db_pool: _,
+    shared_amqp_channel,
+  }): State<GlobalState>,
+) {
   let exchange_name = "amq.topic";
   let routing_key = "item.update";
   let args = BasicPublishArguments::new(exchange_name, routing_key);
   // broadcast_item_updates(data)
-  channel
+  shared_amqp_channel
     .basic_publish(
       BasicProperties::default(),
       ItemResponse::encode_to_vec(&ItemResponse {

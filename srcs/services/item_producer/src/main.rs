@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use amqprs::{
   callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
+  channel::Channel,
   connection::{Connection, OpenConnectionArguments},
 };
 use axum::Router;
@@ -21,6 +22,11 @@ use tracing_subscriber::{filter::LevelFilter, EnvFilter};
 mod clients;
 mod consumer;
 mod handlers;
+
+pub struct GlobalState {
+  pub db_pool: PgPool,
+  pub shared_amqp_channel: Arc<Channel>,
+}
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -49,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
 
   let args = Args::parse();
 
-  let db_connection = PgPool::connect(&args.database_host).await?;
+  let db_pool = PgPool::connect(&args.database_host).await?;
   let connection = Connection::open(&OpenConnectionArguments::new(
     args.amqp_host.as_str(),
     args.amqp_port,
@@ -60,11 +66,20 @@ async fn main() -> anyhow::Result<()> {
   connection
     .register_callback(DefaultConnectionCallback)
     .await?;
-  let channel = Arc::new(connection.open_channel(None).await?);
-  channel.register_callback(DefaultChannelCallback).await?;
+  let shared_amqp_channel = Arc::new(connection.open_channel(None).await?);
+  shared_amqp_channel
+    .register_callback(DefaultChannelCallback)
+    .await?;
 
-  let (io_layer, io) = SocketIo::new_layer();
-  tokio::spawn(consumer::background_task(io.clone(), channel.clone()));
+  let (io_layer, io) = SocketIo::builder()
+    .with_state(GlobalState {
+      db_pool,
+      shared_amqp_channel: shared_amqp_channel.clone(),
+    })
+    .build_layer();
+
+  tokio::spawn(consumer::background_task(io.clone(), shared_amqp_channel));
+
   io.ns(
     "/",
     |socket: SocketRef, TryData(auth): TryData<clients::AuthData>| {
@@ -73,8 +88,6 @@ async fn main() -> anyhow::Result<()> {
         socket.disconnect().ok();
         return;
       }
-      socket.extensions.insert(db_connection);
-      socket.extensions.insert(channel);
       // Setup handlers
       socket.on("item:create", handlers::create);
       socket.on("item:get_nearby", handlers::get_nearby);
