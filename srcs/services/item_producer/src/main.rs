@@ -1,17 +1,19 @@
-use std::{net::ToSocketAddrs, sync::Arc};
+use std::sync::Arc;
 
 use amqprs::{
   callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
   connection::{Connection, OpenConnectionArguments},
 };
 use anyhow::Result;
-use axum::{Router, Server};
+use axum::Router;
 use clap::Parser;
 use socketioxide::{
   extract::{SocketRef, TryData},
+  socket::DisconnectReason,
   SocketIo,
 };
 use sqlx::PgPool;
+use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, services::ServeDir};
 use tracing::{error, info};
@@ -82,7 +84,7 @@ async fn main() -> Result<()> {
       socket.on("item:get_nearby", handlers::get_nearby);
       socket.on("item:update_outer", handlers::update_outer);
       socket.on("item:update_inner", handlers::update_inner);
-      socket.on_disconnect(|socket, reason| async move {
+      socket.on_disconnect(|socket: SocketRef, reason: DisconnectReason| async move {
         info!("Socket.IO disconnected: {} {}", socket.id, reason);
         let mut users = clients::get_users().write().unwrap();
         users.remove(&socket.id.to_string());
@@ -98,15 +100,10 @@ async fn main() -> Result<()> {
         .layer(io_layer),
     );
 
-  info!(
-    "Server starting on {}://{}:{}",
-    "http", args.host, args.port
-  );
-  let addr = format!("{}:{}", args.host, args.port)
-    .to_socket_addrs()?
-    .next()
-    .expect("No socket address found");
-  Server::bind(&addr).serve(app.into_make_service()).await?;
+  let address = format!("{}:{}", args.host, args.port);
+  info!("Server starting on http://{}", address);
+  let listener = TcpListener::bind(address).await?;
+  axum::serve(listener, app).await?;
 
   Ok(())
 }
