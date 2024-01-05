@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO item (id, x, y, w, h, name, schema)\n        VALUES (DEFAULT, $1, $2, $3, $4, $5, $6)\n        RETURNING *\n        ",
+  "query": "\n      SELECT *\n      FROM item\n      WHERE x BETWEEN $1 AND $3\n        AND y BETWEEN $2 AND $4;\n      ",
   "describe": {
     "columns": [
       {
@@ -40,9 +40,22 @@
       }
     ],
     "parameters": {
-      "Left": ["Int4", "Int4", "Int4", "Int4", "Varchar", "Text"]
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
     },
-    "nullable": [false, false, false, false, false, true, true]
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
   },
-  "hash": "419f97ce68369ea0e28db9140d65371718a004de260e680a3475be17c68954bb"
+  "hash": "0bffc94bee8db5bbb43948022924b27e6a34b223862a9ccd53667c597e46cde9"
 }

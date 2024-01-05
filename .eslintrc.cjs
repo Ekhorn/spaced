@@ -5,7 +5,13 @@ module.exports = {
     es2022: true,
     node: true,
   },
-  ignorePatterns: ['dist', 'node_modules', 'srcs/tauri', '*.config.*'],
+  ignorePatterns: [
+    'dist',
+    'target',
+    'node_modules',
+    'srcs/tauri',
+    '*.config.*',
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
