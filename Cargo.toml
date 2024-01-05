@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "srcs/bench",
   "srcs/services/item_producer",
   "srcs/services/user_service",
   "srcs/tauri",

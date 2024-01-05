@@ -1,0 +1,18 @@
+[package]
+name = "bench"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+criterion = { version = "0.5.1", features = ["async", "async_tokio"] }
+rust_socketio = { version = "0.4.4", features = ["async"] }
+tokio = "*"
+futures = "*"
+serde_json = "*"
+serde = "*"
+
+[[bench]]
+name = "bench"
+harness = false

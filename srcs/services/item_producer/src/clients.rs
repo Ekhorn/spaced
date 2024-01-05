@@ -5,7 +5,6 @@ use std::{
 
 use serde::Deserialize;
 use socketioxide::extract::SocketRef;
-use tracing::info;
 
 static USERS: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
 pub fn get_users() -> &'static RwLock<HashMap<String, String>> {
@@ -30,7 +29,6 @@ pub fn user_connect(
   let auth = auth.map_err(ConnectError::EncodeError)?;
   let mut users = get_users().write().unwrap();
   if let Some(user) = auth.user {
-    info!("Connecting user: {}", user);
     users.insert(socket.id.to_string(), user);
   } else {
     return Err(ConnectError::InvalidUsername);
