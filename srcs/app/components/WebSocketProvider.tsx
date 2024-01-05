@@ -13,7 +13,7 @@ import { type Item } from '../lib/types.js';
 const [connected, setConnected] = createSignal(false);
 
 const url = new URL(`http://${window.location.host}`);
-const socket = io(url, {
+const socket = io(String(url), {
   autoConnect: false,
 });
 
