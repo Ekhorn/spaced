@@ -4,7 +4,6 @@ use amqprs::{
   callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
   connection::{Connection, OpenConnectionArguments},
 };
-use anyhow::Result;
 use axum::Router;
 use clap::Parser;
 use socketioxide::{
@@ -45,7 +44,7 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
   init_logging();
 
   let args = Args::parse();
@@ -74,9 +73,6 @@ async fn main() -> Result<()> {
         socket.disconnect().ok();
         return;
       }
-      let users = clients::get_users().read().unwrap();
-      info!("Users: {:?}", users);
-
       socket.extensions.insert(db_connection);
       socket.extensions.insert(channel);
       // Setup handlers
@@ -96,7 +92,7 @@ async fn main() -> Result<()> {
     .nest_service("/", ServeDir::new("dist"))
     .layer(
       ServiceBuilder::new()
-        .layer(CorsLayer::permissive()) // Enable CORS policy
+        .layer(CorsLayer::permissive())
         .layer(io_layer),
     );
 
