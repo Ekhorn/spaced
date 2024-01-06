@@ -16,8 +16,8 @@ use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, services::ServeDir};
-use tracing::{error, info};
-use tracing_subscriber::{filter::LevelFilter, EnvFilter};
+use tracing::{error, info, level_filters::LevelFilter};
+use tracing_subscriber::EnvFilter;
 
 mod clients;
 mod consumer;
@@ -56,21 +56,30 @@ async fn main() -> anyhow::Result<()> {
   let args = Args::parse();
 
   let db_pool = PgPool::connect(&args.database_host).await?;
-  let connection = Connection::open(&OpenConnectionArguments::new(
+  let amqp_connection = Connection::open(&OpenConnectionArguments::new(
     args.amqp_host.as_str(),
     args.amqp_port,
     args.amqp_username.as_str(),
     args.amqp_password.as_str(),
   ))
   .await?;
-  connection
+  amqp_connection
     .register_callback(DefaultConnectionCallback)
     .await?;
-  let shared_amqp_channel = Arc::new(connection.open_channel(None).await?);
+  let shared_amqp_channel = Arc::new(amqp_connection.open_channel(None).await?);
   shared_amqp_channel
     .register_callback(DefaultChannelCallback)
     .await?;
 
+  let address = format!("{}:{}", args.host, args.port);
+  info!("Server starting on http://{}", address);
+  let listener = TcpListener::bind(address).await?;
+  axum::serve(listener, app(db_pool, shared_amqp_channel).await?).await?;
+
+  Ok(())
+}
+
+async fn app(db_pool: PgPool, shared_amqp_channel: Arc<Channel>) -> anyhow::Result<Router> {
   let (io_layer, io) = SocketIo::builder()
     .with_state(GlobalState {
       db_pool,
@@ -101,20 +110,15 @@ async fn main() -> anyhow::Result<()> {
     },
   );
 
-  let app = Router::new()
-    .nest_service("/", ServeDir::new("dist"))
-    .layer(
-      ServiceBuilder::new()
-        .layer(CorsLayer::permissive())
-        .layer(io_layer),
-    );
-
-  let address = format!("{}:{}", args.host, args.port);
-  info!("Server starting on http://{}", address);
-  let listener = TcpListener::bind(address).await?;
-  axum::serve(listener, app).await?;
-
-  Ok(())
+  Ok(
+    Router::new()
+      .nest_service("/", ServeDir::new("dist"))
+      .layer(
+        ServiceBuilder::new()
+          .layer(CorsLayer::permissive())
+          .layer(io_layer),
+      ),
+  )
 }
 
 fn init_logging() {
@@ -127,4 +131,83 @@ fn init_logging() {
     .with_level(true)
     .with_env_filter(env_filter)
     .init();
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use futures_util::FutureExt;
+  use rust_socketio::{asynchronous::ClientBuilder, Payload};
+  use serde_json::json;
+  use std::{
+    future::IntoFuture,
+    net::{Ipv4Addr, SocketAddr},
+    time::Duration,
+  };
+  use tokio::sync::mpsc;
+
+  #[sqlx::test]
+  async fn test_create_item(db_pool: PgPool) {
+    let amqp_connection = Connection::open(&OpenConnectionArguments::new(
+      "localhost",
+      5672,
+      "user",
+      "bitnami",
+    ))
+    .await
+    .unwrap();
+    amqp_connection
+      .register_callback(DefaultConnectionCallback)
+      .await
+      .unwrap();
+    let shared_amqp_channel = Arc::new(amqp_connection.open_channel(None).await.unwrap());
+    shared_amqp_channel
+      .register_callback(DefaultChannelCallback)
+      .await
+      .unwrap();
+
+    let listener = TcpListener::bind(SocketAddr::from((Ipv4Addr::UNSPECIFIED, 0)))
+      .await
+      .unwrap();
+    let address = listener.local_addr().unwrap();
+    tokio::spawn(
+      axum::serve(listener, app(db_pool, shared_amqp_channel).await.unwrap()).into_future(),
+    );
+
+    let socket = ClientBuilder::new(format!("http://{}", address))
+      .auth(json!({ "user": "123" }))
+      .namespace("/")
+      .connect()
+      .await
+      .unwrap();
+
+    let (tx, mut rx) = mpsc::channel(2);
+
+    socket
+      .emit_with_ack(
+        "item:create",
+        json!({
+          "id": 0, "x": 5, "y": 5, "w": 5, "h": 5, "name": "test", "schema": "test"
+        }),
+        Duration::from_secs(1),
+        move |message: Payload, _| {
+          let clone_tx = tx.clone();
+          async move {
+            clone_tx.send(message).await.unwrap();
+          }
+          .boxed()
+        },
+      )
+      .await
+      .unwrap();
+
+    let message = rx.recv().await.unwrap();
+    assert_eq!(
+      message,
+      json!([{
+        "id": 1, "x": 5, "y": 5, "w": 5, "h": 5, "name": "test", "schema": "test"
+      }])
+      .into()
+    );
+  }
 }
