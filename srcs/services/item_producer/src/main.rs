@@ -40,9 +40,9 @@ struct Args {
   amqp_host: String,
   #[arg(long, default_value_t = 5672)]
   amqp_port: u16,
-  #[arg(long, default_value_t = String::from("user"))]
+  #[arg(long, default_value_t = String::from("admin"))]
   amqp_username: String,
-  #[arg(long, default_value_t = String::from("bitnami"))]
+  #[arg(long, default_value_t = String::from("password"))]
   amqp_password: String,
 
   #[arg(long, default_value_t = String::from("postgres://admin:password@localhost:5432/spaced"))]
@@ -151,8 +151,8 @@ mod tests {
     let amqp_connection = Connection::open(&OpenConnectionArguments::new(
       "localhost",
       5672,
-      "user",
-      "bitnami",
+      "admin",
+      "password",
     ))
     .await
     .unwrap();
