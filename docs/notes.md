@@ -11,6 +11,12 @@ docker compose up -d
 sqlx migrate run
 ```
 
+**Testing with stdout**
+
+```sh
+cargo test -p item_producer -- --nocapture
+```
+
 **List dymically linked libraries**
 
 ```sh
