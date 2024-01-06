@@ -26,6 +26,12 @@ The project requires at least a PostgreSQL database to be run and uses RabbitMQ 
 docker compose up -d
 ```
 
+Set the development database url.
+
+```sh
+echo DATABASE_URL=postgres://admin:password@localhost:5432/spaced > .env
+```
+
 The services can be started by running the following script.
 
 ```sh
