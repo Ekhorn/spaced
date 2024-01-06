@@ -32,3 +32,6 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 futures.workspace = true
 futures-util.workspace = true
+
+[dev-dependencies]
+rust_socketio = { version = "0.4.4", features = ["async"] }
