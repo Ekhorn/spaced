@@ -30,6 +30,11 @@ services:
     image: spaced/item_producer:${IMAGE_TAG:-latest}
     restart: always
     profiles: ['services']
+    depends_on: [postgres-dev, rabbitmq]
+    environment:
+      - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
+      - AMQP_HOST=rabbitmq
+      - HOST=0.0.0.0
     build:
       dockerfile: srcs/services/item_producer/Dockerfile
       args: [*x-services-image-tag]
