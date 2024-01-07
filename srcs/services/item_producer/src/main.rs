@@ -36,16 +36,16 @@ struct Args {
   #[arg(long, env, default_value_t = 8080)]
   port: u16,
 
-  #[arg(long, default_value_t = String::from("localhost"))]
+  #[arg(long, env, default_value_t = String::from("localhost"))]
   amqp_host: String,
-  #[arg(long, default_value_t = 5672)]
+  #[arg(long, env, default_value_t = 5672)]
   amqp_port: u16,
-  #[arg(long, default_value_t = String::from("admin"))]
+  #[arg(long, env, default_value_t = String::from("admin"))]
   amqp_username: String,
-  #[arg(long, default_value_t = String::from("password"))]
+  #[arg(long, env, default_value_t = String::from("password"))]
   amqp_password: String,
 
-  #[arg(long, default_value_t = String::from("postgres://admin:password@localhost:5432/spaced"))]
+  #[arg(long, env, default_value_t = String::from("postgres://admin:password@localhost:5432/spaced"))]
   database_host: String,
 }
 
@@ -54,8 +54,10 @@ async fn main() -> anyhow::Result<()> {
   init_logging();
 
   let args = Args::parse();
-
   let db_pool = PgPool::connect(&args.database_host).await?;
+
+  sqlx::migrate!().run(&db_pool).await?;
+
   let amqp_connection = Connection::open(&OpenConnectionArguments::new(
     args.amqp_host.as_str(),
     args.amqp_port,
