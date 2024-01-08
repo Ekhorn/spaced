@@ -11,6 +11,7 @@
     "clippy": "cargo clippy --all-features --all-targets",
     "clippy:fix": "cargo clippy --all-features --all-targets --fix",
     "codegen": "npm --workspace e2e run codegen",
+    "deploy": "./scripts/deploy.sh",
     "dev": "vite",
     "e2e": "npm --workspace e2e run e2e",
     "fmt": "cargo fmt --check --all",
