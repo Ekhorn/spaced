@@ -2,7 +2,7 @@ version: '3.8'
 
 # Available tags: latest, nonroot, debug, debug-nonroot
 # For more, see https://github.com/GoogleContainerTools/distroless#how-do-i-use-distroless-images
-x-services-image-tag: &x-services-image-tag IMAGE_TAG=${SERVICES_IMAGE_TAG:-nonroot}
+x-distroless-tag: &x-distroless-tag DISTROLESS_TAG=${DISTROLESS_TAG:-nonroot}
 
 services:
   # A persistent database for local development.
@@ -37,5 +37,5 @@ services:
       - HOST=0.0.0.0
     build:
       dockerfile: srcs/services/item_producer/Dockerfile
-      args: [*x-services-image-tag]
+      args: [*x-distroless-tag]
     ports: ['8080:8080']
