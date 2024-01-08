@@ -15,9 +15,18 @@ k3d cluster delete spaced
 setup nginx
 
 ```sh
-kubectl create deployment nginx --image=nginx
-kubectl create service clusterip nginx --tcp=80:80
-kubectl apply -f config/manifests/nginx.yaml
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --set controller.ingressClass=nginx \
+  --set controller.allowSnippetAnnotations=true
+
+echo "Waiting for Ingress controller to be ready..."
+until kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=controller; do
+  sleep 5
+done
+
+kubectl apply -f config/manifests/ingress.yaml
 ```
 
 install postgres (for debugging)
@@ -60,10 +69,10 @@ push services (as debug)
 docker push localhost:5001/item-producer:debug
 ```
 
-deploy services (as debug)
+apply services (as debug)
 
 ```sh
-kubectl create service clusterip nginx --tcp=80:80
+kubectl apply -f config/manifests/service.yaml
 kubectl apply -f config/manifests/item-producer-deployment.yaml
 ```
 
