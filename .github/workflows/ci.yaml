@@ -126,7 +126,7 @@ jobs:
     needs: build_docker
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: docker images
