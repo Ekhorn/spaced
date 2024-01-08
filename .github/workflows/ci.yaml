@@ -97,7 +97,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: app
@@ -108,14 +108,14 @@ jobs:
     needs: build_app
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: app
           path: dist
       - uses: docker/bake-action@v4
       - run: docker images
       - run: docker save $(docker images --filter "reference=spaced/*" --format "{{.Repository}}:{{.Tag}}") -o images.tar
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: docker images
@@ -127,19 +127,19 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: docker images
           path: .
       - run: docker load -i images.tar
       - run: docker compose --profile services up -d
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - run: npm ci
       - run: npx playwright install --with-deps
       - run: npm run e2e
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
