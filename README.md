@@ -58,10 +58,16 @@ The docker images for each service can be built using the following command.
 docker buildx bake
 ```
 
-To allow a shell to be attached for debugging use the following argument.
+Use the following environment variable to change the image tag.
 
 ```sh
-IMAGE_TAG=debug-nonroot docker buildx bake
+IMAGE_TAG=1.0 docker buildx bake # result = spaced/<service_name>:1.0
+```
+
+Use the following environment variable to change the distroless image tag. The default is `nonroot` to debug with a shell use `debug` or `debug-nonroot`.
+
+```sh
+DISTROLESS_TAG=debug docker buildx bake
 ```
 
 _The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definition](https://docs.docker.com/engine/reference/commandline/buildx_bake/#file). `docker buildx bake` ignores profiles and builds the services anway._
