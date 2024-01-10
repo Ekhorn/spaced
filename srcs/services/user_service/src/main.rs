@@ -2,7 +2,6 @@ use axum::{routing::post, Router};
 use clap::Parser;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
-use tower_http::cors::CorsLayer;
 use tracing::info;
 use tracing_subscriber::{filter::LevelFilter, EnvFilter};
 
@@ -35,8 +34,7 @@ async fn main() -> anyhow::Result<()> {
     .route("/api/user/register", post(handlers::register_email))
     .route("/api/user/refresh", post(handlers::refresh_token))
     .route("/api/user/login", post(handlers::email_login))
-    .with_state(db_pool)
-    .layer(CorsLayer::permissive());
+    .with_state(db_pool);
 
   let address = format!("{}:{}", args.host, args.port);
   info!("Server starting on http://{}", address);

@@ -15,7 +15,6 @@ use socketioxide::{
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tower_http::cors::CorsLayer;
 use tracing::{error, info, level_filters::LevelFilter};
 use tracing_subscriber::EnvFilter;
 
@@ -112,13 +111,7 @@ async fn app(db_pool: PgPool, shared_amqp_channel: Arc<Channel>) -> anyhow::Resu
     },
   );
 
-  Ok(
-    Router::new().layer(
-      ServiceBuilder::new()
-        .layer(CorsLayer::permissive())
-        .layer(io_layer),
-    ),
-  )
+  Ok(Router::new().layer(ServiceBuilder::new().layer(io_layer)))
 }
 
 fn init_logging() {
