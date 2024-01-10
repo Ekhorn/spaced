@@ -1,5 +1,6 @@
 import { For, createEffect, on } from 'solid-js';
 
+import { AuthProvider } from './AuthProvider.jsx';
 import { Background } from './Background.js';
 import { ConfigProvider } from './ConfigProvider.js';
 import { Container } from './Container.js';
@@ -44,28 +45,30 @@ export function App() {
   );
 
   return (
-    <ConfigProvider>
-      <ViewportProvider>
-        <StateProvider>
-          <WebSocketProvider>
-            {/* TODO: resolve FOUC */}
-            <Background />
-            <main class="absolute h-full w-full">
-              <CreateButton />
-              <For each={items()}>
-                {(item, index) => (
-                  <Container
-                    index={index()}
-                    id={item.id!}
-                    {...item}
-                    setItems={setItems}
-                  />
-                )}
-              </For>
-            </main>
-          </WebSocketProvider>
-        </StateProvider>
-      </ViewportProvider>
-    </ConfigProvider>
+    <AuthProvider>
+      <ConfigProvider>
+        <ViewportProvider>
+          <StateProvider>
+            <WebSocketProvider>
+              {/* TODO: resolve FOUC */}
+              <Background />
+              <main class="absolute h-full w-full">
+                <CreateButton />
+                <For each={items()}>
+                  {(item, index) => (
+                    <Container
+                      index={index()}
+                      id={item.id!}
+                      {...item}
+                      setItems={setItems}
+                    />
+                  )}
+                </For>
+              </main>
+            </WebSocketProvider>
+          </StateProvider>
+        </ViewportProvider>
+      </ConfigProvider>
+    </AuthProvider>
   );
 }
