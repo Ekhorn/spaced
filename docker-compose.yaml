@@ -26,6 +26,17 @@ services:
   ###################################
   ###           OPTIONAL          ###
   ###################################
+  # Reverse-proxy for when running spaced services
+  nginx:
+    image: nginx
+    restart: always
+    profiles: ['services']
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./dist:/usr/share/nginx/html
+    ports:
+      - 7777:80
+  # Spaced services
   item_producer:
     image: spaced/item_producer:${IMAGE_TAG:-latest}
     restart: always
@@ -47,6 +58,7 @@ services:
     environment:
       - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
       - HOST=0.0.0.0
+      - JWT_SECRET=test
     build:
       dockerfile: srcs/services/user_service/Dockerfile
       args: [*x-distroless-tag]
