@@ -6,6 +6,9 @@ import { type Item } from '../lib/types.js';
 
 const socket = io(window.location.origin, {
   autoConnect: false,
+  auth: {
+    user: 'test',
+  },
 });
 
 const { setItems } = useState();

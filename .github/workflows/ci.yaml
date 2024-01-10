@@ -103,31 +103,10 @@ jobs:
           DATABASE_URL: postgres://admin:password@localhost:5432/spaced
           SQLX_OFFLINE: true
 
-  build_app:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: app
-          path: dist
-
   build_docker:
     runs-on: ubuntu-latest
-    needs: build_app
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: app
-          path: dist
       - uses: docker/bake-action@v4
       - run: docker images
       - run: docker save $(docker images --filter "reference=spaced/*" --format "{{.Repository}}:{{.Tag}}") -o images.tar
@@ -148,11 +127,12 @@ jobs:
           name: docker images
           path: .
       - run: docker load -i images.tar
-      - run: docker compose --profile services up -d
       - uses: actions/setup-node@v4
         with:
           node-version: 18
       - run: npm ci
+      - run: npm run build
+      - run: docker compose --profile services up -d
       - run: npx playwright install --with-deps
       - run: npm run e2e
       - uses: actions/upload-artifact@v4

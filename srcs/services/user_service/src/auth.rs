@@ -124,3 +124,42 @@ pub fn create_jwt_response(sub: String) -> Result<AuthBody, AuthError> {
     .map_err(|_| AuthError::TokenCreation)?,
   ))
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use jsonwebtoken::{decode, Validation};
+
+  #[tokio::test]
+  async fn test_create_jwt_response() {
+    std::env::set_var("JWT_SECRET", "test");
+
+    let sub = String::from("test_user");
+
+    let result = create_jwt_response(sub.clone());
+
+    assert!(result.is_ok());
+
+    let auth_body = result.unwrap();
+
+    let token_data = decode::<Claims>(
+      &auth_body.access_token,
+      &KEYS.decoding,
+      &Validation::default(),
+    )
+    .expect("Failed to decode access token");
+
+    assert_eq!(token_data.claims.sub, sub);
+    assert!(token_data.claims.exp > 0);
+
+    let token_data = decode::<Claims>(
+      &auth_body.refresh_token,
+      &KEYS.decoding,
+      &Validation::default(),
+    )
+    .expect("Failed to decode refresh token");
+
+    assert_eq!(token_data.claims.sub, sub);
+    assert!(token_data.claims.exp > 0);
+  }
+}
