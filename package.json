@@ -33,6 +33,10 @@
       "eslint"
     ]
   },
+  "dependencies": {
+    "jwt-decode": "^4.0.0",
+    "solid-icons": "^1.1.0"
+  },
   "devDependencies": {
     "@tauri-apps/api": "^1.0.0",
     "@tauri-apps/cli": "^1.0.0",
