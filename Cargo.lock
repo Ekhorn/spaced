@@ -5098,6 +5098,7 @@ dependencies = [
  "axum 0.7.3",
  "axum-extra",
  "clap",
+ "dotenvy",
  "futures",
  "futures-util",
  "jsonwebtoken",

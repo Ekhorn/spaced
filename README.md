@@ -26,10 +26,11 @@ The project requires at least a PostgreSQL database to be run and uses RabbitMQ 
 docker compose up -d
 ```
 
-Set the development database url.
+Set the development database url and JWT secret.
 
 ```sh
 echo DATABASE_URL=postgres://admin:password@localhost:5432/spaced > .env
+echo JWT_SECRET=test >> .env
 ```
 
 The services can be started by running the following script.
