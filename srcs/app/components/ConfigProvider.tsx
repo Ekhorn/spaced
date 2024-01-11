@@ -4,7 +4,7 @@ const context = {};
 const ConfigContext = createContext(context);
 
 type ConfigProps = {
-  children: JSXElement;
+  readonly children: JSXElement;
 };
 
 export function ConfigProvider(props: ConfigProps) {

@@ -27,7 +27,7 @@ socket.on('item:updates', (item: Item) => {
 const WebSocketContext = createContext({ socket });
 
 type WebSocketProps = {
-  children: JSXElement;
+  readonly children: JSXElement;
 };
 
 export function WebSocketProvider(props: WebSocketProps) {

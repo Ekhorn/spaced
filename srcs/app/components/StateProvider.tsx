@@ -14,7 +14,7 @@ const StateContext = createContext({
 });
 
 type StateProps = {
-  children: JSXElement;
+  readonly children: JSXElement;
 };
 
 export function StateProvider(props: StateProps) {

@@ -19,7 +19,7 @@ const [isLoggedIn, setIsLoggedIn] = createSignal(false);
 const [isRegistration, setIsRegistration] = createSignal(true);
 
 type AuthProps = {
-  children: JSXElement;
+  readonly children: JSXElement;
 };
 
 let AuthContext: Context<{
