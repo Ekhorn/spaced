@@ -45,7 +45,7 @@ const ViewportContext = createContext({
 });
 
 type ViewportProps = {
-  children: JSXElement;
+  readonly children: JSXElement;
 };
 
 const { items, setItems } = useState();

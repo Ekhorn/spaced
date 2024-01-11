@@ -9,8 +9,8 @@ import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
 type ContainerProps = {
-  index: number;
-  setItems: Setter<Item[]>;
+  readonly index: number;
+  readonly setItems: Setter<Item[]>;
 } & Item;
 
 export function Container(properties: ContainerProps) {

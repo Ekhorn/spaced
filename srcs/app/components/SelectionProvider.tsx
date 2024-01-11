@@ -41,7 +41,7 @@ const SelectiontContext = createContext({
 });
 
 type ProviderProps = {
-  children: JSXElement;
+  readonly children: JSXElement;
 };
 
 export function SelectionProvider(props: ProviderProps) {
