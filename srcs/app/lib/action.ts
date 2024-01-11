@@ -142,14 +142,14 @@ class Action {
   }
 }
 
-// export type ActionMap = Record<string, Action>;
+export type ActionMap = Record<string, Action>;
 
-// export const actionMap: ActionMap = {
-//   save: new Action(
-//     () => console.log('do'),
-//     () => console.log('undo'),
-//   ),
-// };
+export const actionMap: ActionMap = {
+  save: new Action(
+    () => console.log('do'),
+    () => console.log('undo'),
+  ),
+};
 
 // Define the undo and redo stacks
 const undoStack: ActionT[] = [];
