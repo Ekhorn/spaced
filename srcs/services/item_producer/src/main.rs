@@ -15,8 +15,7 @@ use socketioxide::{
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tracing::{error, info, level_filters::LevelFilter};
-use tracing_subscriber::EnvFilter;
+use tracing::{error, info};
 
 mod clients;
 mod consumer;
@@ -50,7 +49,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  init_logging();
+  utils::init_logging();
 
   let args = Args::parse();
   let db_pool = PgPool::connect(&args.database_host).await?;
@@ -112,18 +111,6 @@ async fn app(db_pool: PgPool, shared_amqp_channel: Arc<Channel>) -> anyhow::Resu
   );
 
   Ok(Router::new().layer(ServiceBuilder::new().layer(io_layer)))
-}
-
-fn init_logging() {
-  let env_filter = EnvFilter::builder()
-    .with_default_directive(LevelFilter::INFO.into())
-    .from_env_lossy();
-
-  tracing_subscriber::fmt()
-    .with_target(true)
-    .with_level(true)
-    .with_env_filter(env_filter)
-    .init();
 }
 
 #[cfg(test)]

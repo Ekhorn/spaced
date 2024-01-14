@@ -2027,6 +2027,7 @@ dependencies = [
  "tower",
  "tracing",
  "tracing-subscriber",
+ "utils",
 ]
 
 [[package]]
@@ -5005,6 +5006,8 @@ dependencies = [
  "axum",
  "serde",
  "serde_json",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

@@ -7,6 +7,9 @@ use axum::{
 use serde::Serialize;
 use serde_json::json;
 
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::EnvFilter;
+
 #[derive(FromRequest)]
 #[from_request(via(axum::Json), rejection(ApiError))]
 pub struct Json<T>(pub T);
@@ -37,4 +40,16 @@ impl From<JsonRejection> for ApiError {
   fn from(rejection: JsonRejection) -> Self {
     Self(rejection.status(), Some(rejection.body_text()))
   }
+}
+
+pub fn init_logging() {
+  let env_filter = EnvFilter::builder()
+    .with_default_directive(LevelFilter::INFO.into())
+    .from_env_lossy();
+
+  tracing_subscriber::fmt()
+    .with_target(true)
+    .with_level(true)
+    .with_env_filter(env_filter)
+    .init();
 }
