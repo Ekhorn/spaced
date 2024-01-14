@@ -1,13 +1,9 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use axum::{
-  http::StatusCode,
-  response::{IntoResponse, Response},
-  Json,
-};
+use axum::http::StatusCode;
 use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+use utils::ApiError;
 
 use crate::handlers::KEYS;
 
@@ -37,14 +33,6 @@ pub struct Claims {
 //   }
 // }
 
-#[derive(Debug, PartialEq)]
-pub enum AuthError {
-  WrongCredentials,
-  // MissingCredentials,
-  TokenCreation,
-  InvalidToken,
-}
-
 pub struct Keys {
   pub encoding: EncodingKey,
   pub decoding: DecodingKey,
@@ -56,21 +44,6 @@ impl Keys {
       encoding: EncodingKey::from_secret(secret),
       decoding: DecodingKey::from_secret(secret),
     }
-  }
-}
-
-impl IntoResponse for AuthError {
-  fn into_response(self) -> Response {
-    let (status, error_message) = match self {
-      AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, "Wrong credentials"),
-      // AuthError::MissingCredentials => (StatusCode::BAD_REQUEST, "Missing credentials"),
-      AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
-      AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
-    };
-    let body = Json(json!({
-      "error": error_message,
-    }));
-    (status, body).into_response()
   }
 }
 
@@ -93,11 +66,11 @@ impl AuthBody {
   }
 }
 
-pub fn create_jwt_response(sub: String) -> Result<AuthBody, AuthError> {
+pub fn create_jwt_response(sub: String) -> Result<AuthBody, ApiError> {
   let expires = 3600;
   let iat = SystemTime::now()
     .duration_since(UNIX_EPOCH)
-    .unwrap()
+    .map_err(|_| ApiError(StatusCode::INTERNAL_SERVER_ERROR, None))?
     .as_secs() as usize;
 
   let access_token = encode(
@@ -108,7 +81,7 @@ pub fn create_jwt_response(sub: String) -> Result<AuthBody, AuthError> {
     },
     &KEYS.encoding,
   )
-  .map_err(|_| AuthError::TokenCreation)?;
+  .map_err(|_| ApiError(StatusCode::INTERNAL_SERVER_ERROR, None))?;
 
   Ok(AuthBody::new(
     access_token,
@@ -121,7 +94,7 @@ pub fn create_jwt_response(sub: String) -> Result<AuthBody, AuthError> {
       },
       &KEYS.encoding,
     )
-    .map_err(|_| AuthError::TokenCreation)?,
+    .map_err(|_| ApiError(StatusCode::INTERNAL_SERVER_ERROR, None))?,
   ))
 }
 
