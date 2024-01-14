@@ -4,7 +4,6 @@ use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 use tracing::info;
-use tracing_subscriber::{filter::LevelFilter, EnvFilter};
 
 mod auth;
 mod handlers;
@@ -23,7 +22,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  init_logging();
+  utils::init_logging();
 
   let args = Args::parse();
 
@@ -44,16 +43,4 @@ async fn main() -> anyhow::Result<()> {
   axum::serve(listener, app).await?;
 
   Ok(())
-}
-
-fn init_logging() {
-  let env_filter = EnvFilter::builder()
-    .with_default_directive(LevelFilter::INFO.into())
-    .from_env_lossy();
-
-  tracing_subscriber::fmt()
-    .with_target(true)
-    .with_level(true)
-    .with_env_filter(env_filter)
-    .init();
 }
