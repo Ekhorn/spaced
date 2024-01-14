@@ -36,8 +36,8 @@ test.describe('User', () => {
     await context.addInitScript(() => {
       localStorage.setItem(
         'access_token',
-        // Payload = { "exp": "3600" }
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIzNjAwIn0.5ATeaSmib2yn61PwR6pLBpkmzuheIC50L5thKpPx0HU',
+        // Payload = { "exp": "1607811435" }
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDc4MTE0MzV9.inQ2hp-MzN4oifBpBVBzJVvU4CEjKO52cKxvdQ7L50k',
       );
       localStorage.setItem('refresh_token', 'test');
     });
