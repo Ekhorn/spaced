@@ -20,9 +20,11 @@ tracing-subscriber.workspace = true
 futures-util.workspace = true
 axum.workspace = true
 tower.workspace = true
+tower-http.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 clap.workspace = true
 sqlx.workspace = true
 argon2 = "0.5"
 dotenvy = "0.15.7"
+utils = { path = "../../utils" }
