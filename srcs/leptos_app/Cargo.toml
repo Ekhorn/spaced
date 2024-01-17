@@ -1,0 +1,10 @@
+[package]
+name = "leptos_app"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+leptos = { version = "0.7.4", features = ["csr"] }
