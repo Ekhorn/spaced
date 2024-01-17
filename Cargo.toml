@@ -2,6 +2,7 @@
 members = [
   "srcs/services/item_producer",
   "srcs/services/user_service",
+  "srcs/leptos",
   "srcs/tauri",
   "srcs/utils",
 ]
