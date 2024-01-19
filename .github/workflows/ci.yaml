@@ -20,7 +20,7 @@ jobs:
           node-version: 18
           cache: 'npm'
       - run: npm ci
-      - run: npm run lint
+      - run: npx prettier --check .
 
   tsc:
     runs-on: ubuntu-latest

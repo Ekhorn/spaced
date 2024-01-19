@@ -16,12 +16,8 @@
     "e2e": "npm --workspace e2e run e2e",
     "fmt": "cargo fmt --check --all",
     "fmt:fix": "cargo fmt --all",
-    "lint": "npx eslint .",
-    "lint:fix": "npx eslint . --fix",
     "prepare": "husky install",
-    "prettier": "npx prettier . --check",
-    "prettier:fix": "npx prettier . --write",
-    "serve": "vite preview",
+    "preview": "vite preview",
     "services": "./scripts/start.sh",
     "tauri": "tauri"
   },
