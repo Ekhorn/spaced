@@ -14,14 +14,20 @@
   "commitMessageTopic": "{{depName}} from {{currentVersion}}",
   "packageRules": [
     {
+      "extends": ":semanticCommitTypeAll(chore)",
       "groupName": "cargo dependencies",
       "matchManagers": ["cargo"]
     },
     {
+      "extends": ":semanticCommitTypeAll(chore)",
       "groupName": "npm dependencies",
       "matchManagers": ["npm"]
     },
     {
+      "extends": [
+        ":semanticCommitTypeAll(ci)",
+        ":semanticCommitScope(actions)"
+      ],
       "groupName": "github-actions",
       "matchManagers": ["github-actions"]
     }
