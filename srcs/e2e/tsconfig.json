@@ -3,6 +3,6 @@
   "compilerOptions": {
     "lib": ["dom"],
     "rootDir": ".",
-    "types": ["node"]
-  }
+    "types": ["node"],
+  },
 }
