@@ -3,7 +3,7 @@
 ARG DISTROLESS_TAG=nonroot
 
 # TODO: bind to the rust-version from Cargo.toml intead or latest
-FROM rust:1.70.0 AS build
+FROM rust:1.76.0 AS build
 WORKDIR /app
 COPY srcs srcs
 COPY .sqlx .sqlx
