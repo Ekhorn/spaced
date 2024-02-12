@@ -2,17 +2,9 @@
 
 ## Development
 
-### Environment
-
-An environment variable with the database url is required for sqlx to connect.
-
-```sh
-echo DATABASE_URL=postgres://admin:password@localhost:5432/spaced > .env
-```
-
 ### Testing
 
-> Note: the DATABASE_URL must be present in the environment for the database tests.
+> Note: The `DATABASE_URL` must be present as environment variable for the database tests. The `DATABASE_URL` is automatically set using the `build.rs` file if the build is not a release build.
 
 Running all tests
 
@@ -28,10 +20,13 @@ cargo test -p item_producer
 
 ### Updating migrations
 
-> Note: the DATABASE_URL must be present in the environment for the sqlx-cli.
+> Note: `npm run sqlx:prepare` runs the `srcs/scripts/sqlx_prepare.sh` script, which by default runs `cargo sqlx prepare` on all crates individually. Available options are `all`, `item_producer`, `user_service`, and `tauri`.
 
-The docker images during build-time do not have access to a database with migrations applied. To ensure the docker image can be built, the json files under the `.sqlx` directory must be up-to-date and committed.
+The docker images do not have access to a database with migrations applied during build-time. To ensure the docker image can be built, the json files under the `.sqlx` directory must be up-to-date and committed.
+
+The following script automatically sets-up each database and applies migrations using the `build.rs` config defined within each crate and then prepares the `.sqlx` cache directory.
 
 ```sh
-cargo sqlx prepare --workspace -- --all-targets --all-features
+docker compose up -d
+npm run sqlx:prepare
 ```

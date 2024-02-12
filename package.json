@@ -11,14 +11,15 @@
     "clippy": "cargo clippy --all-features --all-targets",
     "clippy:fix": "cargo clippy --all-features --all-targets --fix",
     "codegen": "npm --workspace e2e run codegen",
-    "deploy": "./scripts/deploy.sh",
+    "deploy": "srcs/scripts/deploy.sh",
     "dev": "vite",
     "e2e": "npm --workspace e2e run e2e",
     "fmt": "cargo fmt --check --all",
     "fmt:fix": "cargo fmt --all",
     "prepare": "husky install",
     "preview": "vite preview",
-    "services": "./scripts/start.sh",
+    "services": "srcs/scripts/start.sh",
+    "sqlx:prepare": "srcs/scripts/sqlx_prepare.sh",
     "tauri": "tauri"
   },
   "lint-staged": {
@@ -34,7 +35,6 @@
     "solid-icons": "^1.1.0"
   },
   "devDependencies": {
-    "@tauri-apps/api": "^1.0.0",
     "@tauri-apps/cli": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -42,6 +42,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.0.0",
     "eslint-plugin-markdown": "^3.0.0",
+    "eslint-plugin-playwright": "^1.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-solid": "^0.13.0",
     "eslint-plugin-sort-destructure-keys": "^1.0.0",

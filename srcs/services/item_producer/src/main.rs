@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
   let args = Args::parse();
   let db_pool = PgPool::connect(&args.database_host).await?;
 
-  sqlx::migrate!("../../../migrations").run(&db_pool).await?;
+  sqlx::migrate!("../migrations").run(&db_pool).await?;
 
   let amqp_connection = Connection::open(&OpenConnectionArguments::new(
     args.amqp_host.as_str(),
@@ -126,7 +126,7 @@ mod tests {
   };
   use tokio::sync::mpsc;
 
-  #[sqlx::test(migrations = "../../../migrations")]
+  #[sqlx::test(migrations = "../migrations")]
   async fn test_create_item(db_pool: PgPool) {
     let amqp_connection = Connection::open(&OpenConnectionArguments::new(
       "localhost",

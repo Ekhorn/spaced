@@ -14,7 +14,7 @@ test.describe('Item', () => {
 
     await page.waitForLoadState('domcontentloaded');
 
-    await page.getByRole('button', { name: 'Create 🚀' }).click();
+    await page.getByTitle('Create Item').click();
 
     await expect(page.getByText('test')).toBeVisible();
   });

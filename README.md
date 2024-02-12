@@ -10,6 +10,7 @@ In order to run Spaced in development the following must be installed.
 - [Docker](https://docker.com/)
 - [Docker Compose](https://docs.docker.com/compose)
 - [Docker Buildx](https://github.com/docker/buildx)
+- [Tauri](https://tauri.app/v1/guides/getting-started/prerequisites)
 <!-- - Protoc -->
 
 ## Getting started
@@ -26,11 +27,10 @@ The project requires at least a PostgreSQL database to be run and uses RabbitMQ 
 docker compose up -d
 ```
 
-Set the development database url and JWT secret.
+Prepare the databases with migrations.
 
 ```sh
-echo DATABASE_URL=postgres://admin:password@localhost:5432/spaced > .env
-echo JWT_SECRET=test >> .env
+npm run sqlx:prepare
 ```
 
 The services can be started with the following script.
@@ -38,10 +38,6 @@ The services can be started with the following script.
 ```sh
 npm run services
 ```
-
-Another option is to use `cargo watch`.
-
-> Note: You may need to run `cargo install cargo-watch`.
 
 The web-frontend can be started with the following script.
 
@@ -81,7 +77,7 @@ Use the following environment variable to change the distroless image tag. The d
 DISTROLESS_TAG=debug docker buildx bake
 ```
 
-_The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definition](https://docs.docker.com/engine/reference/commandline/buildx_bake/#file). `docker buildx bake` ignores profiles and builds the services anway._
+_The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definition](https://docs.docker.com/engine/reference/commandline/buildx_bake/#file). `docker buildx bake` ignores profiles and builds the services anyway._
 
 ## Contributing
 

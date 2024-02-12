@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM item;",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "x",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "y",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "w",
+        "ordinal": 3,
+        "type_info": "Int64"
+      },
+      {
+        "name": "h",
+        "ordinal": 4,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "schema",
+        "ordinal": 6,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "2dd2b7b4cd49e1175da18197150e50c562632c34989aa6b5e81a655d4b3cd849"
+}

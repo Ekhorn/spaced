@@ -8,7 +8,7 @@ use jsonwebtoken::{decode, Algorithm, Validation};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use sqlx::PgPool;
-use utils::{ApiError, Json};
+use utils::axum::{ApiError, Json};
 
 use crate::auth::{create_jwt_response, AuthBody, Claims, Keys};
 
