@@ -58,7 +58,7 @@ export function Container(properties: ContainerProps) {
 
   function handleKeyUp(e: KeyboardEvent) {
     if (isTauri) {
-      if (e.shiftKey && e.key === 'Delete') {
+      if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
         invoke('delete_item', {
           id: properties.id,
         }).then((id: number) => {
