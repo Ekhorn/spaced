@@ -12,7 +12,7 @@ env:
   SQLX_OFFLINE: true
 
 jobs:
-  app_lint:
+  prettier:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +22,17 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx prettier --check .
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npx eslint .
 
   tsc:
     runs-on: ubuntu-latest
