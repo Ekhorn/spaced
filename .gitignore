@@ -2,6 +2,7 @@ target
 node_modules
 dist
 .env
+*.db*
 
 # Playwright test output
 srcs/e2e/test-results/

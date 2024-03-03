@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use axum::http::StatusCode;
 use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
-use utils::ApiError;
+use utils::axum::ApiError;
 
 use crate::handlers::KEYS;
 

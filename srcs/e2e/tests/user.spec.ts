@@ -6,13 +6,15 @@ test.describe('User', () => {
 
     await page.waitForLoadState('domcontentloaded');
 
+    await page.getByRole('button', { name: 'Register here' }).click();
+
     await page.getByPlaceholder('email').fill('test@example.com');
     await page.getByPlaceholder('username').fill('test');
     await page.getByPlaceholder('•••••••••••••').fill('test');
 
     await page.getByRole('button', { name: 'Submit' }).click();
 
-    await expect(page.getByText('Log out')).toBeVisible();
+    await expect(page.getByTitle('Log Out')).toBeVisible();
     await expect(page.getByText('Register')).toBeHidden();
   });
 
@@ -21,14 +23,12 @@ test.describe('User', () => {
 
     await page.waitForLoadState('domcontentloaded');
 
-    await page.getByRole('button', { name: 'Login here' }).click();
-
     await page.getByPlaceholder('email').fill('test@example.com');
     await page.getByPlaceholder('•••••••••••••').fill('test');
 
     await page.getByRole('button', { name: 'Submit' }).click();
 
-    await expect(page.getByText('Log out')).toBeVisible();
+    await expect(page.getByTitle('Log Out')).toBeVisible();
     await expect(page.getByText('Login to account')).toBeHidden();
   });
 
@@ -44,7 +44,7 @@ test.describe('User', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
-    await page.getByRole('button', { name: 'Log out' }).click();
+    await page.getByTitle('Log Out').click();
 
     await expect(page.getByText('Register')).toBeVisible();
   });

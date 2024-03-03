@@ -28,7 +28,7 @@ async fn main() -> anyhow::Result<()> {
 
   let db_pool = PgPool::connect(&args.database_host).await?;
 
-  sqlx::migrate!("../../../migrations").run(&db_pool).await?;
+  sqlx::migrate!("../migrations").run(&db_pool).await?;
 
   let app = Router::new()
     .route("/api/user/register", post(handlers::register_email))

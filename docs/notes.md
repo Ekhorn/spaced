@@ -17,10 +17,10 @@ sqlx migrate run
 cargo test -p item_producer -- --nocapture
 ```
 
-**List dymically linked libraries**
+**List shared object files**
 
 ```sh
-lld target/build/release/service-name
+objdump -p target/release/service-name | grep NEEDED
 ```
 
 **Create a user using curl**

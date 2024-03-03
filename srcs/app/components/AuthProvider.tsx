@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import { HiSolidArrowRight } from 'solid-icons/hi';
 import {
+  type Accessor,
   type Context,
   type JSXElement,
   createSignal,
@@ -11,12 +11,13 @@ import {
   onMount,
 } from 'solid-js';
 
-import { useWebSocket } from './WebSocketProvider.jsx';
+import { useIPC } from './IPCProvider.jsx';
+import { isTauri } from '../lib/const.js';
 
-const { socket } = useWebSocket();
+const { socket } = useIPC();
 
 const [isLoggedIn, setIsLoggedIn] = createSignal(false);
-const [isRegistration, setIsRegistration] = createSignal(true);
+const [isRegistration, setIsRegistration] = createSignal(false);
 
 type AuthProps = {
   readonly children: JSXElement;
@@ -26,6 +27,7 @@ let AuthContext: Context<{
   register: () => void;
   login: () => void;
   logout: () => void;
+  isLoggedIn: Accessor<boolean>;
 }>;
 
 export function AuthProvider(props: AuthProps) {
@@ -129,22 +131,13 @@ export function AuthProvider(props: AuthProps) {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  AuthContext = createContext({ register, login, logout });
+  AuthContext = createContext({ register, login, logout, isLoggedIn });
 
   return (
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
     <AuthContext.Provider>
-      {isLoggedIn() && (
-        <button
-          onClick={logout}
-          class="absolute right-0 z-50 m-2 flex w-32 justify-evenly rounded bg-white p-2 align-middle"
-        >
-          <HiSolidArrowRight class="h-full w-6" />
-          Log out
-        </button>
-      )}
-      <Show when={!isLoggedIn()}>
+      <Show when={!isTauri && !isLoggedIn()}>
         <dialog
           open={!isLoggedIn()}
           class="inset-0 z-[9999] flex h-[460px] items-center justify-center rounded"

@@ -1,13 +1,14 @@
-import { For, createEffect, on } from 'solid-js';
+import { invoke } from '@tauri-apps/api';
+import { For, createEffect, on, onMount } from 'solid-js';
 
-import { AuthProvider } from './AuthProvider.jsx';
+import { Actions } from './Actions/index.js';
+import { AuthProvider } from './AuthProvider.js';
 import { Background } from './Background.js';
-import { ConfigProvider } from './ConfigProvider.js';
 import { Container } from './Container.js';
-import { CreateButton } from './CreateButton.js';
-import { StateProvider, useState } from './StateProvider.js';
-import { useViewport, ViewportProvider } from './ViewportProvider.js';
-import { useWebSocket, WebSocketProvider } from './WebSocketProvider.js';
+import { IPCProvider, useIPC } from './IPCProvider.js';
+import { useState } from './StateProvider.js';
+import { ViewportProvider, useViewport } from './ViewportProvider.js';
+import { isTauri } from '../lib/const.js';
 import { type Item } from '../lib/types.js';
 import { getBoundingBox, throttle } from '../lib/utils.js';
 import { type Vec2D } from '../lib/vector.js';
@@ -15,7 +16,38 @@ import { type Vec2D } from '../lib/vector.js';
 export function App() {
   const { absoluteViewportPosition } = useViewport();
   const { items, setItems } = useState();
-  const { socket } = useWebSocket();
+  const { connectTauri, socket } = useIPC();
+
+  onMount(() => {
+    socket.on('item:updates', (item: Item) => {
+      setItems((value) =>
+        value.map((i) => {
+          if (item.id === i.id) {
+            item.schema = i.schema;
+          }
+          return item;
+        }),
+      );
+    });
+  });
+
+  if (isTauri) {
+    onMount(async () => {
+      try {
+        const path = localStorage.getItem('path');
+        if (path) {
+          await connectTauri(path);
+          localStorage.setItem('path', path);
+          const items = await invoke('get_nearby_items');
+          setItems(items);
+        } else {
+          localStorage.removeItem('path');
+        }
+      } catch {
+        localStorage.removeItem('path');
+      }
+    });
+  }
 
   createEffect(
     on(
@@ -46,29 +78,25 @@ export function App() {
 
   return (
     <AuthProvider>
-      <ConfigProvider>
-        <ViewportProvider>
-          <StateProvider>
-            <WebSocketProvider>
-              {/* TODO: resolve FOUC */}
-              <Background />
-              <main class="absolute h-full w-full">
-                <CreateButton />
-                <For each={items()}>
-                  {(item, index) => (
-                    <Container
-                      index={index()}
-                      id={item.id!}
-                      {...item}
-                      setItems={setItems}
-                    />
-                  )}
-                </For>
-              </main>
-            </WebSocketProvider>
-          </StateProvider>
-        </ViewportProvider>
-      </ConfigProvider>
+      <ViewportProvider>
+        <IPCProvider>
+          {/* TODO: resolve FOUC */}
+          <Background />
+          <main class="absolute h-full w-full">
+            <Actions />
+            <For each={items()}>
+              {(item, index) => (
+                <Container
+                  index={index()}
+                  id={item.id!}
+                  {...item}
+                  setItems={setItems}
+                />
+              )}
+            </For>
+          </main>
+        </IPCProvider>
+      </ViewportProvider>
     </AuthProvider>
   );
 }
