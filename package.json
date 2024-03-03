@@ -16,7 +16,7 @@
     "e2e": "npm --workspace e2e run e2e",
     "fmt": "cargo fmt --check --all",
     "fmt:fix": "cargo fmt --all",
-    "prepare": "husky install",
+    "prepare": "husky",
     "preview": "vite preview",
     "services": "srcs/scripts/start.sh",
     "sqlx:prepare": "srcs/scripts/sqlx_prepare.sh",
