@@ -2,6 +2,7 @@
   "extends": ["config:recommended"],
   "schedule": ["every weekday"],
   "labels": ["dependencies", "{{manager}}"],
+  "rangeStrategy": "update-lockfile",
   "dependencyDashboard": false,
   "enabledManagers": [
     "cargo",
@@ -16,8 +17,7 @@
     {
       "extends": [":semanticCommitTypeAll(chore)"],
       "groupName": "cargo dependencies",
-      "matchManagers": ["cargo"],
-      "rangeStrategy": "bump"
+      "matchManagers": ["cargo"]
     },
     {
       "extends": [":semanticCommitTypeAll(chore)"],
