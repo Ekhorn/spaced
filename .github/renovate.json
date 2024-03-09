@@ -14,12 +14,13 @@
   "commitMessageTopic": "{{depName}} from {{currentVersion}}",
   "packageRules": [
     {
-      "extends": ":semanticCommitTypeAll(chore)",
+      "extends": [":semanticCommitTypeAll(chore)"],
       "groupName": "cargo dependencies",
-      "matchManagers": ["cargo"]
+      "matchManagers": ["cargo"],
+      "rangeStrategy": "bump"
     },
     {
-      "extends": ":semanticCommitTypeAll(chore)",
+      "extends": [":semanticCommitTypeAll(chore)"],
       "groupName": "npm dependencies",
       "matchManagers": ["npm"]
     },
