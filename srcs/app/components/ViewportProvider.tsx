@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api';
 import {
   type JSXElement,
   useContext,
@@ -7,6 +8,8 @@ import {
 
 import { useSelection } from './SelectionProvider.js';
 import { useState } from './StateProvider.js';
+import { isTauri } from '../lib/const.js';
+import { debounce } from '../lib/utils.js';
 import {
   Vec2D,
   scaleViewportOutFrom,
@@ -69,17 +72,19 @@ function handlePointerMove(event: PointerEvent) {
           }
         : item,
     );
-    // for (const _item of moved_items!
-    //   .map((item) => ({
-    //     ...item,
-    //     x: Math.floor(item.x),
-    //     y: Math.floor(item.y),
-    //   }))
-    //   .filter((item) => selected.has(item.id!))) {
-    //   // debounce(async () => {
-    //   //   await invoke('update', item);
-    //   // }, 100)();
-    // }
+    if (isTauri) {
+      for (const item of moved_items!
+        .map((item) => ({
+          ...item,
+          x: Math.floor(item.x),
+          y: Math.floor(item.y),
+        }))
+        .filter((item) => selected.has(item.id!))) {
+        debounce(async () => {
+          await invoke('patch_item', item);
+        }, 100)();
+      }
+    }
     setItems(moved_items);
   } else if (event.buttons === 1) {
     setAbsoluteViewportPosition((prev) => prev.add(pointerDelta.neg()));
