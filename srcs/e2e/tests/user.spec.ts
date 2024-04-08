@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { type Page, test, expect } from '@playwright/test';
 
-test.describe('User', () => {
+test.describe.serial('User', () => {
   test('should be able to register', async ({ page }) => {
     await page.goto('/');
 
@@ -18,34 +18,38 @@ test.describe('User', () => {
     await expect(page.getByText('Register')).toBeHidden();
   });
 
-  test('should be able to login', async ({ page }) => {
-    await page.goto('/');
+  test.describe('should be able to', () => {
+    let page: Page;
 
-    await page.waitForLoadState('domcontentloaded');
-
-    await page.getByPlaceholder('email').fill('test@example.com');
-    await page.getByPlaceholder('•••••••••••••').fill('test');
-
-    await page.getByRole('button', { name: 'Submit' }).click();
-
-    await expect(page.getByTitle('Log Out')).toBeVisible();
-    await expect(page.getByText('Login to account')).toBeHidden();
-  });
-
-  test('should be able to logout', async ({ context, page }) => {
-    await context.addInitScript(() => {
-      localStorage.setItem(
-        'access_token',
-        // Payload = { "exp": "1607811435" }
-        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDc4MTE0MzV9.inQ2hp-MzN4oifBpBVBzJVvU4CEjKO52cKxvdQ7L50k',
-      );
-      localStorage.setItem('refresh_token', 'test');
+    test.beforeAll(async ({ browser }) => {
+      page = await browser.newPage();
     });
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
 
-    await page.getByTitle('Log Out').click();
+    test.afterAll(async () => {
+      await page.close();
+    });
 
-    await expect(page.getByText('Register')).toBeVisible();
+    test('login', async () => {
+      await page.goto('/');
+
+      await page.waitForLoadState('domcontentloaded');
+
+      await page.getByPlaceholder('email').fill('test@example.com');
+      await page.getByPlaceholder('•••••••••••••').fill('test');
+
+      await page.getByRole('button', { name: 'Submit' }).click();
+
+      await expect(page.getByTitle('Log Out')).toBeVisible();
+      await expect(page.getByText('Login to account')).toBeHidden();
+    });
+
+    test('logout', async () => {
+      await page.goto('/');
+
+      await page.waitForLoadState('domcontentloaded');
+      await page.getByTitle('Log Out').click();
+
+      await expect(page.getByText('Register')).toBeVisible();
+    });
   });
 });
