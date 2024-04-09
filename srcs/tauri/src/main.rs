@@ -104,12 +104,13 @@ struct Item {
 }
 
 #[tauri::command]
+#[tracing::instrument(skip_all)]
 async fn get_nearby_items(state: State<'_, AppState>) -> Result<Vec<Item>, Error> {
   let pool = state.db.read().await;
   let rows: Vec<Item> = sqlx::query_as!(Item, "SELECT * FROM item;")
     .fetch_all(&pool.clone().unwrap())
     .await?;
-  info!("{}", rows.len());
+  info!("Retrieved {} record(s)", rows.len());
   Ok(rows)
 }
 
