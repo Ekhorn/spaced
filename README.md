@@ -47,6 +47,16 @@ npm run dev
 
 The web-frontend can also be displayed from a desktop application with the following command.
 
+> Note: install the following prequiresuite
+>
+> ```sh
+> wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.2.0%2Bcpu.zip
+> unzip libtorch-cxx11-abi-shared-with-deps-2.2.0+cpu.zip
+> sudo mv libtorch /usr/lib
+> sudo ln -s libtorch/lib/libtorch.so libtorch.so
+> sudo ldconfig
+> ```
+
 ```sh
 npm run tauri dev
 ```

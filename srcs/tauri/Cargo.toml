@@ -18,6 +18,9 @@ serde.workspace = true
 tracing.workspace = true
 thiserror.workspace = true
 utils = { path = "../utils", features = ["logging"] }
+candle-core = "0.4.1"
+candle-onnx = "*"
+# tch = "0.15.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

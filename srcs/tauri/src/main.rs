@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use anyhow::bail;
 use serde::{Deserialize, Serialize, Serializer};
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
 use std::env;
@@ -40,6 +41,7 @@ fn main() -> anyhow::Result<()> {
     .manage(AppState { db: None.into() })
     .invoke_handler(tauri::generate_handler![
       connect,
+      detect,
       get_nearby_items,
       create_item,
       patch_item,
@@ -90,6 +92,65 @@ async fn connect(state: State<'_, AppState>, path: String) -> Result<String, Err
   *pool = Some(new_pool);
 
   Ok(path)
+}
+
+// #[tauri::command]
+// async fn detect() -> Result<String, Error> {
+//   let args: Vec<_> = ["mnist.onnx", "example.png"].collect();
+//   let (weights, image) = match args.as_slice() {
+//     [_, w, i] => (std::path::Path::new(w), i.to_owned()),
+//     _ => bail!("usage: main resnet18.ot image.jpg"),
+//   };
+//   // Load the image file and resize it to the usual imagenet dimension of 224x224.
+//   let image = imagenet::load_image_and_resize224(image)?;
+
+//   // Create the model and load the weights from the file.
+//   let mut vs = tch::nn::VarStore::new(tch::Device::Cpu);
+
+//   let resnet18 = tch::CModule::vs.load("mnist-12.onnx")?;
+
+//   let output = net
+//     .forward_t(&image.unsqueeze(0), /* train= */ false)
+//     .softmax(-1, tch::Kind::Float); // Convert to probability.
+
+//   for (probability, class) in imagenet::top(&output, 5).iter() {
+//     println!("{:50} {:5.2}%", class, 100.0 * probability)
+//   }
+
+//   Ok("test".to_string())
+// }
+
+#[tauri::command]
+async fn detect() -> Result<String, Error> {
+  let model = std::path::PathBuf::from("mnist.onnx");
+
+  let model = candle_onnx::read_file(model).unwrap();
+  let graph = model.graph.as_ref().unwrap();
+  let mut inputs = std::collections::HashMap::new();
+  inputs.insert(graph.input[0].name.to_string(), image.unsqueeze(0)?);
+  let mut outputs = candle_onnx::simple_eval(&model, inputs)?;
+  let output = outputs.remove(&graph.output[0].name).unwrap();
+  let prs = match args.which {
+    Which::SqueezeNet => candle_nn::ops::softmax(&output, D::Minus1)?,
+    Which::EfficientNet => output,
+  };
+  let prs = prs.i(0)?.to_vec1::<f32>()?;
+
+  // Sort the predictions and take the top 5
+  let mut top: Vec<_> = prs.iter().enumerate().collect();
+  top.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
+  let top = top.into_iter().take(5).collect::<Vec<_>>();
+
+  // Print the top predictions
+  for &(i, p) in &top {
+    println!(
+      "{:50}: {:.2}%",
+      candle_examples::imagenet::CLASSES[i],
+      p * 100.0
+    );
+  }
+
+  Ok("test".to_string())
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,6 +1,9 @@
 use std::{env, process::Command};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+  // println!("cargo:rerun-if-env-changed=LIBTORCH=/usr/lib/libtorch");
+  // println!("cargo:rerun-if-env-changed=LIBTORCH_BYPASS_VERSION_CHECK");
+
   let offline_mode = env::var("SQLX_OFFLINE");
   if !offline_mode.is_ok_and(|val| val.parse::<bool>().unwrap()) {
     Command::new("sqlx")
