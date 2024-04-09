@@ -8,18 +8,24 @@ rust-version.workspace = true
 
 [build-dependencies]
 tauri-build = { version = "1", features = [] }
+burn-import = "0.13"
 
 [dependencies]
 anyhow.workspace = true
-tauri = { version = "1", features = ["dialog"] }
-sqlx = { workspace = true, features = ["runtime-tokio", "sqlite"] }
-tokio.workspace = true
+burn = { version = "0.13", features = ["ndarray",  "vision"] }
+image = "0.25"
 serde.workspace = true
-tracing.workspace = true
+sqlx = { workspace = true, features = ["runtime-tokio", "sqlite"] }
+tauri = { version = "1", features = ["dialog"] }
 thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
 utils = { path = "../utils", features = ["logging"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+default = ["embedded-model"]
+
+embedded-model = []
