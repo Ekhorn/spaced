@@ -1,4 +1,6 @@
+import { invoke } from '@tauri-apps/api';
 import { micromark } from 'micromark';
+import { HiSolidDocumentMagnifyingGlass } from 'solid-icons/hi';
 import {
   type Accessor,
   type ValidComponent,
@@ -9,12 +11,15 @@ import {
   mergeProps,
   onCleanup,
   createEffect,
+  Show,
+  createSignal,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
+import { isTauri } from '../lib/const.js';
 import { type MimeTypes, type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
@@ -243,6 +248,21 @@ type RenderImage = RenderProps;
 function renderImage(props: RenderImage) {
   let ref!: HTMLImageElement;
 
+  const [menu, setMenu] = createSignal(true);
+
+  async function handleClick() {
+    if (isTauri && props.item.file) {
+      const response = await invoke('detect', {
+        imageData: [...new Uint8Array(props.item.file)],
+      });
+      window.navigator.clipboard.writeText(response);
+    }
+  }
+
+  createEffect(() => {
+    setMenu(props.selected());
+  });
+
   onMount(() => {
     if (props.item.file) {
       const uint8Array = new Uint8Array(props.item.file);
@@ -251,7 +271,19 @@ function renderImage(props: RenderImage) {
     }
   });
 
-  return <img ref={ref} />;
+  return (
+    <>
+      <Show when={menu()}>
+        <button
+          onClick={handleClick}
+          class="absolute z-50 flex h-8 w-8 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
+        >
+          <HiSolidDocumentMagnifyingGlass />
+        </button>
+      </Show>
+      <img ref={ref} />
+    </>
+  );
 }
 
 type RenderPdf = RenderProps;
