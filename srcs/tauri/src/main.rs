@@ -1,12 +1,19 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod model;
+
 use serde::{Deserialize, Serialize, Serializer};
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
 use std::env;
 use tauri::{api::dialog::blocking::FileDialogBuilder, State};
 use tokio::sync::RwLock;
-use tracing::info;
+use tracing::{info, span};
+
+use burn::{backend::NdArray, tensor::Tensor};
+use model::mnist::Model;
+
+type Backend = NdArray<f32>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -40,6 +47,7 @@ fn main() -> anyhow::Result<()> {
     .manage(AppState { db: None.into() })
     .invoke_handler(tauri::generate_handler![
       connect,
+      detect,
       get_nearby_items,
       create_item,
       patch_item,
@@ -92,6 +100,34 @@ async fn connect(state: State<'_, AppState>, path: String) -> Result<String, Err
   Ok(path)
 }
 
+#[tauri::command]
+#[tracing::instrument(skip_all)]
+fn detect(image_data: Vec<u8>) -> Result<String, Error> {
+  let img = image::load_from_memory(&image_data)
+    .map_err(|_| Error::UnsupportedDatatype("Test".to_string()))?
+    .resize_to_fill(28, 28, image::imageops::FilterType::Nearest)
+    .to_luma32f()
+    .into_vec();
+
+  // Initialize a new model instance
+  let device = <Backend as burn::tensor::backend::Backend>::Device::default();
+  let model: Model<Backend> = Model::default();
+
+  let input: Tensor<Backend, 4> =
+    Tensor::from_floats(img.as_slice(), &device).reshape([1, 1, 28, 28]);
+
+  // Normalize the input
+  // input = ((input / 255) - 0.1307) / 0.3081;
+
+  // Perform inference
+  let output = model.forward(input);
+
+  let arg_max = output.argmax(1).into_scalar() as u8;
+  info!("Found number {}", arg_max);
+
+  Ok(arg_max.to_string())
+}
+
 #[derive(Serialize, Deserialize)]
 struct Item {
   id: i64,
@@ -104,12 +140,13 @@ struct Item {
 }
 
 #[tauri::command]
+#[tracing::instrument(skip_all)]
 async fn get_nearby_items(state: State<'_, AppState>) -> Result<Vec<Item>, Error> {
   let pool = state.db.read().await;
   let rows: Vec<Item> = sqlx::query_as!(Item, "SELECT * FROM item;")
     .fetch_all(&pool.clone().unwrap())
     .await?;
-  info!("{}", rows.len());
+  info!("Retrieved {} record(s)", rows.len());
   Ok(rows)
 }
 
