@@ -20,6 +20,7 @@ thiserror.workspace = true
 utils = { path = "../utils", features = ["logging"] }
 candle-core = "0.4.1"
 candle-onnx = "*"
+image = "*"
 # tch = "0.15.0"
 
 [features]

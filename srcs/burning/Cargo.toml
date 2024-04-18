@@ -1,0 +1,18 @@
+[package]
+name = "burning"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["embedded-model"]
+
+embedded-model = []
+
+[dependencies]
+burn = { version = "*", features = ["ndarray", "dataset", "vision"] }
+image = "*"
+
+[build-dependencies]
+burn-import = "*"

@@ -1,5 +1,7 @@
 [workspace]
 members = [
+  "srcs/burning",
+  "srcs/example",
   "srcs/services/item_producer",
   "srcs/services/user_service",
   "srcs/tauri",

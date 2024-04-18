@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api';
 import { Show } from 'solid-js';
 
 import { CreateButton } from './CreateButton.js';
@@ -15,6 +16,7 @@ export function Actions() {
         <StorageButton />
       </Show>
       <CreateButton />
+      <button onClick={invoke('detect')}></button>
     </div>
   );
 }
