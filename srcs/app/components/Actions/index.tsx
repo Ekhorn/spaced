@@ -16,7 +16,7 @@ export function Actions() {
         <StorageButton />
       </Show>
       <CreateButton />
-      <button onClick={invoke('detect')}></button>
+      <button onClick={() => invoke('detect')}></button>
     </div>
   );
 }

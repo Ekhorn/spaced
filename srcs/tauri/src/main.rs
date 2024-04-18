@@ -1,17 +1,19 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use anyhow::bail;
-use candle_core::{shape::Dim, Device, IndexOp, Tensor};
+mod model;
+
 use serde::{Deserialize, Serialize, Serializer};
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
-use std::{
-  env,
-  fs::{self, canonicalize, File},
-};
+use std::env;
 use tauri::{api::dialog::blocking::FileDialogBuilder, State};
 use tokio::sync::RwLock;
 use tracing::info;
+
+use burn::{backend::NdArray, tensor::Tensor};
+use model::mnist::Model;
+
+type Backend = NdArray<f32>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -98,93 +100,37 @@ async fn connect(state: State<'_, AppState>, path: String) -> Result<String, Err
   Ok(path)
 }
 
-// #[tauri::command]
-// async fn detect() -> Result<String, Error> {
-//   let args: Vec<_> = ["mnist.onnx", "example.png"].collect();
-//   let (weights, image) = match args.as_slice() {
-//     [_, w, i] => (std::path::Path::new(w), i.to_owned()),
-//     _ => bail!("usage: main resnet28.ot image.jpg"),
-//   };
-//   // Load the image file and resize it to the usual imagenet dimension of 224x224.
-//   let image = imagenet::load_image_and_resize224(image)?;
-
-//   // Create the model and load the weights from the file.
-//   let mut vs = tch::nn::VarStore::new(tch::Device::Cpu);
-
-//   let resnet28 = tch::CModule::vs.load("mnist-12.onnx")?;
-
-//   let output = net
-//     .forward_t(&image.unsqueeze(0), /* train= */ false)
-//     .softmax(-1, tch::Kind::Float); // Convert to probability.
-
-//   for (probability, class) in imagenet::top(&output, 5).iter() {
-//     println!("{:50} {:5.2}%", class, 100.0 * probability)
-//   }
-
-//   Ok("test".to_string())
-// }
-
-pub fn load_image224<P: AsRef<std::path::Path>>(p: P) -> candle_core::Result<Tensor> {
-  // let img = image::io::Reader::open(p)
-  //   .unwrap()
-  //   .decode()
-  //   .map_err(candle_core::Error::wrap)?
-  //   .resize_to_fill(28, 28, image::imageops::FilterType::Nearest)
-  //   .to_luma_alpha32f();
-  // let data = Tensor::from_vec(img.into_raw(), (1, 28, 28), &Device::Cpu)?;
-  // println!("{:?}", data.dims());
-  // let mean = Tensor::new(&[0.485f32], &Device::Cpu)?.reshape((1, 1, 1))?;
-  // let std = Tensor::new(&[0.229f32], &Device::Cpu)?.reshape((1, 1, 1))?;
-  // (data.to_dtype(candle_core::DType::F32)? / 255.)?
-  //   .broadcast_sub(&mean)?
-  //   .broadcast_div(&std)
-
-  // Assuming you have a tensor `tensor` that needs to be reshaped
-  let tensor = Tensor::from_slice(&[28f32 * 28f32], (1, 28, 28), &Device::Cpu); // Example: 1D tensor with 28*28 elements
-
-  // Reshape the tensor to the expected shape [1, 1, 28, 28]
-  // let reshaped_tensor = tensor.reshape(&[1, 1, 28, 28])?;
-  tensor
-}
-
 #[tauri::command]
 fn detect() -> Result<String, Error> {
-  let model = std::path::PathBuf::from("mnist-12.onnx")
-    .canonicalize()
-    .unwrap();
-  let image = std::path::PathBuf::from("canvas.png")
-    .canonicalize()
-    .unwrap();
+  // let img = image::io::Reader::open(image)
+  //   .unwrap()
+  //   .decode()
+  //   .unwrap()
+  //   .resize_to_fill(28, 28, image::imageops::FilterType::Nearest)
+  //   .to_luma32f();
 
-  println!("{:?}", env::current_dir());
-  // let image = load_image224(image).unwrap();
-  let tensor = Tensor::from_slice(&[0.0f32; 28 * 28], (1, 28, 28), &Device::Cpu).unwrap(); // Example: 1D tensor with 28*28 elements
-  let reshaped_tensor = tensor.reshape(&[1, 1, 28, 28]).unwrap();
+  // Initialize a new model instance
+  let device = <Backend as burn::tensor::backend::Backend>::Device::default();
+  let model: Model<Backend> = Model::default();
+  let image_data = [];
 
-  println!("{:?}", reshaped_tensor);
-  // let image = image.unsqueeze(0).unwrap();
-  println!("{:?}", reshaped_tensor);
+  // let pixel_data: Vec<u8> = image_data.iter().map(|&f| (f * 255.0) as u8).collect();
+  // let img: GrayImage = GrayImage::from_raw(28, 28, pixel_data).unwrap();
 
-  let model = candle_onnx::read_file(model).unwrap();
-  println!("{}", model.model_version);
-  let graph = model.graph.as_ref().unwrap();
-  let mut inputs = std::collections::HashMap::new();
-  inputs.insert(graph.input[0].name.to_string(), reshaped_tensor);
-  let mut outputs = candle_onnx::simple_eval(&model, inputs).unwrap();
-  let output = outputs.remove(&graph.output[0].name).unwrap();
+  // Save the image as a PNG file
+  // img.save("srcs/burning/output.png").unwrap();
 
-  let prs = output.i(0).unwrap().to_vec1::<f32>().unwrap();
+  let mut input: Tensor<Backend, 4> =
+    Tensor::from_floats(image_data.as_slice(), &device).reshape([1, 1, 28, 28]);
 
-  // Sort the predictions and take the top 5
-  let mut top: Vec<_> = prs.iter().enumerate().collect();
-  top.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
-  let top = top.into_iter().take(5).collect::<Vec<_>>();
+  // Normalize the input
+  // input = ((input / 255) - 0.1307) / 0.3081;
 
-  // Print the top predictions
-  for &(i, p) in &top {
-    println!("{:50}: {:.2}%", i, p * 100.0);
-  }
+  // Perform inference
+  let output = model.forward(input);
 
+  let arg_max = output.argmax(1).into_scalar() as u8;
+  println!("{:?}", arg_max);
   Ok("test".to_string())
 }
 

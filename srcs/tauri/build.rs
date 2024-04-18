@@ -1,8 +1,22 @@
+use burn_import::onnx::{ModelGen, RecordType};
 use std::{env, process::Command};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-  // println!("cargo:rerun-if-env-changed=LIBTORCH=/usr/lib/libtorch");
-  // println!("cargo:rerun-if-env-changed=LIBTORCH_BYPASS_VERSION_CHECK");
+  if cfg!(feature = "embedded-model") {
+    // If the embedded-model, then model is bundled into the binary.
+    ModelGen::new()
+      .input("src/model/mnist.onnx")
+      .out_dir("model/")
+      .record_type(RecordType::Bincode)
+      .embed_states(true)
+      .run_from_script();
+  } else {
+    // If not embedded-model, then model is loaded from the file system (default).
+    ModelGen::new()
+      .input("src/model/mnist.onnx")
+      .out_dir("model/")
+      .run_from_script();
+  }
 
   let offline_mode = env::var("SQLX_OFFLINE");
   if !offline_mode.is_ok_and(|val| val.parse::<bool>().unwrap()) {
