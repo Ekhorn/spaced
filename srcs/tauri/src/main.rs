@@ -8,7 +8,7 @@ use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
 use std::env;
 use tauri::{api::dialog::blocking::FileDialogBuilder, State};
 use tokio::sync::RwLock;
-use tracing::info;
+use tracing::{info, span};
 
 use burn::{backend::NdArray, tensor::Tensor};
 use model::mnist::Model;
@@ -101,27 +101,20 @@ async fn connect(state: State<'_, AppState>, path: String) -> Result<String, Err
 }
 
 #[tauri::command]
-fn detect() -> Result<String, Error> {
-  // let img = image::io::Reader::open(image)
-  //   .unwrap()
-  //   .decode()
-  //   .unwrap()
-  //   .resize_to_fill(28, 28, image::imageops::FilterType::Nearest)
-  //   .to_luma32f();
+#[tracing::instrument(skip_all)]
+fn detect(image_data: Vec<u8>) -> Result<String, Error> {
+  let img = image::load_from_memory(&image_data)
+    .map_err(|_| Error::UnsupportedDatatype("Test".to_string()))?
+    .resize_to_fill(28, 28, image::imageops::FilterType::Nearest)
+    .to_luma32f()
+    .into_vec();
 
   // Initialize a new model instance
   let device = <Backend as burn::tensor::backend::Backend>::Device::default();
   let model: Model<Backend> = Model::default();
-  let image_data = [];
 
-  // let pixel_data: Vec<u8> = image_data.iter().map(|&f| (f * 255.0) as u8).collect();
-  // let img: GrayImage = GrayImage::from_raw(28, 28, pixel_data).unwrap();
-
-  // Save the image as a PNG file
-  // img.save("srcs/burning/output.png").unwrap();
-
-  let mut input: Tensor<Backend, 4> =
-    Tensor::from_floats(image_data.as_slice(), &device).reshape([1, 1, 28, 28]);
+  let input: Tensor<Backend, 4> =
+    Tensor::from_floats(img.as_slice(), &device).reshape([1, 1, 28, 28]);
 
   // Normalize the input
   // input = ((input / 255) - 0.1307) / 0.3081;
@@ -130,8 +123,9 @@ fn detect() -> Result<String, Error> {
   let output = model.forward(input);
 
   let arg_max = output.argmax(1).into_scalar() as u8;
-  println!("{:?}", arg_max);
-  Ok("test".to_string())
+  info!("Found number {}", arg_max);
+
+  Ok(arg_max.to_string())
 }
 
 #[derive(Serialize, Deserialize)]
@@ -146,12 +140,13 @@ struct Item {
 }
 
 #[tauri::command]
+#[tracing::instrument(skip_all)]
 async fn get_nearby_items(state: State<'_, AppState>) -> Result<Vec<Item>, Error> {
   let pool = state.db.read().await;
   let rows: Vec<Item> = sqlx::query_as!(Item, "SELECT * FROM item;")
     .fetch_all(&pool.clone().unwrap())
     .await?;
-  info!("{}", rows.len());
+  info!("Retrieved {} record(s)", rows.len());
   Ok(rows)
 }
 
