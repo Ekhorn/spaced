@@ -1,20 +1,9 @@
-import { invoke } from '@tauri-apps/api';
 import { Show } from 'solid-js';
 
 import { CreateButton } from './CreateButton.js';
 import { LogOutButton } from './LogOutButton.jsx';
 import { StorageButton } from './StorageButton.js';
 import { isTauri } from '../../lib/const.js';
-
-async function d(e: InputEvent): Promise<void> {
-  // eslint-disable-next-line unicorn/prefer-spread
-  const file = e?.target?.files?.[0] as Blob;
-
-  console.log(file);
-  invoke('detect', {
-    imageData: [...new Uint8Array(await file.arrayBuffer())],
-  });
-}
 
 export function Actions() {
   return (
@@ -26,9 +15,6 @@ export function Actions() {
         <StorageButton />
       </Show>
       <CreateButton />
-      <input type="file" onInput={d}>
-        Detect
-      </input>
     </div>
   );
 }

@@ -13,6 +13,15 @@ import { type Item } from '../lib/types.js';
 import { getBoundingBox, throttle } from '../lib/utils.js';
 import { type Vec2D } from '../lib/vector.js';
 
+async function handleDrop(e: DragEvent): Promise<void> {
+  const file = e.dataTransfer?.files[0];
+  console.log(file?.name);
+  const response = await invoke('detect', {
+    imageData: [...new Uint8Array((await file?.arrayBuffer()) ?? [])],
+  });
+  console.log(response);
+}
+
 export function App() {
   const { absoluteViewportPosition } = useViewport();
   const { items, setItems } = useState();
@@ -82,7 +91,15 @@ export function App() {
         <IPCProvider>
           {/* TODO: resolve FOUC */}
           <Background />
-          <main class="absolute h-full w-full">
+          <main
+            class="absolute h-full w-full"
+            // onDragOver={(e) => {
+            //   e.preventDefault();
+            //   console.log('drag');
+            //   console.log(e.dataTransfer?.files);
+            // }}
+            onDrop={handleDrop}
+          >
             <Actions />
             <For each={items()}>
               {(item, index) => (
