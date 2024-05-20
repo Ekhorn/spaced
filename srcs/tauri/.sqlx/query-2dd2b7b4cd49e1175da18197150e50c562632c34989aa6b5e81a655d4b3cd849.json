@@ -34,8 +34,13 @@
         "type_info": "Text"
       },
       {
-        "name": "schema",
+        "name": "mime",
         "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "schema",
+        "ordinal": 7,
         "type_info": "Text"
       }
     ],
@@ -49,6 +54,7 @@
       false,
       false,
       true,
+      false,
       true
     ]
   },

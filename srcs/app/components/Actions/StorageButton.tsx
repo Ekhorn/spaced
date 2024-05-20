@@ -1,35 +1,38 @@
 import { invoke } from '@tauri-apps/api';
 import { HiOutlineCircleStack } from 'solid-icons/hi';
-import { Show, createEffect, createSignal, on } from 'solid-js';
+import { Show, createSignal, onMount } from 'solid-js';
 
 import { useIPC } from '../IPCProvider.jsx';
 
 export function StorageButton() {
   const { connectTauri } = useIPC();
-  const [path, setPath] = createSignal<string | undefined>(
-    localStorage.getItem('path') ?? undefined,
-  );
+  const [hasPath, setHasPath] = createSignal();
+
+  async function handleConnection(path?: string | null) {
+    setHasPath(path);
+    try {
+      if (path) {
+        await connectTauri(path);
+        localStorage.setItem('path', path);
+      } else {
+        localStorage.removeItem('path');
+      }
+    } catch {
+      localStorage.removeItem('path');
+    }
+  }
 
   async function onClick() {
     const newPath = await invoke('save');
-    setPath(newPath);
+    await handleConnection(newPath);
   }
 
-  createEffect(
-    on(path, async (changedPath) => {
-      console.log(changedPath);
-      try {
-        if (changedPath) {
-          await connectTauri(changedPath);
-          localStorage.setItem('path', changedPath);
-        } else {
-          localStorage.removeItem('path');
-        }
-      } catch {
-        localStorage.removeItem('path');
-      }
-    }),
-  );
+  onMount(async () => {
+    if (localStorage) {
+      const path = localStorage.getItem('path');
+      await handleConnection(path);
+    }
+  });
 
   return (
     <button
@@ -37,7 +40,7 @@ export function StorageButton() {
       onClick={onClick}
       title="Connect with database"
     >
-      <Show when={!path()}>
+      <Show when={!hasPath()}>
         <span class="before:absolute before:-left-[0.125rem] before:-top-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]"></span>
       </Show>
       <HiOutlineCircleStack />

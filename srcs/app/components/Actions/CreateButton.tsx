@@ -27,6 +27,7 @@ export function CreateButton() {
         w: 0,
         h: 0,
         name: 'test',
+        mime: 'text/plain',
         schema: 'test',
       } as Item).then((response: Item) => {
         // eslint-disable-next-line unicorn/prefer-spread
@@ -43,6 +44,7 @@ export function CreateButton() {
         w: 0,
         h: 0,
         name: 'test',
+        mime: 'text/plain',
         schema: 'test',
       } as Item)
       .then((response: Item) => {

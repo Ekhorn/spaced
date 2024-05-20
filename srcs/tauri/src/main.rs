@@ -136,6 +136,7 @@ struct Item {
   w: i64,
   h: i64,
   name: Option<String>,
+  mime: String,
   schema: Option<String>,
 }
 
@@ -158,6 +159,7 @@ async fn create_item(
   w: i64,
   h: i64,
   name: String,
+  mime: String,
   schema: String,
 ) -> Result<Item, Error> {
   let pool = state.db.read().await;
@@ -165,14 +167,15 @@ async fn create_item(
   let item = sqlx::query_as!(
     Item,
     r#"
-INSERT INTO item ( x, y, w, h, name, schema )
-VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 ) RETURNING *
+INSERT INTO item ( x, y, w, h, name, mime, schema )
+VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7 ) RETURNING *
       "#,
     x,
     y,
     w,
     h,
     name,
+    mime,
     schema,
   )
   .fetch_one(&pool.clone().unwrap())
@@ -190,6 +193,7 @@ async fn patch_item(
   w: i64,
   h: i64,
   name: String,
+  mime: String,
   schema: String,
 ) -> Result<(), Error> {
   let pool = state.db.read().await;
@@ -203,7 +207,8 @@ SET x = ?2,
   w = ?4,
   h = ?5,
   name = ?6,
-  schema = ?7
+  mime = ?7,
+  schema = ?8
 WHERE id = ?1
     "#,
     id,
@@ -212,6 +217,7 @@ WHERE id = ?1
     w,
     h,
     name,
+    mime,
     schema,
   )
   .execute(&pool.clone().unwrap())
