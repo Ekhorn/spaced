@@ -1,11 +1,5 @@
 import { invoke } from '@tauri-apps/api';
-import { micromark } from 'micromark';
-// import rehypeSanitize from 'rehype-sanitize';
-// import rehypeStringify from 'rehype-stringify';
-// import remarkParse from 'remark-parse';
-// import remarkRehype from 'remark-rehype';
 import { For, createEffect, on, onMount } from 'solid-js';
-// import { unified } from 'unified';
 
 import { Actions } from './Actions/index.js';
 import { AuthProvider } from './AuthProvider.js';
@@ -27,10 +21,6 @@ export function App() {
   async function handleDrop(e: DragEvent): Promise<void> {
     const file = e.dataTransfer?.files[0];
     if (file?.type == 'text/markdown') {
-      const result = micromark(await file.text(), {
-        // extensions: [gfm()],
-        // htmlExtensions: [gfmHtml()],
-      });
       const absolute = relativeToAbsolute(
         new Vec2D(e.clientX, -e.clientY),
         absoluteViewportPosition(),
@@ -44,40 +34,14 @@ export function App() {
           h: 0,
           name: 'test',
           mime: file.type,
-          schema: result,
+          schema: await file.text(),
         } as Item).then((response: Item) => {
           // eslint-disable-next-line unicorn/prefer-spread
           setItems((value) => value.concat(response));
         });
         return;
       }
-      // setItems((prev) => [
-      //   ...prev,
-      //   {
-      //     x: e.clientX,
-      //     y: e.clientY,
-      //     w: 100,
-      //     h: 100,
-      //     mime: file.type,
-      //     schema: result,
-      //   } as Item,
-      // ]);
-      // .on('error', handleError)
-      // .pipe(stream())
-      // .pipe(process.stdout)
-      // const output = await unified()
-      //   .use(remarkParse)
-      //   .use(remarkRehype)
-      //   .use(rehypeSanitize)
-      //   .use(rehypeStringify)
-      //   .process(await file.text());
-      // document.body.innerHTML = `<div id="markdown-content">$l{result}</div>`;
     }
-    // console.log(file?.name);
-    // const response = await invoke('detect', {
-    // imageData: [...new Uint8Array((await file?.arrayBuffer()) ?? [])],
-    // });
-    // console.log(response);
   }
 
   onMount(() => {

@@ -16,7 +16,7 @@ burn = { version = "0.13", features = ["ndarray",  "vision"] }
 image = "0.25"
 serde.workspace = true
 sqlx = { workspace = true, features = ["runtime-tokio", "sqlite"] }
-tauri = { version = "1", features = ["dialog"] }
+tauri = { version = "1", features = [ "shell-open", "dialog"] }
 thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true

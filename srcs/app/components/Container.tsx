@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api';
+import { micromark } from 'micromark';
 import {
   type Accessor,
   type ValidComponent,
@@ -105,8 +106,12 @@ function Render(props: RenderProps) {
 type RenderMarkdownProps = RenderProps;
 
 function RenderMarkdown(props: RenderMarkdownProps) {
-  onMount(() => {
-    props.ref.innerHTML = props.schema!;
+  onMount(async () => {
+    const result = micromark(props.schema ?? '', {
+      // extensions: [gfm()],
+      // htmlExtensions: [gfmHtml()],
+    });
+    props.ref.innerHTML = String(result);
   });
 
   return (
