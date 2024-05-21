@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS item
   h INTEGER NOT NULL,
   name VARCHAR(100),
   mime VARCHAR(100) NOT NULL,
-  schema TEXT
+  schema TEXT,
+  file BLOB
 );

@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\nINSERT INTO item ( x, y, w, h, name, mime, schema )\nVALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7 ) RETURNING *\n      ",
+  "query": "\nINSERT INTO item ( x, y, w, h, name, mime, schema, file )\nVALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8 ) RETURNING *\n      ",
   "describe": {
     "columns": [
       {
@@ -42,10 +42,15 @@
         "name": "schema",
         "ordinal": 7,
         "type_info": "Text"
+      },
+      {
+        "name": "file",
+        "ordinal": 8,
+        "type_info": "Blob"
       }
     ],
     "parameters": {
-      "Right": 7
+      "Right": 8
     },
     "nullable": [
       false,
@@ -55,8 +60,9 @@
       false,
       true,
       false,
+      true,
       true
     ]
   },
-  "hash": "eb8fb20965b0e613057af1e84bd99c4624f5796f78d8ed2b8d8cf030d6e61877"
+  "hash": "37d1e500b9124ae3efc0f25276cc8633c0565132c02240d125a6799b68283160"
 }

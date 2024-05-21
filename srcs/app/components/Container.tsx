@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api';
 import { micromark } from 'micromark';
 import {
   type Accessor,
@@ -14,7 +13,6 @@ import { Dynamic } from 'solid-js/web';
 import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
-import { isTauri } from '../lib/const.js';
 import { type MimeTypes, type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
@@ -97,6 +95,7 @@ type RenderProps = {
 const renderMap: Record<MimeTypes, ValidComponent> = {
   'text/plain': RenderText,
   'text/markdown': RenderMarkdown,
+  'image/png': renderImage,
 };
 
 function Render(props: RenderProps) {
@@ -106,6 +105,8 @@ function Render(props: RenderProps) {
 type RenderMarkdownProps = RenderProps;
 
 function RenderMarkdown(props: RenderMarkdownProps) {
+  const { deleteItem } = useIPC();
+
   onMount(async () => {
     const result = micromark(props.schema ?? '', {
       // extensions: [gfm()],
@@ -114,8 +115,24 @@ function RenderMarkdown(props: RenderMarkdownProps) {
     props.ref.innerHTML = String(result);
   });
 
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        // It is within an event handler
+        // eslint-disable-next-line solid/reactivity
+        deleteItem(props.id!).then((id: number) => {
+          props.setItems((prev) => prev.filter((item) => item.id != id));
+        });
+      } catch {
+        /**/
+      }
+      return;
+    }
+  }
+
   return (
     <div
+      onKeyUp={handleKeyUp}
       id="markdown-content"
       class="absolute min-h-[30px] min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
       tabIndex="0"
@@ -138,7 +155,7 @@ type RenderTextProps = RenderProps;
 function RenderText(props: RenderTextProps) {
   const { getSelected, holdingCtrl, holdingShift, register, unregister } =
     useSelection();
-  const { socket } = useIPC();
+  const { deleteItem, updateItem } = useIPC();
   const selected = createMemo(() => getSelected().has(props.id!));
 
   function handleClick() {
@@ -152,30 +169,25 @@ function RenderText(props: RenderTextProps) {
     unregister(props.id!);
   }
 
-  function handleKeyUp(e: KeyboardEvent) {
-    if (isTauri) {
-      if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-        invoke('delete_item', {
-          id: props.id,
-          // It is within an event handler
-          // eslint-disable-next-line solid/reactivity
-        }).then((id: number) => {
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        // It is within an event handler
+        // eslint-disable-next-line solid/reactivity
+        deleteItem(props.id!).then((id: number) => {
           props.setItems((prev) => prev.filter((item) => item.id != id));
         });
-        return;
-      } else {
-        invoke('patch_item', {
-          ...props,
-          schema: props.ref.textContent,
-        } as Item);
-        return;
+      } catch {
+        /**/
       }
+      return;
+    } else {
+      await updateItem({
+        ...props,
+        schema: props.ref.textContent,
+      } as Item);
+      return;
     }
-
-    socket.emit('item:update_inner', {
-      ...props,
-      schema: props.ref.textContent,
-    } as Item);
   }
 
   return (
@@ -203,5 +215,56 @@ function RenderText(props: RenderTextProps) {
     >
       {props.schema}
     </div>
+  );
+}
+
+type RenderImage = RenderProps;
+
+function renderImage(props: RenderImage) {
+  const { deleteItem } = useIPC();
+
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        // It is within an event handler
+        // eslint-disable-next-line solid/reactivity
+        await deleteItem(props.id!).then((id: number) => {
+          props.setItems((prev) => prev.filter((item) => item.id != id));
+        });
+      } catch {
+        /**/
+      }
+      return;
+    }
+  }
+
+  onMount(() => {
+    if (props.blob) {
+      const uint8Array = new Uint8Array(props.blob);
+      // const base64String = String(uint8Array);
+      // Create data URL
+      // const dataUrl = 'data:image/png;base64,' + base64String;
+      const text = new TextDecoder('utf8').decode(uint8Array);
+      (props.ref as HTMLImageElement).src = text;
+    }
+  });
+
+  return (
+    <img
+      onKeyUp={handleKeyUp}
+      id="markdown-content"
+      class="absolute min-h-[30px] min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
+      tabIndex="0"
+      style={{
+        'transform-origin': 'top left',
+        'pointer-events': 'all',
+        translate: `
+          ${props.translation().x}px
+          ${-props.translation().y}px
+        `,
+        scale: `${props.scalar()}`,
+      }}
+      ref={props.ref as HTMLImageElement}
+    />
   );
 }

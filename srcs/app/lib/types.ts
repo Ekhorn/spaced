@@ -1,4 +1,4 @@
-export type MimeTypes = 'text/plain' | 'text/markdown';
+export type MimeTypes = 'text/plain' | 'text/markdown' | 'image/png';
 
 export type Item = {
   id?: number;
@@ -9,4 +9,7 @@ export type Item = {
   name?: string;
   mime: MimeTypes;
   schema?: string;
+  blob?: ArrayBuffer;
 };
+
+export type Storage = 'local' | 'browser' | 'web';

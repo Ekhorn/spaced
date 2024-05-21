@@ -138,6 +138,7 @@ struct Item {
   name: Option<String>,
   mime: String,
   schema: Option<String>,
+  file: Option<Vec<u8>>
 }
 
 #[tauri::command]
@@ -161,14 +162,15 @@ async fn create_item(
   name: String,
   mime: String,
   schema: String,
+  file: Vec<u8>
 ) -> Result<Item, Error> {
   let pool = state.db.read().await;
 
   let item = sqlx::query_as!(
     Item,
     r#"
-INSERT INTO item ( x, y, w, h, name, mime, schema )
-VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7 ) RETURNING *
+INSERT INTO item ( x, y, w, h, name, mime, schema, file )
+VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8 ) RETURNING *
       "#,
     x,
     y,
@@ -177,6 +179,7 @@ VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7 ) RETURNING *
     name,
     mime,
     schema,
+    file,
   )
   .fetch_one(&pool.clone().unwrap())
   .await?;
@@ -195,6 +198,7 @@ async fn patch_item(
   name: String,
   mime: String,
   schema: String,
+  file: Vec<u8>
 ) -> Result<(), Error> {
   let pool = state.db.read().await;
 
@@ -208,7 +212,8 @@ SET x = ?2,
   h = ?5,
   name = ?6,
   mime = ?7,
-  schema = ?8
+  schema = ?8,
+  file = ?9
 WHERE id = ?1
     "#,
     id,
@@ -219,6 +224,7 @@ WHERE id = ?1
     name,
     mime,
     schema,
+    file,
   )
   .execute(&pool.clone().unwrap())
   .await?;
