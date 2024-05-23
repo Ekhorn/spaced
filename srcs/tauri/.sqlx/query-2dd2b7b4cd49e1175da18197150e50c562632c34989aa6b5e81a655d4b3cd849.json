@@ -34,9 +34,19 @@
         "type_info": "Text"
       },
       {
-        "name": "schema",
+        "name": "mime",
         "ordinal": 6,
         "type_info": "Text"
+      },
+      {
+        "name": "schema",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "file",
+        "ordinal": 8,
+        "type_info": "Blob"
       }
     ],
     "parameters": {
@@ -47,6 +57,8 @@
       false,
       false,
       false,
+      false,
+      true,
       false,
       true,
       true

@@ -6,12 +6,49 @@ import { Background } from './Background.js';
 import { Container } from './Container.js';
 import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
-import { ViewportProvider } from './ViewportProvider.js';
+import { ViewportProvider, useViewport } from './ViewportProvider.js';
+import { allowedMimeTypes } from '../lib/const.js';
+import { type MimeTypes } from '../lib/types.js';
+// import { getBoundingBox, throttle } from '../lib/utils.js';
+import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
 
 export function App() {
-  // const { absoluteViewportPosition } = useViewport();
+  const { absoluteViewportPosition, scalar } = useViewport();
   const { items, setItems } = useState();
-  const { connect, getNearByItems } = useIPC();
+  const { connect, createItem, getNearByItems } = useIPC();
+
+  async function handleDrop(e: DragEvent): Promise<void> {
+    const file = e.dataTransfer?.files[0];
+    if (!file) {
+      return;
+    }
+
+    if (allowedMimeTypes.has(file.type as MimeTypes)) {
+      const absolute = relativeToAbsolute(
+        new Vec2D(e.clientX, -e.clientY),
+        absoluteViewportPosition(),
+        scalar(),
+      );
+      try {
+        const item = await createItem({
+          x: Math.floor(absolute.x),
+          y: Math.floor(absolute.y),
+          w: 0,
+          h: 0,
+          name: file.name,
+          mime: file.type as MimeTypes,
+          schema: file.type.startsWith('text') ? await file.text() : '',
+          file: file.type.startsWith('text')
+            ? undefined
+            : [...new Uint8Array(await file.arrayBuffer())],
+        });
+        // eslint-disable-next-line unicorn/prefer-spread
+        setItems((value) => value.concat(item));
+      } catch {
+        /**/
+      }
+    }
+  }
 
   // onMount(() => {
   //   socket.on('item:updates', (item: Item) => {
@@ -70,7 +107,7 @@ export function App() {
         <IPCProvider>
           {/* TODO: resolve FOUC */}
           <Background />
-          <main class="absolute h-full w-full">
+          <main class="absolute h-full w-full" onDrop={handleDrop}>
             <Actions />
             <For each={items()}>
               {(item, index) => (

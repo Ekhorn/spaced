@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\nUPDATE item\nSET x = ?2,\n  y = ?3,\n  w = ?4,\n  h = ?5,\n  name = ?6,\n  mime = ?7,\n  schema = ?8,\n  file = ?9\nWHERE id = ?1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 9
+    },
+    "nullable": []
+  },
+  "hash": "f5d68ae6036d0de792397744e0de42174cd335ac7fba9dbc65ed2667693d7d76"
+}
