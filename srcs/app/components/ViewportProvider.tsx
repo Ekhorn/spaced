@@ -36,17 +36,6 @@ function handleZoomOut(relativeMousePosition: Vec2D) {
   setScalar((prev) => prev / factor());
 }
 
-const ViewportContext = createContext({
-  factor,
-  setFactor,
-  scalar,
-  setScalar,
-  handleZoomIn,
-  handleZoomOut,
-  absoluteViewportPosition,
-  setAbsoluteViewportPosition,
-});
-
 type ViewportProps = {
   readonly children: JSXElement;
 };
@@ -55,11 +44,12 @@ const { items, setItems } = useState();
 const { getSelected } = useSelection();
 
 let pointerDelta = new Vec2D(0, 0);
-let lastRelativePointerPosition = new Vec2D(0, 0);
+const [lastRelativePointerPosition, setLastRelativePointerPosition] =
+  createSignal(new Vec2D(0, 0));
 
 function handlePointerMove(event: PointerEvent) {
   pointerDelta = new Vec2D(event.clientX, -event.clientY)
-    .sub(lastRelativePointerPosition)
+    .sub(lastRelativePointerPosition())
     .div(scalar());
   if (event.shiftKey && event.buttons === 1) {
     const selected = getSelected();
@@ -89,7 +79,7 @@ function handlePointerMove(event: PointerEvent) {
   } else if (event.buttons === 1) {
     setAbsoluteViewportPosition((prev) => prev.add(pointerDelta.neg()));
   }
-  lastRelativePointerPosition = new Vec2D(event.clientX, -event.clientY);
+  setLastRelativePointerPosition(new Vec2D(event.clientX, -event.clientY));
 }
 
 function handleWheel(event: WheelEvent) {
@@ -103,6 +93,18 @@ function handleWheel(event: WheelEvent) {
     handleZoomOut(relativeMousePosition);
   }
 }
+
+const ViewportContext = createContext({
+  factor,
+  setFactor,
+  scalar,
+  setScalar,
+  handleZoomIn,
+  handleZoomOut,
+  absoluteViewportPosition,
+  setAbsoluteViewportPosition,
+  lastRelativePointerPosition,
+});
 
 export function ViewportProvider(props: ViewportProps) {
   return (
