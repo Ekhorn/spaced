@@ -5,6 +5,7 @@
 body {
   background-color: #999999;
   text-rendering: optimizeLegibility;
+  image-rendering: optimizeSpeed;
   overflow: hidden;
 }
 
