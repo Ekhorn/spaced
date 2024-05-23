@@ -1,10 +1,8 @@
-import { invoke } from '@tauri-apps/api';
 import { createMemo, type Setter } from 'solid-js';
 
 import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
-import { isTauri } from '../lib/const.js';
 import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
@@ -34,8 +32,8 @@ export function Container(properties: ContainerProps) {
   const { absoluteViewportPosition, scalar } = useViewport();
   const { getSelected, holdingCtrl, holdingShift, register, unregister } =
     useSelection();
-  const { socket } = useIPC();
   const selected = createMemo(() => getSelected().has(properties.id!));
+  const { deleteItem, updateItem } = useIPC();
   const translation = createMemo(() =>
     absoluteToRelative(
       new Vec2D(properties.x, properties.y),
@@ -56,28 +54,25 @@ export function Container(properties: ContainerProps) {
     unregister(properties.id!);
   }
 
-  function handleKeyUp(e: KeyboardEvent) {
-    if (isTauri) {
-      if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-        invoke('delete_item', {
-          id: properties.id,
-        }).then((id: number) => {
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        // It is within an event handler
+        // eslint-disable-next-line solid/reactivity
+        deleteItem(properties.id!).then((id: number) => {
           properties.setItems((prev) => prev.filter((item) => item.id != id));
         });
-        return;
-      } else {
-        invoke('patch_item', {
-          ...properties,
-          schema: ref.textContent,
-        } as Item);
-        return;
+      } catch {
+        /**/
       }
+      return;
+    } else {
+      await updateItem({
+        ...properties,
+        schema: ref.textContent,
+      } as Item);
+      return;
     }
-
-    socket.emit('item:update_inner', {
-      ...properties,
-      schema: ref.textContent,
-    } as Item);
   }
 
   return (

@@ -12,7 +12,6 @@ import {
 } from 'solid-js';
 
 import { useIPC } from './IPCProvider.jsx';
-import { isTauri } from '../lib/const.js';
 
 const { socket } = useIPC();
 
@@ -137,7 +136,7 @@ export function AuthProvider(props: AuthProps) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
     <AuthContext.Provider>
-      <Show when={!isTauri && !isLoggedIn()}>
+      <Show when={false}>
         <dialog
           open={!isLoggedIn()}
           class="inset-0 z-[9999] flex h-[460px] items-center justify-center rounded"
