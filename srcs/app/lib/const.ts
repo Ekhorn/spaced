@@ -6,4 +6,5 @@ export const allowedMimeTypes = new Set([
   'image/png',
   'image/svg+xml',
   'image/jpeg',
+  'application/pdf',
 ] as const);

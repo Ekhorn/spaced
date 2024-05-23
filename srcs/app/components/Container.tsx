@@ -98,6 +98,7 @@ const renderMap: Record<MimeTypes, ValidComponent> = {
   'image/png': renderImage,
   'image/svg+xml': renderImage,
   'image/jpeg': renderImage,
+  'application/pdf': renderPdf,
 };
 
 function Render(props: RenderProps) {
@@ -256,5 +257,48 @@ function renderImage(props: RenderImage) {
       }}
       ref={props.ref as HTMLImageElement}
     />
+  );
+}
+
+type RenderPdf = RenderProps;
+
+function renderPdf(props: RenderPdf) {
+  const { deleteItem } = useIPC();
+
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        const id = await deleteItem(props.id!);
+        props.setItems((prev) => prev.filter((item) => item.id != id));
+      } catch {
+        /**/
+      }
+      return;
+    }
+  }
+
+  onMount(() => {
+    if (props.file) {
+      const uint8Array = new Uint8Array(props.file);
+      const blob = new Blob([uint8Array], { type: props.mime });
+      (props.ref as HTMLObjectElement).data = URL.createObjectURL(blob);
+    }
+  });
+  return (
+    <object
+      onKeyUp={handleKeyUp}
+      class="absolute h-96 min-h-[30px] w-96 min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
+      tabIndex="0"
+      style={{
+        'transform-origin': 'top left',
+        'pointer-events': 'all',
+        translate: `
+      ${props.translation().x}px
+      ${-props.translation().y}px
+    `,
+        scale: `${props.scalar()}`,
+      }}
+      ref={props.ref as HTMLObjectElement}
+    ></object>
   );
 }
