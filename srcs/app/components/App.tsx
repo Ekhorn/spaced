@@ -13,7 +13,8 @@ import { type MimeTypes } from '../lib/types.js';
 import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
 
 export function App() {
-  const { absoluteViewportPosition, scalar } = useViewport();
+  const { absoluteViewportPosition, lastRelativePointerPosition, scalar } =
+    useViewport();
   const { items, setItems } = useState();
   const { connect, createItem, getNearByItems } = useIPC();
 
@@ -49,6 +50,68 @@ export function App() {
       }
     }
   }
+
+  window.addEventListener('paste', async (event: ClipboardEvent) => {
+    event.preventDefault();
+
+    const absolute = relativeToAbsolute(
+      lastRelativePointerPosition(),
+      absoluteViewportPosition(),
+      scalar(),
+    );
+
+    if (!event.clipboardData || event.clipboardData.items.length === 0) {
+      return;
+    }
+    const data: DataTransferItem = [...event.clipboardData.items].at(-1)!;
+
+    if (data.kind === 'string') {
+      data.getAsString(async (text) => {
+        try {
+          const item = await createItem({
+            x: Math.floor(absolute.x),
+            y: Math.floor(absolute.y),
+            w: 0,
+            h: 0,
+            name: 'test',
+            mime: 'text/plain' as MimeTypes,
+            schema: text,
+          });
+
+          // eslint-disable-next-line unicorn/prefer-spread
+          setItems((value) => value.concat(item));
+        } catch {
+          /**/
+        }
+      });
+      return;
+    }
+
+    const file = data?.getAsFile();
+    if (!file || !allowedMimeTypes.has(file.type as MimeTypes)) {
+      return;
+    }
+
+    try {
+      const item = await createItem({
+        x: Math.floor(absolute.x),
+        y: Math.floor(absolute.y),
+        w: 0,
+        h: 0,
+        name: file.name,
+        mime: file.type as MimeTypes,
+        schema: file.type.startsWith('text') ? await file.text() : '',
+        file: file.type.startsWith('text')
+          ? undefined
+          : [...new Uint8Array(await file.arrayBuffer())],
+      });
+
+      // eslint-disable-next-line unicorn/prefer-spread
+      setItems((value) => value.concat(item));
+    } catch {
+      /**/
+    }
+  });
 
   // onMount(() => {
   //   socket.on('item:updates', (item: Item) => {
