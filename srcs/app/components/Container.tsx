@@ -1,7 +1,9 @@
+import { micromark } from 'micromark';
 import {
   type Accessor,
   type ValidComponent,
   createMemo,
+  onMount,
   type Setter,
   ErrorBoundary,
   mergeProps,
@@ -92,6 +94,7 @@ type RenderProps = {
 
 const renderMap: Record<MimeTypes, ValidComponent> = {
   'text/plain': RenderText,
+  'text/markdown': RenderMarkdown,
 };
 
 function Render(props: RenderProps) {
@@ -138,6 +141,7 @@ function RenderText(props: RenderTextProps) {
   return (
     <div
       ref={props.ref}
+      onPaste={(e) => e.stopPropagation()}
       onBeforeInput={handleBeforeInput}
       onKeyUp={handleKeyUp}
       onClick={handleClick}
@@ -160,5 +164,50 @@ function RenderText(props: RenderTextProps) {
     >
       {props.schema}
     </div>
+  );
+}
+
+type RenderMarkdownProps = RenderProps;
+
+function RenderMarkdown(props: RenderMarkdownProps) {
+  const { deleteItem } = useIPC();
+
+  onMount(async () => {
+    const result = micromark(props.schema ?? '', {
+      // extensions: [gfm()],
+      // htmlExtensions: [gfmHtml()],
+    });
+    props.ref.innerHTML = String(result);
+  });
+
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        const id = await deleteItem(props.id!);
+        props.setItems((prev) => prev.filter((item) => item.id != id));
+      } catch {
+        /**/
+      }
+      return;
+    }
+  }
+
+  return (
+    <div
+      onKeyUp={handleKeyUp}
+      id="markdown-content"
+      class="absolute min-h-[30px] min-w-[30px] bg-white p-1 outline outline-1"
+      tabIndex="0"
+      style={{
+        'transform-origin': 'top left',
+        'pointer-events': 'all',
+        translate: `
+          ${props.translation().x}px
+          ${-props.translation().y}px
+        `,
+        scale: `${props.scalar()}`,
+      }}
+      ref={props.ref}
+    />
   );
 }
