@@ -2,7 +2,7 @@ import { Show } from 'solid-js';
 
 import { CreateButton } from './CreateButton.js';
 import { LogOutButton } from './LogOutButton.jsx';
-import { StorageButton } from './StorageButton.js';
+import { StorageSelector } from './StorageSelector.jsx';
 import { isTauri } from '../../lib/const.js';
 
 export function Actions() {
@@ -11,9 +11,7 @@ export function Actions() {
       <Show when={!isTauri}>
         <LogOutButton />
       </Show>
-      <Show when={isTauri}>
-        <StorageButton />
-      </Show>
+      <StorageSelector />
       <CreateButton />
     </div>
   );

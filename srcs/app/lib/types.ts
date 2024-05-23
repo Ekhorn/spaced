@@ -7,3 +7,5 @@ export type Item = {
   name?: string;
   schema?: string;
 };
+
+export type Storage = 'local' | 'browser' | 'cloud';
