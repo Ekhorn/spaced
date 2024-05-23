@@ -95,6 +95,9 @@ type RenderProps = {
 const renderMap: Record<MimeTypes, ValidComponent> = {
   'text/plain': RenderText,
   'text/markdown': RenderMarkdown,
+  'image/png': renderImage,
+  'image/svg+xml': renderImage,
+  'image/jpeg': renderImage,
 };
 
 function Render(props: RenderProps) {
@@ -208,6 +211,50 @@ function RenderMarkdown(props: RenderMarkdownProps) {
         scale: `${props.scalar()}`,
       }}
       ref={props.ref}
+    />
+  );
+}
+
+type RenderImage = RenderProps;
+
+function renderImage(props: RenderImage) {
+  const { deleteItem } = useIPC();
+
+  async function handleKeyUp(e: KeyboardEvent) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+      try {
+        const id = await deleteItem(props.id!);
+        props.setItems((prev) => prev.filter((item) => item.id != id));
+      } catch {
+        /**/
+      }
+      return;
+    }
+  }
+
+  onMount(() => {
+    if (props.file) {
+      const uint8Array = new Uint8Array(props.file);
+      const blob = new Blob([uint8Array], { type: props.mime });
+      (props.ref as HTMLImageElement).src = URL.createObjectURL(blob);
+    }
+  });
+
+  return (
+    <img
+      onKeyUp={handleKeyUp}
+      class="absolute min-h-[30px] min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
+      tabIndex="0"
+      style={{
+        'transform-origin': 'top left',
+        'pointer-events': 'all',
+        translate: `
+          ${props.translation().x}px
+          ${-props.translation().y}px
+        `,
+        scale: `${props.scalar()}`,
+      }}
+      ref={props.ref as HTMLImageElement}
     />
   );
 }
