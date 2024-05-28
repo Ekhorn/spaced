@@ -20,7 +20,10 @@
       class="!visible mx-auto px-8 !opacity-100 transition-opacity duration-150"
       style="visibility: hidden; opacity: 0"
     >
-      <section class="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+      <section
+        class="w-full py-12 md:py-24 lg:py-32 xl:py-48"
+        id="getting-started"
+      >
         <div class="container px-4 md:px-6">
           <div
             class="grid gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_600px]"
@@ -42,32 +45,46 @@
               </div>
               <div class="flex flex-col gap-2 min-[400px]:flex-row">
                 <a
-                  class="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-                  href="#"
+                  class="inline-flex h-10 items-center justify-center gap-1 rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
+                  href="demo"
                 >
-                  Get Started
+                  Try Demo
+                  <img
+                    alt="Spaced App"
+                    class="overflow-hidden rounded-xl object-cover object-center lg:order-last"
+                    src="/assets/arrow-right.svg"
+                    width="18"
+                  />
                 </a>
                 <a
-                  class="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
-                  href="#"
+                  class="inline-flex h-10 items-center justify-center gap-1 rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
+                  href="https://github.com/Ekhorn/spaced"
                 >
+                  <img
+                    alt="Spaced App"
+                    class="mx-auto overflow-hidden rounded-xl object-cover object-center"
+                    src="/assets/github-mark.svg"
+                    width="18"
+                  />
                   Learn More
                 </a>
               </div>
             </div>
-            <img
-              alt="Spaced App"
-              class="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
-              height="310"
-              src="/picture.png"
-              width="550"
-            />
+            <a href="demo">
+              <img
+                alt="Spaced App"
+                class="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
+                height="310"
+                src="/assets/picture.png"
+                width="550"
+            /></a>
           </div>
         </div>
       </section>
 
       <section
         class="w-full bg-gray-100 py-12 md:py-24 lg:py-32 dark:bg-gray-800"
+        id="features"
       >
         <div class="container px-4 md:px-6">
           <div
@@ -77,7 +94,7 @@
               <div
                 class="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm dark:bg-gray-800"
               >
-                Supported Features
+                <!-- Supported Features -->
               </div>
               <h2 class="text-3xl font-bold tracking-tighter sm:text-5xl">
                 Current Spaced features
@@ -97,7 +114,7 @@
               alt="Spaced Features"
               class="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
               height="310"
-              src="/picture.png"
+              src="/assets/picture.png"
               width="550"
             />
             <div class="flex flex-col justify-center space-y-4">
@@ -120,24 +137,28 @@
                     </p>
                   </div>
                 </li>
-                <!-- <li>
+                <li>
                   <div class="grid gap-1">
-                    <h3 class="text-xl font-bold">Powerful Search</h3>
+                    <h3 class="text-xl font-bold">Multimedia rendering</h3>
                     <p class="text-gray-500 dark:text-gray-400">
-                      Quickly find the information you need with Spaced's
-                      advanced search capabilities.
+                      Spaced renders pdfs, images, and markdown. <br />
+                      <a href="#roadmap"><i>More coming soon.</i></a>
                     </p>
                   </div>
-                </li> -->
-                <!-- <li>
+                </li>
+                <li>
                   <div class="grid gap-1">
-                    <h3 class="text-xl font-bold">Collaboration</h3>
+                    <h3 class="text-xl font-bold">OCR support</h3>
                     <p class="text-gray-500 dark:text-gray-400">
-                      Invite your team to collaborate on your knowledge base and
-                      share information seamlessly.
+                      Utilize AI to extract text from an image.
+                      <i
+                        >Currently only supported on desktop. Requires manual
+                        compilation, see
+                        <a href="#getting-started">getting started.</a></i
+                      >
                     </p>
                   </div>
-                </li> -->
+                </li>
               </ul>
             </div>
           </div>
@@ -146,6 +167,7 @@
 
       <section
         class="w-full bg-gray-100 py-12 md:py-24 lg:py-32 dark:bg-gray-800"
+        id="roadmap"
       >
         <div class="container px-4 md:px-6">
           <div
@@ -178,7 +200,7 @@
                     alt="Roadmap Feature"
                     class="rounded-xl"
                     height="100"
-                    src="/placeholder.svg"
+                    src="/assets/mobile.svg"
                     style="aspect-ratio: 100/100; object-fit: cover"
                     width="100"
                   />
@@ -190,37 +212,20 @@
                     </p>
                   </div>
                 </div>
-                <!-- <div class="flex items-start gap-4">
-                  <img
-                    alt="Roadmap Feature"
-                    class="rounded-xl"
-                    height="100"
-                    src="/placeholder.svg"
-                    style="aspect-ratio: 100/100; object-fit: cover"
-                    width="100"
-                  />
-                  <div class="space-y-2">
-                    <h3 class="text-xl font-bold">Advanced Analytics</h3>
-                    <p class="text-gray-500 dark:text-gray-400">
-                      Gain deeper insights into how your team is using Spaced
-                      with our new advanced analytics features.
-                    </p>
-                  </div>
-                </div> -->
                 <div class="flex items-start gap-4">
                   <img
                     alt="Roadmap Feature"
                     class="rounded-xl"
                     height="100"
-                    src="/placeholder.svg"
+                    src="/assets/pencil.svg"
                     style="aspect-ratio: 100/100; object-fit: cover"
                     width="100"
                   />
                   <div class="space-y-2">
-                    <h3 class="text-xl font-bold">Integrations</h3>
+                    <h3 class="text-xl font-bold">Drawing</h3>
                     <p class="text-gray-500 dark:text-gray-400">
-                      Seamlessly connect Spaced with your favorite tools and
-                      workflows.
+                      Draw to visualize your thoughts, including basic shapes to
+                      create simple diagrams.
                     </p>
                   </div>
                 </div>
@@ -228,10 +233,25 @@
                   <img
                     alt="Roadmap Feature"
                     class="rounded-xl"
-                    height="
-
-    100"
-                    src="/placeholder.svg"
+                    height="100"
+                    src="/assets/undo.svg"
+                    style="aspect-ratio: 100/100; object-fit: cover"
+                    width="100"
+                  />
+                  <div class="space-y-2">
+                    <h3 class="text-xl font-bold">Undo/Redo actions</h3>
+                    <p class="text-gray-500 dark:text-gray-400">
+                      Easily undo, and redo any action. Keeps history even after
+                      closing the app.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4">
+                  <img
+                    alt="Roadmap Feature"
+                    class="rounded-xl"
+                    height="100"
+                    src="/assets/template.svg"
                     style="aspect-ratio: 100/100; object-fit: cover"
                     width="100"
                   />
@@ -248,7 +268,7 @@
                     alt="Roadmap Feature"
                     class="rounded-xl"
                     height="100"
-                    src="/placeholder.svg"
+                    src="/assets/search.svg"
                     style="aspect-ratio: 100/100; object-fit: cover"
                     width="100"
                   />
@@ -265,7 +285,7 @@
                     alt="Roadmap Feature"
                     class="rounded-xl"
                     height="100"
-                    src="/placeholder.svg"
+                    src="/assets/placeholder.svg"
                     style="aspect-ratio: 100/100; object-fit: cover"
                     width="100"
                   />
@@ -277,29 +297,12 @@
                     </p>
                   </div>
                 </div> -->
-                <!-- <div class="flex items-start gap-4">
-                  <img
-                    alt="Roadmap Feature"
-                    class="rounded-xl"
-                    height="100"
-                    src="/placeholder.svg"
-                    style="aspect-ratio: 100/100; object-fit: cover"
-                    width="100"
-                  />
-                  <div class="space-y-2">
-                    <h3 class="text-xl font-bold">Expanded Integrations</h3>
-                    <p class="text-gray-500 dark:text-gray-400">
-                      Connect Spaced with even more of your favorite tools and
-                      services.
-                    </p>
-                  </div>
-                </div> -->
                 <div class="flex items-start gap-4">
                   <img
                     alt="Roadmap Feature"
                     class="rounded-xl"
                     height="100"
-                    src="/placeholder.svg"
+                    src="/assets/share.svg"
                     style="aspect-ratio: 100/100; object-fit: cover"
                     width="100"
                   />
@@ -311,6 +314,40 @@
                     </p>
                   </div>
                 </div>
+                <div class="flex items-start gap-4">
+                  <img
+                    alt="Roadmap Feature"
+                    class="rounded-xl"
+                    height="100"
+                    src="/assets/embed.svg"
+                    style="aspect-ratio: 100/100; object-fit: cover"
+                    width="100"
+                  />
+                  <div class="space-y-2">
+                    <h3 class="text-xl font-bold">Embedding</h3>
+                    <p class="text-gray-500 dark:text-gray-400">
+                      Embed items into Spaced to render webpages while you're
+                      editing your items.
+                    </p>
+                  </div>
+                </div>
+                <!-- <div class="flex items-start gap-4">
+                  <img
+                    alt="Roadmap Feature"
+                    class="rounded-xl"
+                    height="100"
+                    src="/assets/placeholder.svg"
+                    style="aspect-ratio: 100/100; object-fit: cover"
+                    width="100"
+                  />
+                  <div class="space-y-2">
+                    <h3 class="text-xl font-bold">Integrations</h3>
+                    <p class="text-gray-500 dark:text-gray-400">
+                      Seamlessly connect Spaced with your favorite tools and
+                      workflows.
+                    </p>
+                  </div>
+                </div> -->
               </div>
             </div>
           </div>

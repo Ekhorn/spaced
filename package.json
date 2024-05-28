@@ -22,7 +22,7 @@
     "services": "srcs/scripts/start.sh",
     "sqlx:prepare": "srcs/scripts/sqlx_prepare.sh",
     "static": "cd static && vite",
-    "static:build": "cd static && vite build && sed -i 's|/index-aYNptdGO.css|index-aYNptdGO.css|g' ../docs/index.html",
+    "static:build": "cd static && vite build --outDir=../_site/",
     "tauri": "tauri"
   },
   "lint-staged": {
