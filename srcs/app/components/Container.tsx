@@ -18,8 +18,9 @@ import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
 type ContainerProps = {
   readonly index: number;
+  readonly item: Item;
   readonly setItems: Setter<Item[]>;
-} & Item;
+};
 
 function handleBeforeInput(event: InputEvent) {
   if (event.inputType === 'insertParagraph') {
@@ -42,7 +43,7 @@ export function Container(props: ContainerProps) {
   const { absoluteViewportPosition, scalar } = useViewport();
   const translation = createMemo(() =>
     absoluteToRelative(
-      new Vec2D(props.x, props.y),
+      new Vec2D(props.item.x, props.item.y),
       absoluteViewportPosition(),
       scalar(),
     ),
@@ -86,11 +87,12 @@ function RenderFallback(props: RenderProps) {
 
 type RenderProps = {
   readonly index: number;
+  readonly item: Item;
+  readonly ref: HTMLDivElement;
   readonly setItems: Setter<Item[]>;
   readonly translation: Accessor<Vec2D>;
   readonly scalar: Accessor<number>;
-  ref: HTMLDivElement;
-} & Item;
+};
 
 const renderMap: Record<MimeTypes, ValidComponent> = {
   'text/plain': RenderText,
@@ -102,7 +104,7 @@ const renderMap: Record<MimeTypes, ValidComponent> = {
 };
 
 function Render(props: RenderProps) {
-  return <Dynamic component={renderMap[props.mime]} {...props} />;
+  return <Dynamic component={renderMap[props.item.mime]} {...props} />;
 }
 
 type RenderTextProps = RenderProps;
@@ -111,23 +113,23 @@ function RenderText(props: RenderTextProps) {
   const { getSelected, holdingCtrl, holdingShift, register, unregister } =
     useSelection();
   const { deleteItem, updateItem } = useIPC();
-  const selected = createMemo(() => getSelected().has(props.id!));
+  const selected = createMemo(() => getSelected().has(props.item.id!));
 
   function handleClick() {
-    register(props.id!);
+    register(props.item.id!);
   }
 
   function handleBlur() {
     if (holdingCtrl() || holdingShift()) {
       return;
     }
-    unregister(props.id!);
+    unregister(props.item.id!);
   }
 
   async function handleKeyUp(e: KeyboardEvent) {
     if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
       try {
-        const id = await deleteItem(props.id!);
+        const id = await deleteItem(props.item.id!);
         props.setItems((prev) => prev.filter((item) => item.id != id));
       } catch {
         /**/
@@ -135,9 +137,9 @@ function RenderText(props: RenderTextProps) {
       return;
     } else {
       await updateItem({
-        ...props,
-        schema: props.ref.textContent,
-      } as Item);
+        ...props.item,
+        schema: props.ref.textContent!,
+      });
       return;
     }
   }
@@ -154,7 +156,9 @@ function RenderText(props: RenderTextProps) {
       tabIndex="0"
       contenteditable={selected()}
       style={{
-        'outline-color': selected() ? 'black' : props.schema && 'transparent',
+        'outline-color': selected()
+          ? 'black'
+          : props.item.schema && 'transparent',
         'transform-origin': 'top left',
         'background-color': 'transparent',
         'pointer-events': 'all',
@@ -166,7 +170,7 @@ function RenderText(props: RenderTextProps) {
         scale: `${props.scalar()}`,
       }}
     >
-      {props.schema}
+      {props.item.schema}
     </div>
   );
 }
@@ -177,7 +181,7 @@ function RenderMarkdown(props: RenderMarkdownProps) {
   const { deleteItem } = useIPC();
 
   onMount(async () => {
-    const result = micromark(props.schema ?? '', {
+    const result = micromark(props.item.schema ?? '', {
       // extensions: [gfm()],
       // htmlExtensions: [gfmHtml()],
     });
@@ -187,7 +191,7 @@ function RenderMarkdown(props: RenderMarkdownProps) {
   async function handleKeyUp(e: KeyboardEvent) {
     if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
       try {
-        const id = await deleteItem(props.id!);
+        const id = await deleteItem(props.item.id!);
         props.setItems((prev) => prev.filter((item) => item.id != id));
       } catch {
         /**/
@@ -224,7 +228,7 @@ function renderImage(props: RenderImage) {
   async function handleKeyUp(e: KeyboardEvent) {
     if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
       try {
-        const id = await deleteItem(props.id!);
+        const id = await deleteItem(props.item.id!);
         props.setItems((prev) => prev.filter((item) => item.id != id));
       } catch {
         /**/
@@ -234,9 +238,9 @@ function renderImage(props: RenderImage) {
   }
 
   onMount(() => {
-    if (props.file) {
-      const uint8Array = new Uint8Array(props.file);
-      const blob = new Blob([uint8Array], { type: props.mime });
+    if (props.item.file) {
+      const uint8Array = new Uint8Array(props.item.file);
+      const blob = new Blob([uint8Array], { type: props.item.mime });
       (props.ref as HTMLImageElement).src = URL.createObjectURL(blob);
     }
   });
@@ -268,7 +272,7 @@ function renderPdf(props: RenderPdf) {
   async function handleKeyUp(e: KeyboardEvent) {
     if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
       try {
-        const id = await deleteItem(props.id!);
+        const id = await deleteItem(props.item.id!);
         props.setItems((prev) => prev.filter((item) => item.id != id));
       } catch {
         /**/
@@ -278,9 +282,9 @@ function renderPdf(props: RenderPdf) {
   }
 
   onMount(() => {
-    if (props.file) {
-      const uint8Array = new Uint8Array(props.file);
-      const blob = new Blob([uint8Array], { type: props.mime });
+    if (props.item.file) {
+      const uint8Array = new Uint8Array(props.item.file);
+      const blob = new Blob([uint8Array], { type: props.item.mime });
       (props.ref as HTMLObjectElement).data = URL.createObjectURL(blob);
     }
   });

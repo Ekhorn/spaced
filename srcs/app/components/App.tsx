@@ -174,12 +174,7 @@ export function App() {
             <Actions />
             <For each={items()}>
               {(item, index) => (
-                <Container
-                  index={index()}
-                  id={item.id!}
-                  {...item}
-                  setItems={setItems}
-                />
+                <Container index={index()} item={item} setItems={setItems} />
               )}
             </For>
           </main>
