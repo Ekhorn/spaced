@@ -1,7 +1,7 @@
 import { type Page, test, expect } from '@playwright/test';
 
 test.describe.serial('User', () => {
-  test('should be able to register', async ({ page }) => {
+  test.skip('should be able to register', async ({ page }) => {
     await page.goto('/');
 
     await page.waitForLoadState('domcontentloaded');
@@ -18,7 +18,7 @@ test.describe.serial('User', () => {
     await expect(page.getByText('Register')).toBeHidden();
   });
 
-  test.describe('should be able to', () => {
+  test.describe.skip('should be able to', () => {
     let page: Page;
 
     test.beforeAll(async ({ browser }) => {

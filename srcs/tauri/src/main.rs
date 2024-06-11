@@ -100,16 +100,19 @@ struct Item {
   w: i64,
   h: i64,
   name: Option<String>,
+  mime: String,
   schema: Option<String>,
+  file: Option<Vec<u8>>,
 }
 
 #[tauri::command]
+#[tracing::instrument(skip_all)]
 async fn get_nearby_items(state: State<'_, AppState>) -> Result<Vec<Item>, Error> {
   let pool = state.db.read().await;
   let rows: Vec<Item> = sqlx::query_as!(Item, "SELECT * FROM item;")
     .fetch_all(&pool.clone().unwrap())
     .await?;
-  info!("{}", rows.len());
+  info!("Retrieved {} record(s)", rows.len());
   Ok(rows)
 }
 
@@ -121,22 +124,26 @@ async fn create_item(
   w: i64,
   h: i64,
   name: String,
+  mime: String,
   schema: String,
+  file: Option<Vec<u8>>,
 ) -> Result<Item, Error> {
   let pool = state.db.read().await;
 
   let item = sqlx::query_as!(
     Item,
     r#"
-INSERT INTO item ( x, y, w, h, name, schema )
-VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 ) RETURNING *
+INSERT INTO item ( x, y, w, h, name, mime, schema, file )
+VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8 ) RETURNING *
       "#,
     x,
     y,
     w,
     h,
     name,
+    mime,
     schema,
+    file,
   )
   .fetch_one(&pool.clone().unwrap())
   .await?;
@@ -153,7 +160,9 @@ async fn patch_item(
   w: i64,
   h: i64,
   name: String,
+  mime: String,
   schema: String,
+  file: Option<Vec<u8>>,
 ) -> Result<(), Error> {
   let pool = state.db.read().await;
 
@@ -166,7 +175,9 @@ SET x = ?2,
   w = ?4,
   h = ?5,
   name = ?6,
-  schema = ?7
+  mime = ?7,
+  schema = ?8,
+  file = ?9
 WHERE id = ?1
     "#,
     id,
@@ -175,7 +186,9 @@ WHERE id = ?1
     w,
     h,
     name,
+    mime,
     schema,
+    file,
   )
   .execute(&pool.clone().unwrap())
   .await?;
