@@ -4,6 +4,8 @@ import {
   useContext,
   createContext,
   createSignal,
+  onMount,
+  onCleanup,
 } from 'solid-js';
 
 import { useSelection } from './SelectionProvider.js';
@@ -106,7 +108,17 @@ const ViewportContext = createContext({
   lastRelativePointerPosition,
 });
 
+let ref: HTMLDivElement;
+
 export function ViewportProvider(props: ViewportProps) {
+  onMount(() => {
+    // Wheel event since chromium 125 only fires, when handler is attached after render cycle
+    ref.addEventListener('wheel', handleWheel);
+    onCleanup(() => {
+      ref.removeEventListener('wheel', handleWheel);
+    });
+  });
+
   return (
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
@@ -115,7 +127,7 @@ export function ViewportProvider(props: ViewportProps) {
         id="viewport"
         class="h-full w-full overflow-hidden"
         onPointerMove={handlePointerMove}
-        onWheel={handleWheel}
+        ref={ref}
       >
         {props.children}
       </div>
