@@ -49,6 +49,12 @@ let pointerDelta = new Vec2D(0, 0);
 const [lastRelativePointerPosition, setLastRelativePointerPosition] =
   createSignal(new Vec2D(0, 0));
 
+function handlePointerDown(event: PointerEvent) {
+  if (event.pointerType === 'touch') {
+    setLastRelativePointerPosition(new Vec2D(event.clientX, -event.clientY));
+  }
+}
+
 function handlePointerMove(event: PointerEvent) {
   pointerDelta = new Vec2D(event.clientX, -event.clientY)
     .sub(lastRelativePointerPosition())
@@ -126,6 +132,7 @@ export function ViewportProvider(props: ViewportProps) {
       <div
         id="viewport"
         class="h-full w-full overflow-hidden"
+        onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         ref={ref}
       >
