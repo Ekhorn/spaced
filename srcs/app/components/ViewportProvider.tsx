@@ -18,24 +18,25 @@ import {
   scaleViewportUpTo,
 } from '../lib/vector.js';
 
-const [factor, setFactor] = createSignal(1.2);
+const [wheelFactor, setWheelFactor] = createSignal(1.2);
+const [pinchFactor, setPinchFactor] = createSignal(1.05);
 const [scalar, setScalar] = createSignal(1);
 const [absoluteViewportPosition, setAbsoluteViewportPosition] = createSignal(
   new Vec2D(0, 0),
 );
 
-function handleZoomIn(relativeMousePosition: Vec2D) {
+function handleZoomIn(relativeMousePosition: Vec2D, factor: number) {
   setAbsoluteViewportPosition((prev) =>
-    scaleViewportUpTo(relativeMousePosition, prev, scalar(), factor()),
+    scaleViewportUpTo(relativeMousePosition, prev, scalar(), factor),
   );
-  setScalar((prev) => prev * factor());
+  setScalar((prev) => prev * factor);
 }
 
-function handleZoomOut(relativeMousePosition: Vec2D) {
+function handleZoomOut(relativeMousePosition: Vec2D, factor: number) {
   setAbsoluteViewportPosition((prev) =>
-    scaleViewportOutFrom(relativeMousePosition, prev, scalar(), factor()),
+    scaleViewportOutFrom(relativeMousePosition, prev, scalar(), factor),
   );
-  setScalar((prev) => prev / factor());
+  setScalar((prev) => prev / factor);
 }
 
 type ViewportProps = {
@@ -46,10 +47,56 @@ const { items, setItems } = useState();
 const { getSelected } = useSelection();
 
 let pointerDelta = new Vec2D(0, 0);
+let lastDistance: number;
+let pointers: PointerEvent[] = [];
 const [lastRelativePointerPosition, setLastRelativePointerPosition] =
   createSignal(new Vec2D(0, 0));
 
+function getDistance(pointer1: PointerEvent, pointer2: PointerEvent) {
+  const dx = pointer1.clientX - pointer2.clientX;
+  const dy = pointer1.clientY - pointer2.clientY;
+  return Math.hypot(dx, dy);
+}
+
+function getLocation(pointer1: PointerEvent, pointer2: PointerEvent): Vec2D {
+  const midX = (pointer1.clientX + pointer2.clientX) / 2;
+  const midY = -(pointer1.clientY + pointer2.clientY) / 2;
+  return new Vec2D(midX, midY);
+}
+
+function handlePointerDown(event: PointerEvent) {
+  if (event.pointerType === 'touch') {
+    pointers.push(event);
+    setLastRelativePointerPosition(new Vec2D(event.clientX, -event.clientY));
+    if (pointers.length === 2) {
+      lastDistance = getDistance(pointers[0], pointers[1]);
+    }
+  }
+}
+
 function handlePointerMove(event: PointerEvent) {
+  if (event.pointerType === 'touch' && pointers.length === 2) {
+    for (let i = 0; i < pointers.length; i++) {
+      if (pointers[i].pointerId === event.pointerId) {
+        pointers[i] = event;
+        break;
+      }
+    }
+
+    const distance = getDistance(pointers[0], pointers[1]);
+    const relativePointerPosition = getLocation(pointers[0], pointers[1]);
+    const isZoomIn = distance > lastDistance;
+    const isZoomOut = distance < lastDistance;
+
+    if (isZoomIn && scalar() < 160) {
+      handleZoomIn(relativePointerPosition, pinchFactor());
+    } else if (isZoomOut && scalar() > 0.01) {
+      handleZoomOut(relativePointerPosition, pinchFactor());
+    }
+    lastDistance = distance;
+    return;
+  }
+
   pointerDelta = new Vec2D(event.clientX, -event.clientY)
     .sub(lastRelativePointerPosition())
     .div(scalar());
@@ -84,21 +131,33 @@ function handlePointerMove(event: PointerEvent) {
   setLastRelativePointerPosition(new Vec2D(event.clientX, -event.clientY));
 }
 
+function handlePointerRemove(event: PointerEvent) {
+  pointers = pointers.filter((p) => p.pointerId !== event.pointerId);
+  const [pointer] = pointers;
+  if (pointer) {
+    setLastRelativePointerPosition(
+      new Vec2D(pointer.clientX, -pointer.clientY),
+    );
+  }
+}
+
 function handleWheel(event: WheelEvent) {
   const isZoomIn = event.deltaY < 0;
   const isZoomOut = event.deltaY > 0;
   const relativeMousePosition = new Vec2D(event.clientX, -event.clientY);
 
   if (isZoomIn && scalar() < 160) {
-    handleZoomIn(relativeMousePosition);
+    handleZoomIn(relativeMousePosition, wheelFactor());
   } else if (isZoomOut && scalar() > 0.01) {
-    handleZoomOut(relativeMousePosition);
+    handleZoomOut(relativeMousePosition, wheelFactor());
   }
 }
 
 const ViewportContext = createContext({
-  factor,
-  setFactor,
+  wheelFactor,
+  setWheelFactor,
+  pinchFactor,
+  setPinchFactor,
   scalar,
   setScalar,
   handleZoomIn,
@@ -126,7 +185,11 @@ export function ViewportProvider(props: ViewportProps) {
       <div
         id="viewport"
         class="h-full w-full overflow-hidden"
+        onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
+        onPointerCancel={handlePointerRemove}
+        onPointerUp={handlePointerRemove}
+        onWheel={handleWheel}
         ref={ref}
       >
         {props.children}
