@@ -142,6 +142,7 @@ function handlePointerRemove(event: PointerEvent) {
 }
 
 function handleWheel(event: WheelEvent) {
+  console.log('test');
   const isZoomIn = event.deltaY < 0;
   const isZoomOut = event.deltaY > 0;
   const relativeMousePosition = new Vec2D(event.clientX, -event.clientY);
@@ -184,12 +185,11 @@ export function ViewportProvider(props: ViewportProps) {
     <ViewportContext.Provider>
       <div
         id="viewport"
-        class="h-full w-full overflow-hidden"
+        class="h-full w-full"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerCancel={handlePointerRemove}
         onPointerUp={handlePointerRemove}
-        onWheel={handleWheel}
         ref={ref}
       >
         {props.children}
