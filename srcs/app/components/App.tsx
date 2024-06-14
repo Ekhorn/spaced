@@ -2,6 +2,7 @@ import { For, onMount } from 'solid-js';
 
 import { AuthProvider } from './AuthProvider.js';
 import { Background } from './Background.js';
+import { ConfigProvider } from './ConfigProvider.js';
 import { Container } from './Container.js';
 import { Controls } from './Controls/index.js';
 import { IPCProvider, useIPC } from './IPCProvider.js';
@@ -163,21 +164,23 @@ export function App() {
   // );
 
   return (
-    <AuthProvider>
-      <ViewportProvider>
-        <IPCProvider>
-          {/* TODO: resolve FOUC */}
-          <Background />
-          <main class="absolute h-full w-full" onDrop={handleDrop}>
-            <Controls />
-            <For each={items()}>
-              {(item, index) => (
-                <Container index={index()} item={item} setItems={setItems} />
-              )}
-            </For>
-          </main>
-        </IPCProvider>
-      </ViewportProvider>
-    </AuthProvider>
+    <ConfigProvider>
+      <AuthProvider>
+        <ViewportProvider>
+          <IPCProvider>
+            {/* TODO: resolve FOUC */}
+            <Background />
+            <main class="absolute h-full w-full" onDrop={handleDrop}>
+              <Controls />
+              <For each={items()}>
+                {(item, index) => (
+                  <Container index={index()} item={item} setItems={setItems} />
+                )}
+              </For>
+            </main>
+          </IPCProvider>
+        </ViewportProvider>
+      </AuthProvider>
+    </ConfigProvider>
   );
 }
