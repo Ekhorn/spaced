@@ -10,7 +10,7 @@ export type Item = {
   w: number;
   h: number;
   name?: string;
-  mime: MimeTypes;
+  mime: string;
   schema?: string;
   file?: number[];
 };

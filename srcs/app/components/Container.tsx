@@ -175,8 +175,18 @@ const renderMap: Record<MimeTypes, ValidComponent> = {
   'application/pdf': renderPdf,
 };
 
+function RenderUnkown(props: RenderProps) {
+  // eslint-disable-next-line solid/reactivity
+  return `Unkown media type:\n${props.item.mime}`;
+}
+
 function Render(props: RenderProps) {
-  return <Dynamic component={renderMap[props.item.mime]} {...props} />;
+  return (
+    <Dynamic
+      component={renderMap?.[props.item.mime as MimeTypes] ?? RenderUnkown}
+      {...props}
+    />
+  );
 }
 
 type RenderTextProps = RenderProps;
