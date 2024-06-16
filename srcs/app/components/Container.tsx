@@ -172,6 +172,7 @@ const renderMap: Record<MimeTypes, ValidComponent> = {
   'image/png': renderImage,
   'image/svg+xml': renderImage,
   'image/jpeg': renderImage,
+  'image/gif': renderImage,
   'application/pdf': renderPdf,
 };
 
