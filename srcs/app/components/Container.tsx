@@ -232,7 +232,7 @@ function RenderMarkdown(props: RenderMarkdownProps) {
       // extensions: [gfm()],
       // htmlExtensions: [gfmHtml()],
     });
-    props.ref.innerHTML = String(result);
+    ref.innerHTML = String(result);
   });
 
   return <div id="markdown-content" ref={ref} />;
