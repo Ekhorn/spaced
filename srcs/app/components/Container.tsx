@@ -7,6 +7,8 @@ import {
   type Setter,
   ErrorBoundary,
   mergeProps,
+  onCleanup,
+  createEffect,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
@@ -39,6 +41,40 @@ function handleBeforeInput(event: InputEvent) {
   }
 }
 
+export function makeEventListener(
+  target: EventTarget,
+  type: string,
+  handler: (event: Event) => void,
+  options?: EventListenerOptions,
+): void {
+  createEffect(() => {
+    target.addEventListener(type, handler, options);
+    onCleanup(() => {
+      target.removeEventListener(type, handler, options);
+    });
+  });
+}
+
+export function useClickOutside(
+  ref: EventTarget,
+  handler: (event: Event) => void,
+): void {
+  function listener(event: Event): void {
+    if (!ref) {
+      return;
+    }
+    const composedPath = event.composedPath();
+    if (composedPath.includes(ref)) {
+      return;
+    }
+
+    handler(event);
+  }
+
+  makeEventListener(document, 'mousedown', listener);
+  makeEventListener(document, 'touchstart', listener);
+}
+
 export function Container(props: ContainerProps) {
   const { absoluteViewportPosition, scalar } = useViewport();
   const translation = createMemo(() =>
@@ -49,46 +85,82 @@ export function Container(props: ContainerProps) {
     ),
   );
 
+  const { getSelected, holdingCtrl, holdingShift, register, unregister } =
+    useSelection();
+  const { deleteItem } = useIPC();
+  const selected = createMemo(() => getSelected().has(props.item.id!));
+
+  function handleClick() {
+    register(props.item.id!);
+  }
+  function handleBlur() {
+    if (holdingCtrl() || holdingShift()) {
+      return;
+    }
+    unregister(props.item.id!);
+  }
+  async function handleKeyUp(event: KeyboardEvent) {
+    event.stopPropagation();
+    if (event.key === 'Delete') {
+      try {
+        const id = await deleteItem(props.item.id!);
+        props.setItems((prev) => prev.filter((item) => item.id != id));
+      } catch {
+        /**/
+      }
+      return;
+    }
+  }
   let ref!: HTMLDivElement;
+
+  onMount(() => {
+    useClickOutside(ref, handleBlur);
+  });
 
   const renderProps = mergeProps(
     {
       ref,
       scalar,
+      selected,
       translation,
     },
     props,
   );
 
   return (
-    <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
-      <Render {...renderProps} />
-    </ErrorBoundary>
+    <div
+      class="absolute min-h-8 min-w-8 whitespace-pre rounded bg-white p-1 outline-1 hover:outline"
+      style={{
+        'pointer-events': 'all',
+        'transform-origin': 'top left',
+        'outline-style': selected() ? 'solid' : 'unset',
+        translate: `
+          ${translation().x}px
+          ${-translation().y}px
+        `,
+        scale: String(scalar()),
+      }}
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyUp={handleKeyUp}
+      ref={ref}
+    >
+      <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
+        <Render {...renderProps} />
+      </ErrorBoundary>
+    </div>
   );
 }
 
-function RenderFallback(props: RenderProps) {
-  return (
-    <div
-      class="absolute min-h-[30px] min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
-      style={{
-        'transform-origin': 'top left',
-        translate: `
-  ${props.translation().x}px
-  ${-props.translation().y}px
-`,
-        scale: `${props.scalar()}`,
-      }}
-    >
-      Error occured
-    </div>
-  );
+function RenderFallback() {
+  return 'Error occured';
 }
 
 type RenderProps = {
   readonly index: number;
   readonly item: Item;
   readonly ref: HTMLDivElement;
+  readonly selected: Accessor<boolean>;
   readonly setItems: Setter<Item[]>;
   readonly translation: Accessor<Vec2D>;
   readonly scalar: Accessor<number>;
@@ -110,65 +182,29 @@ function Render(props: RenderProps) {
 type RenderTextProps = RenderProps;
 
 function RenderText(props: RenderTextProps) {
-  const { getSelected, holdingCtrl, holdingShift, register, unregister } =
-    useSelection();
-  const { deleteItem, updateItem } = useIPC();
-  const selected = createMemo(() => getSelected().has(props.item.id!));
+  const { updateItem } = useIPC();
 
-  function handleClick() {
-    register(props.item.id!);
-  }
-
-  function handleBlur() {
-    if (holdingCtrl() || holdingShift()) {
-      return;
-    }
-    unregister(props.item.id!);
-  }
+  let ref!: HTMLDivElement;
 
   async function handleKeyUp(e: KeyboardEvent) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-      try {
-        const id = await deleteItem(props.item.id!);
-        props.setItems((prev) => prev.filter((item) => item.id != id));
-      } catch {
-        /**/
-      }
-      return;
-    } else {
-      await updateItem({
-        ...props.item,
-        schema: props.ref.textContent!,
-      });
-      return;
-    }
+    e.stopPropagation();
+
+    await updateItem({
+      ...props.item,
+      schema: ref.textContent!,
+    });
   }
 
   return (
     <div
-      ref={props.ref}
       onPaste={(e) => e.stopPropagation()}
       onBeforeInput={handleBeforeInput}
       onKeyUp={handleKeyUp}
-      onClick={handleClick}
-      onBlur={handleBlur}
-      class="absolute min-h-[30px] min-w-[30px] whitespace-pre p-1 outline outline-1"
-      tabIndex="0"
-      contenteditable={selected()}
+      contenteditable={props.selected()}
       style={{
-        'outline-color': selected()
-          ? 'black'
-          : props.item.schema && 'transparent',
-        'transform-origin': 'top left',
-        'background-color': 'transparent',
-        'pointer-events': 'all',
         'line-height': '1rem',
-        translate: `
-          ${props.translation().x}px
-          ${-props.translation().y}px
-        `,
-        scale: `${props.scalar()}`,
       }}
+      ref={ref}
     >
       {props.item.schema}
     </div>
@@ -178,7 +214,7 @@ function RenderText(props: RenderTextProps) {
 type RenderMarkdownProps = RenderProps;
 
 function RenderMarkdown(props: RenderMarkdownProps) {
-  const { deleteItem } = useIPC();
+  let ref!: HTMLDivElement;
 
   onMount(async () => {
     const result = micromark(props.item.schema ?? '', {
@@ -188,121 +224,44 @@ function RenderMarkdown(props: RenderMarkdownProps) {
     props.ref.innerHTML = String(result);
   });
 
-  async function handleKeyUp(e: KeyboardEvent) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-      try {
-        const id = await deleteItem(props.item.id!);
-        props.setItems((prev) => prev.filter((item) => item.id != id));
-      } catch {
-        /**/
-      }
-      return;
-    }
-  }
-
-  return (
-    <div
-      onKeyUp={handleKeyUp}
-      id="markdown-content"
-      class="absolute min-h-[30px] min-w-[30px] bg-white p-1 outline outline-1"
-      tabIndex="0"
-      style={{
-        'transform-origin': 'top left',
-        'pointer-events': 'all',
-        translate: `
-          ${props.translation().x}px
-          ${-props.translation().y}px
-        `,
-        scale: `${props.scalar()}`,
-      }}
-      ref={props.ref}
-    />
-  );
+  return <div id="markdown-content" ref={ref} />;
 }
 
 type RenderImage = RenderProps;
 
 function renderImage(props: RenderImage) {
-  const { deleteItem } = useIPC();
-
-  async function handleKeyUp(e: KeyboardEvent) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-      try {
-        const id = await deleteItem(props.item.id!);
-        props.setItems((prev) => prev.filter((item) => item.id != id));
-      } catch {
-        /**/
-      }
-      return;
-    }
-  }
+  let ref!: HTMLImageElement;
 
   onMount(() => {
     if (props.item.file) {
       const uint8Array = new Uint8Array(props.item.file);
       const blob = new Blob([uint8Array], { type: props.item.mime });
-      (props.ref as HTMLImageElement).src = URL.createObjectURL(blob);
+      ref.src = URL.createObjectURL(blob);
     }
   });
 
-  return (
-    <img
-      onKeyUp={handleKeyUp}
-      class="absolute min-h-[30px] min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
-      tabIndex="0"
-      style={{
-        'transform-origin': 'top left',
-        'pointer-events': 'all',
-        translate: `
-          ${props.translation().x}px
-          ${-props.translation().y}px
-        `,
-        scale: `${props.scalar()}`,
-      }}
-      ref={props.ref as HTMLImageElement}
-    />
-  );
+  return <img ref={ref} />;
 }
 
 type RenderPdf = RenderProps;
 
 function renderPdf(props: RenderPdf) {
-  const { deleteItem } = useIPC();
-
-  async function handleKeyUp(e: KeyboardEvent) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-      try {
-        const id = await deleteItem(props.item.id!);
-        props.setItems((prev) => prev.filter((item) => item.id != id));
-      } catch {
-        /**/
-      }
-      return;
-    }
-  }
+  let ref!: HTMLObjectElement;
 
   onMount(() => {
     if (props.item.file) {
       const uint8Array = new Uint8Array(props.item.file);
       const blob = new Blob([uint8Array], { type: props.item.mime });
-      (props.ref as HTMLObjectElement).data = URL.createObjectURL(blob);
+      ref.data = URL.createObjectURL(blob);
     }
   });
+
   return (
     <object
-      onKeyUp={handleKeyUp}
-      class="absolute h-96 min-h-[30px] w-96 min-w-[30px] whitespace-pre bg-white p-1 outline outline-1"
-      tabIndex="0"
       style={{
-        'transform-origin': 'top left',
         'pointer-events': 'all',
-        translate: `
-      ${props.translation().x}px
-      ${-props.translation().y}px
-    `,
-        scale: `${props.scalar()}`,
       }}
-      ref={props.ref as HTMLObjectElement}
+      ref={ref}
     ></object>
   );
 }
