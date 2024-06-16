@@ -24,30 +24,28 @@ export function App() {
       return;
     }
 
-    if (allowedMimeTypes.has(file.type as MimeTypes)) {
-      const absolute = relativeToAbsolute(
-        new Vec2D(e.clientX, -e.clientY),
-        absoluteViewportPosition(),
-        scalar(),
-      );
-      try {
-        const item = await createItem({
-          x: Math.floor(absolute.x),
-          y: Math.floor(absolute.y),
-          w: 0,
-          h: 0,
-          name: file.name,
-          mime: file.type as MimeTypes,
-          schema: file.type.startsWith('text') ? await file.text() : '',
-          file: file.type.startsWith('text')
-            ? undefined
-            : [...new Uint8Array(await file.arrayBuffer())],
-        });
-        // eslint-disable-next-line unicorn/prefer-spread
-        setItems((value) => value.concat(item));
-      } catch {
-        /**/
-      }
+    const absolute = relativeToAbsolute(
+      new Vec2D(e.clientX, -e.clientY),
+      absoluteViewportPosition(),
+      scalar(),
+    );
+    try {
+      const item = await createItem({
+        x: Math.floor(absolute.x),
+        y: Math.floor(absolute.y),
+        w: 0,
+        h: 0,
+        name: file.name,
+        mime: file.type,
+        schema: file.type.startsWith('text') ? await file.text() : '',
+        file: file.type.startsWith('text')
+          ? undefined
+          : [...new Uint8Array(await file.arrayBuffer())],
+      });
+      // eslint-disable-next-line unicorn/prefer-spread
+      setItems((value) => value.concat(item));
+    } catch {
+      /**/
     }
   }
 
