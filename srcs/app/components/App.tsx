@@ -1,9 +1,9 @@
 import { For, onMount } from 'solid-js';
 
-import { Actions } from './Actions/index.js';
 import { AuthProvider } from './AuthProvider.js';
 import { Background } from './Background.js';
 import { Container } from './Container.js';
+import { Controls } from './Controls/index.js';
 import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
 import { ViewportProvider, useViewport } from './ViewportProvider.js';
@@ -169,7 +169,7 @@ export function App() {
           {/* TODO: resolve FOUC */}
           <Background />
           <main class="absolute h-full w-full" onDrop={handleDrop}>
-            <Actions />
+            <Controls />
             <For each={items()}>
               {(item, index) => (
                 <Container index={index()} item={item} setItems={setItems} />
