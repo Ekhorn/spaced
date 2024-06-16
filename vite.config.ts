@@ -27,4 +27,5 @@ export default defineConfig(async () => ({
     target: 'esnext',
     outDir: '../../dist',
   },
+  assetsInclude: ['**/*.rten', '**/*.wasm'],
 }));

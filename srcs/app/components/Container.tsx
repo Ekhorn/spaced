@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api';
 import { micromark } from 'micromark';
 import { HiSolidDocumentMagnifyingGlass } from 'solid-icons/hi';
 import {
@@ -19,9 +18,16 @@ import { Dynamic } from 'solid-js/web';
 import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
-import { isTauri } from '../lib/const.js';
 import { type MimeTypes, type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
+import {
+  OcrEngine,
+  OcrEngineInit,
+  default as initOcrLib,
+} from '../wasm/ocrs.js';
+import wasmUrl from '../wasm/ocrs_bg.wasm?url';
+import detection from '../wasm/text-detection.rten';
+import recognition from '../wasm/text-recognition.rten';
 
 type ContainerProps = {
   readonly index: number;
@@ -251,11 +257,28 @@ function renderImage(props: RenderImage) {
   const [menu, setMenu] = createSignal(true);
 
   async function handleClick() {
-    if (isTauri && props.item.file) {
-      const response = await invoke('detect', {
-        imageData: [...new Uint8Array(props.item.file)],
-      });
-      window.navigator.clipboard.writeText(response);
+    console.log('detect');
+    if (props.item.file) {
+      // const { instance, module } = await WebAssembly.instantiateStreaming(
+      //   fetch(wasmUrl),
+      //   {},
+      // );
+      await initOcrLib(fetch(wasmUrl));
+
+      const ocrInit = new OcrEngineInit();
+      ocrInit.setDetectionModel(new Uint8Array(detection));
+      ocrInit.setRecognitionModel(new Uint8Array(recognition));
+
+      const ocrEngine = new OcrEngine(ocrInit);
+      const ocrInput = ocrEngine.loadImage(
+        (props.ref as HTMLImageElement).width,
+        (props.ref as HTMLImageElement).height,
+        new Uint8Array(props.item.file),
+      );
+      const textLines = ocrEngine.getTextLines(ocrInput);
+      console.log(textLines);
+
+      // window.navigator.clipboard.writeText(response);
     }
   }
 
