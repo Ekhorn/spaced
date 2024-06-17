@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { render } from 'solid-js/web';
+import { createWorker } from 'tesseract.js';
 
 import { App } from './components/App.js';
 import './index.css';
@@ -16,3 +17,5 @@ axios.create({
 });
 
 render(App, document.body);
+
+export const worker = await createWorker('eng');

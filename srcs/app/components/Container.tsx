@@ -20,6 +20,7 @@ import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
 import { type MimeTypes, type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
+import { worker } from '../main.js';
 import {
   OcrEngine,
   OcrEngineInit,
@@ -255,30 +256,38 @@ function renderImage(props: RenderImage) {
   let ref!: HTMLImageElement;
 
   const [menu, setMenu] = createSignal(true);
+  const [selected, setSelected] = createSignal('tesserect');
+
+  async function handleSelect(event: Event) {
+    // @ts-expect-error ignore
+    setSelected(event.target!.value);
+  }
 
   async function handleClick() {
-    console.log('detect');
+    console.log(`recognizing with ${selected()}`);
     if (props.item.file) {
-      // const { instance, module } = await WebAssembly.instantiateStreaming(
-      //   fetch(wasmUrl),
-      //   {},
+      const data = await worker.recognize(props.item.file);
+      console.log(data.data.text);
+      // // const { instance, module } = await WebAssembly.instantiateStreaming(
+      // //   fetch(wasmUrl),
+      // //   {},
+      // // );
+      // await initOcrLib(fetch(wasmUrl));
+
+      // const ocrInit = new OcrEngineInit();
+      // ocrInit.setDetectionModel(new Uint8Array(detection));
+      // ocrInit.setRecognitionModel(new Uint8Array(recognition));
+
+      // const ocrEngine = new OcrEngine(ocrInit);
+      // const ocrInput = ocrEngine.loadImage(
+      //   (props.ref as HTMLImageElement).width,
+      //   (props.ref as HTMLImageElement).height,
+      //   new Uint8Array(props.item.file),
       // );
-      await initOcrLib(fetch(wasmUrl));
+      // const textLines = ocrEngine.getTextLines(ocrInput);
+      // console.log(textLines);
 
-      const ocrInit = new OcrEngineInit();
-      ocrInit.setDetectionModel(new Uint8Array(detection));
-      ocrInit.setRecognitionModel(new Uint8Array(recognition));
-
-      const ocrEngine = new OcrEngine(ocrInit);
-      const ocrInput = ocrEngine.loadImage(
-        (props.ref as HTMLImageElement).width,
-        (props.ref as HTMLImageElement).height,
-        new Uint8Array(props.item.file),
-      );
-      const textLines = ocrEngine.getTextLines(ocrInput);
-      console.log(textLines);
-
-      // window.navigator.clipboard.writeText(response);
+      // // window.navigator.clipboard.writeText(response);
     }
   }
 
@@ -297,12 +306,21 @@ function renderImage(props: RenderImage) {
   return (
     <>
       <Show when={menu()}>
-        <button
-          onClick={handleClick}
-          class="absolute z-50 flex h-8 w-8 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
-        >
-          <HiSolidDocumentMagnifyingGlass />
-        </button>
+        <div class="z-50 flex gap-1">
+          <button
+            onClick={handleClick}
+            class="flex h-8 w-8 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
+          >
+            <HiSolidDocumentMagnifyingGlass />
+          </button>
+          <select
+            onSelect={handleSelect}
+            value={selected()}
+            class="flex h-8 w-24 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
+          >
+            <option value="tesserect">Tesserect.js</option>
+          </select>
+        </div>
       </Show>
       <img ref={ref} />
     </>
