@@ -3,6 +3,7 @@ import { type IDBPDatabase, openDB } from 'idb';
 import { type Socket, io } from 'socket.io-client';
 import { type JSXElement, useContext, createContext } from 'solid-js';
 
+import imageUrl from '../assets/eng_bw.png';
 import { isTauri } from '../lib/const.js';
 import { type Storage, type Item } from '../lib/types.js';
 
@@ -27,10 +28,19 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
         return true;
       }
       db = await openDB(defaultStore, 1, {
-        upgrade(d) {
+        async upgrade(d) {
           d.createObjectStore(objectStore, {
             keyPath: 'id',
             autoIncrement: true,
+          });
+          const response = await fetch(imageUrl);
+          d.add(objectStore, {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+            mime: 'image/png',
+            file: [...new Uint8Array(await response.arrayBuffer())],
           });
         },
       });
