@@ -27,8 +27,8 @@ import {
   default as initOcrLib,
 } from '../wasm/ocrs.js';
 import wasmUrl from '../wasm/ocrs_bg.wasm?url';
-import detection from '../wasm/text-detection.rten';
-import recognition from '../wasm/text-recognition.rten';
+import detectionUrl from '../wasm/text-detection.rten?url';
+import recognitionUrl from '../wasm/text-recognition.rten?url';
 
 type ContainerProps = {
   readonly index: number;
@@ -256,39 +256,76 @@ function renderImage(props: RenderImage) {
   let ref!: HTMLImageElement;
 
   const [menu, setMenu] = createSignal(true);
-  const [selected, setSelected] = createSignal('tesserect');
+  const [selected, setSelected] = createSignal<'tesserect' | 'ocrs'>(
+    'tesserect',
+  );
 
-  async function handleSelect(event: Event) {
+  async function onChange(event: Event) {
     // @ts-expect-error ignore
     setSelected(event.target!.value);
   }
 
   async function handleClick() {
-    console.log(`recognizing with ${selected()}`);
-    if (props.item.file) {
-      const data = await worker.recognize(props.item.file);
-      console.log(data.data.text);
-      // // const { instance, module } = await WebAssembly.instantiateStreaming(
-      // //   fetch(wasmUrl),
-      // //   {},
-      // // );
-      // await initOcrLib(fetch(wasmUrl));
-
-      // const ocrInit = new OcrEngineInit();
-      // ocrInit.setDetectionModel(new Uint8Array(detection));
-      // ocrInit.setRecognitionModel(new Uint8Array(recognition));
-
-      // const ocrEngine = new OcrEngine(ocrInit);
-      // const ocrInput = ocrEngine.loadImage(
-      //   (props.ref as HTMLImageElement).width,
-      //   (props.ref as HTMLImageElement).height,
-      //   new Uint8Array(props.item.file),
-      // );
-      // const textLines = ocrEngine.getTextLines(ocrInput);
-      // console.log(textLines);
-
-      // // window.navigator.clipboard.writeText(response);
+    if (!props.item.file) {
+      return;
     }
+    console.log(`recognizing with ${selected()}`);
+    let result;
+    switch (selected()) {
+      case 'ocrs': {
+        await initOcrLib(fetch(wasmUrl));
+
+        const ocrInit = new OcrEngineInit();
+        const detection = await fetch(detectionUrl);
+        const recognition = await fetch(recognitionUrl);
+
+        ocrInit.setDetectionModel(
+          new Uint8Array(await detection.arrayBuffer()),
+        );
+        ocrInit.setRecognitionModel(
+          new Uint8Array(await recognition.arrayBuffer()),
+        );
+
+        const ocrEngine = new OcrEngine(ocrInit);
+        const uint8Array = new Uint8Array(props.item.file);
+        const blob = new Blob([uint8Array], { type: props.item.mime });
+        const objectURL = URL.createObjectURL(blob);
+
+        await createImageBitmap(blob).then((imageBitmap) => {
+          const offscreenCanvas = new OffscreenCanvas(
+            imageBitmap.width,
+            imageBitmap.height,
+          );
+          const ctx = offscreenCanvas.getContext('2d');
+          ctx!.drawImage(imageBitmap, 0, 0);
+
+          const imageData = ctx!.getImageData(
+            0,
+            0,
+            imageBitmap.width,
+            imageBitmap.height,
+          );
+          const ocrInput = ocrEngine.loadImage(
+            imageData.width,
+            imageData.height,
+            new Uint8Array(imageData.data),
+          );
+          result = ocrEngine.getText(ocrInput);
+
+          URL.revokeObjectURL(objectURL);
+        });
+
+        break;
+      }
+      case 'tesserect': {
+        const response = await worker.recognize(props.item.file);
+        result = response.data.text;
+        break;
+      }
+      default:
+    }
+    console.log(result);
+    // window.navigator.clipboard.writeText(response);
   }
 
   createEffect(() => {
@@ -314,11 +351,12 @@ function renderImage(props: RenderImage) {
             <HiSolidDocumentMagnifyingGlass />
           </button>
           <select
-            onSelect={handleSelect}
+            onChange={onChange}
             value={selected()}
-            class="flex h-8 w-24 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
+            class="flex h-8 w-24 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] px-1 text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
           >
             <option value="tesserect">Tesserect.js</option>
+            <option value="ocrs">Ocrs</option>
           </select>
         </div>
       </Show>
