@@ -11,6 +11,7 @@ module.exports = {
     'node_modules',
     'srcs/tauri',
     '*.config.*',
+    '_site',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
