@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api';
 import {
   type JSXElement,
   useContext,
@@ -8,10 +7,10 @@ import {
   onCleanup,
 } from 'solid-js';
 
+import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useState } from './StateProvider.js';
-import { isTauri } from '../lib/const.js';
-import { debounce } from '../lib/utils.js';
+import { debounce, throttle } from '../lib/utils.js';
 import {
   Vec2D,
   scaleViewportOutFrom,
@@ -43,7 +42,8 @@ type ViewportProps = {
   readonly children: JSXElement;
 };
 
-const { items, setItems } = useState();
+const { setItems } = useState();
+const { getNearByItems, updateItem } = useIPC();
 const { getSelected } = useSelection();
 
 let pointerDelta = new Vec2D(0, 0);
@@ -74,7 +74,9 @@ function handlePointerDown(event: PointerEvent) {
   }
 }
 
-function handlePointerMove(event: PointerEvent) {
+let animationFrameId: number | undefined;
+
+async function handlePointerMove(event: PointerEvent) {
   if (event.pointerType === 'touch' && pointers.length === 2) {
     for (let i = 0; i < pointers.length; i++) {
       if (pointers[i].pointerId === event.pointerId) {
@@ -100,18 +102,20 @@ function handlePointerMove(event: PointerEvent) {
   pointerDelta = new Vec2D(event.clientX, -event.clientY)
     .sub(lastRelativePointerPosition())
     .div(scalar());
-  if (event.shiftKey && event.buttons === 1) {
-    const selected = getSelected();
-    const moved_items = items().map((item) =>
-      selected.has(item.id!)
-        ? {
-            ...item,
-            x: item.x + pointerDelta.x,
-            y: item.y + pointerDelta.y,
-          }
-        : item,
-    );
-    if (isTauri) {
+  if (event.shiftKey && event.buttons === 1 && !animationFrameId) {
+    animationFrameId = requestAnimationFrame(async function () {
+      const selected = getSelected();
+      const items = await getNearByItems();
+
+      const moved_items = items.map((item) =>
+        selected.has(item.id!)
+          ? {
+              ...item,
+              x: item.x + pointerDelta.x,
+              y: item.y + pointerDelta.y,
+            }
+          : item,
+      );
       for (const item of moved_items!
         .map((item) => ({
           ...item,
@@ -119,12 +123,13 @@ function handlePointerMove(event: PointerEvent) {
           y: Math.floor(item.y),
         }))
         .filter((item) => selected.has(item.id!))) {
-        debounce(async () => {
-          await invoke('patch_item', item);
-        }, 100)();
+        await updateItem(item);
       }
-    }
-    setItems(moved_items);
+      // debounce(async () => {
+      setItems(items, false);
+      // }, 500)();
+      animationFrameId = undefined;
+    });
   } else if (event.buttons === 1) {
     setAbsoluteViewportPosition((prev) => prev.add(pointerDelta.neg()));
   }
@@ -142,7 +147,6 @@ function handlePointerRemove(event: PointerEvent) {
 }
 
 function handleWheel(event: WheelEvent) {
-  console.log('test');
   const isZoomIn = event.deltaY < 0;
   const isZoomOut = event.deltaY > 0;
   const relativeMousePosition = new Vec2D(event.clientX, -event.clientY);

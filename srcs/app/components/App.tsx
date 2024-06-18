@@ -170,7 +170,7 @@ export function App() {
           <Background />
           <main class="absolute h-full w-full" onDrop={handleDrop}>
             <Actions />
-            <For each={items()}>
+            <For each={items}>
               {(item, index) => (
                 <Container index={index()} item={item} setItems={setItems} />
               )}

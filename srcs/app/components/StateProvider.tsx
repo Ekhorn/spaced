@@ -1,13 +1,9 @@
-import {
-  type JSXElement,
-  useContext,
-  createContext,
-  createSignal,
-} from 'solid-js';
+import { type JSXElement, useContext, createContext } from 'solid-js';
+import { createStore } from 'solid-js/store';
 
 import { type Item } from '../lib/types.js';
 
-const [items, setItems] = createSignal<Item[]>([]);
+const [items, setItems] = createStore<Item[]>([]);
 const StateContext = createContext({
   items,
   setItems,
