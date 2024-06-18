@@ -251,7 +251,7 @@ function renderImage(props: RenderImage) {
     }
   });
 
-  return <img ref={ref} />;
+  return <img ref={ref} class="pointer-events-none" />;
 }
 
 type RenderPdf = RenderProps;
