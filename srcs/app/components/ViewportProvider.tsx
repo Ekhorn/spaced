@@ -142,7 +142,6 @@ function handlePointerRemove(event: PointerEvent) {
 }
 
 function handleWheel(event: WheelEvent) {
-  console.log('test');
   const isZoomIn = event.deltaY < 0;
   const isZoomOut = event.deltaY > 0;
   const relativeMousePosition = new Vec2D(event.clientX, -event.clientY);
