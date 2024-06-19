@@ -16,7 +16,7 @@ export function App() {
   const { absoluteViewportPosition, lastRelativePointerPosition, scalar } =
     useViewport();
   const { items, setItems } = useState();
-  const { connect, createItem, getNearByItems } = useIPC();
+  const { connect, createItem, getNearbyItems } = useIPC();
 
   async function handleDrop(e: DragEvent): Promise<void> {
     const file = e.dataTransfer?.files[0];
@@ -128,7 +128,7 @@ export function App() {
     try {
       await connect();
 
-      const items = await getNearByItems();
+      const items = await getNearbyItems();
       setItems(items);
     } catch {
       /**/
