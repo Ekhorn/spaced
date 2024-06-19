@@ -200,11 +200,17 @@ function RenderText(props: RenderTextProps) {
   async function handleKeyUp(e: KeyboardEvent) {
     e.stopPropagation();
 
-    await updateItem({
+    const item = await updateItem({
       ...props.item,
       schema: ref.textContent!,
     });
+    // eslint-disable-next-line solid/reactivity
+    props.setItems((prev) => prev.with(props.index, item));
   }
+
+  onMount(() => {
+    ref.textContent = props.item.schema ?? '';
+  });
 
   return (
     <div
@@ -216,9 +222,7 @@ function RenderText(props: RenderTextProps) {
         'line-height': '1rem',
       }}
       ref={ref}
-    >
-      {props.item.schema}
-    </div>
+    ></div>
   );
 }
 
