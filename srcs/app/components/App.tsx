@@ -1,4 +1,4 @@
-import { For, onMount } from 'solid-js';
+import { Index, onMount } from 'solid-js';
 
 import { Actions } from './Actions/index.js';
 import { AuthProvider } from './AuthProvider.js';
@@ -170,11 +170,11 @@ export function App() {
           <Background />
           <main class="absolute h-full w-full" onDrop={handleDrop}>
             <Actions />
-            <For each={items()}>
+            <Index each={items()}>
               {(item, index) => (
-                <Container index={index()} item={item} setItems={setItems} />
+                <Container index={index} item={item()} setItems={setItems} />
               )}
-            </For>
+            </Index>
           </main>
         </IPCProvider>
       </ViewportProvider>
