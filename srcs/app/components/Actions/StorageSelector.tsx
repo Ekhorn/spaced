@@ -8,7 +8,7 @@ import { useIPC } from '../IPCProvider.jsx';
 import { useState } from '../StateProvider.jsx';
 
 export function StorageSelector() {
-  const { connect, getNearByItems } = useIPC();
+  const { connect, getNearbyItems } = useIPC();
   const { setItems } = useState();
   const [connected, setConnected] = createSignal();
 
@@ -22,7 +22,7 @@ export function StorageSelector() {
     }
     const con = await connect(target.value as Storage, newPath);
     setConnected(con);
-    const items = await getNearByItems();
+    const items = await getNearbyItems();
     setItems(items);
   }
 

@@ -60,7 +60,7 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
   }
 }
 
-async function getNearByItems() {
+async function getNearbyItems() {
   const storage = localStorage.getItem('storage');
   switch (storage) {
     case 'browser': {
@@ -185,7 +185,7 @@ interface IpcContext {
    */
   readonly connect: (storage?: Storage, path?: string) => Promise<boolean>;
 
-  readonly getNearByItems: () => Promise<Item[]>;
+  readonly getNearbyItems: () => Promise<Item[]>;
   readonly createItem: (item: Item) => Promise<Item>;
   readonly updateItem: (item: Item) => Promise<Item>;
   readonly deleteItem: (id: number) => Promise<number>;
@@ -195,7 +195,7 @@ const IpcContext = createContext<IpcContext>({
   // connectTauri,
   // connectDB,
   connect,
-  getNearByItems,
+  getNearbyItems,
   createItem,
   updateItem,
   deleteItem,
