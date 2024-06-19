@@ -101,7 +101,7 @@ export function Container(props: ContainerProps) {
   }
   async function handleKeyUp(event: KeyboardEvent) {
     event.stopPropagation();
-    if (event.key === 'Delete') {
+    if (event.key === 'Delete' && selected()) {
       try {
         const id = await deleteItem(props.item.id!);
         props.setItems((prev) => prev.filter((item) => item.id != id));
