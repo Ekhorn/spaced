@@ -18,15 +18,22 @@ export function CreateButton() {
     );
 
     try {
-      const item = await createItem({
-        x: Math.floor(absolute.x),
-        y: Math.floor(absolute.y),
-        w: 0,
-        h: 0,
-        name: 'test',
-        mime: 'text/plain',
-        schema: 'test',
-      });
+      const item = await createItem(
+        {
+          x: Math.floor(absolute.x),
+          y: Math.floor(absolute.y),
+          w: 0,
+          h: 0,
+          schema: JSON.stringify({
+            type: 'div',
+            name: 'Untitled',
+            content: 'test',
+            mime: 'text/plain',
+          }),
+        },
+        [],
+      );
+
       // eslint-disable-next-line unicorn/prefer-spread
       setItems((value) => value.concat(item));
     } catch {

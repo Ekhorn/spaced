@@ -15,7 +15,11 @@ import { Dynamic } from 'solid-js/web';
 import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
-import { type MimeTypes, type Item } from '../lib/types.js';
+import {
+  type MimeTypes,
+  type Item,
+  type ComponentSchemas,
+} from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
 type ContainerProps = {
@@ -117,12 +121,17 @@ export function Container(props: ContainerProps) {
     useClickOutside(ref, handleBlur);
   });
 
+  const schema = createMemo<ComponentSchemas>(() =>
+    JSON.parse(props.item.schema!),
+  );
+
   const renderProps = mergeProps(
     {
       ref,
       scalar,
       selected,
       translation,
+      schema,
     },
     props,
   );
@@ -160,6 +169,7 @@ type RenderProps = {
   readonly index: number;
   readonly item: Item;
   readonly ref: HTMLDivElement;
+  readonly schema: Accessor<ComponentSchemas>;
   readonly selected: Accessor<boolean>;
   readonly setItems: Setter<Item[]>;
   readonly translation: Accessor<Vec2D>;
@@ -178,13 +188,13 @@ const renderMap: Record<MimeTypes, ValidComponent> = {
 
 function RenderUnkown(props: RenderProps) {
   // eslint-disable-next-line solid/reactivity
-  return `Unkown media type:\n${props.item.mime}`;
+  return `Unkown media type:\n${props.schema().mime}`;
 }
 
 function Render(props: RenderProps) {
   return (
     <Dynamic
-      component={renderMap?.[props.item.mime as MimeTypes] ?? RenderUnkown}
+      component={renderMap?.[props.schema().mime as MimeTypes] ?? RenderUnkown}
       {...props}
     />
   );
@@ -200,16 +210,21 @@ function RenderText(props: RenderTextProps) {
   async function handleKeyUp(e: KeyboardEvent) {
     e.stopPropagation();
 
+    const schema: ComponentSchemas = {
+      ...props.schema(),
+      content: ref.textContent!,
+    };
+
     const item = await updateItem({
       ...props.item,
-      schema: ref.textContent!,
+      schema: JSON.stringify(schema),
     });
     // eslint-disable-next-line solid/reactivity
     props.setItems((prev) => prev.with(props.index, item));
   }
 
   onMount(() => {
-    ref.textContent = props.item.schema ?? '';
+    ref.textContent = props.schema().content ?? '';
   });
 
   return (
@@ -232,7 +247,7 @@ function RenderMarkdown(props: RenderMarkdownProps) {
   let ref!: HTMLDivElement;
 
   onMount(async () => {
-    const result = micromark(props.item.schema ?? '', {
+    const result = micromark(props.schema().content ?? '', {
       // extensions: [gfm()],
       // htmlExtensions: [gfmHtml()],
     });
@@ -245,12 +260,15 @@ function RenderMarkdown(props: RenderMarkdownProps) {
 type RenderImage = RenderProps;
 
 function renderImage(props: RenderImage) {
+  const { getAsset } = useIPC();
+
   let ref!: HTMLImageElement;
 
-  onMount(() => {
-    if (props.item.file) {
-      const uint8Array = new Uint8Array(props.item.file);
-      const blob = new Blob([uint8Array], { type: props.item.mime });
+  onMount(async () => {
+    const { content } = props.schema();
+    if (content) {
+      const asset = await getAsset(content);
+      const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
       ref.src = URL.createObjectURL(blob);
     }
   });
@@ -261,12 +279,15 @@ function renderImage(props: RenderImage) {
 type RenderPdf = RenderProps;
 
 function renderPdf(props: RenderPdf) {
+  const { getAsset } = useIPC();
+
   let ref!: HTMLObjectElement;
 
-  onMount(() => {
-    if (props.item.file) {
-      const uint8Array = new Uint8Array(props.item.file);
-      const blob = new Blob([uint8Array], { type: props.item.mime });
+  onMount(async () => {
+    const { content } = props.schema();
+    if (content) {
+      const asset = await getAsset(content);
+      const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
       ref.data = URL.createObjectURL(blob);
     }
   });

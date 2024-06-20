@@ -4,7 +4,7 @@ import { type Socket, io } from 'socket.io-client';
 import { type JSXElement, useContext, createContext } from 'solid-js';
 
 import { isTauri } from '../lib/const.js';
-import { type Storage, type Item } from '../lib/types.js';
+import { type Storage, type Item, type Asset } from '../lib/types.js';
 
 const socket = io(window.location.origin, {
   autoConnect: false,
@@ -88,7 +88,35 @@ async function getNearbyItems() {
   throw new Error('Failed to get nearby items.');
 }
 
-async function createItem(item: Item) {
+async function getAsset(id: string) {
+  const storage = localStorage.getItem('storage');
+  switch (storage) {
+    case 'browser': {
+      if (db) {
+        // TODO:
+      }
+      break;
+    }
+    case 'local': {
+      if (isTauri) {
+        return await invoke('get_asset', { id });
+      }
+      break;
+    }
+    case 'cloud': {
+      if (localStorage.getItem('access_token')) {
+        return await socket.emitWithAck('item:get_nearby');
+      }
+      break;
+    }
+    default: {
+      throw new Error('No storage type selected.');
+    }
+  }
+  throw new Error('Failed to get nearby items.');
+}
+
+async function createItem(item: Item, assets: number[][]) {
   const storage = localStorage.getItem('storage');
   switch (storage) {
     case 'browser': {
@@ -100,7 +128,7 @@ async function createItem(item: Item) {
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('create_item', item);
+        return await invoke('create_item', { ...item, assets });
       }
       break;
     }
@@ -129,7 +157,8 @@ async function updateItem(item: Item) {
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('patch_item', item);
+        await invoke('patch_item', item);
+        return item;
       }
       break;
     }
@@ -186,7 +215,8 @@ interface IpcContext {
   readonly connect: (storage?: Storage, path?: string) => Promise<boolean>;
 
   readonly getNearbyItems: () => Promise<Item[]>;
-  readonly createItem: (item: Item) => Promise<Item>;
+  readonly getAsset: (id: string) => Promise<Asset>;
+  readonly createItem: (item: Item, assets: number[][]) => Promise<Item>;
   readonly updateItem: (item: Item) => Promise<Item>;
   readonly deleteItem: (id: number) => Promise<number>;
 }
@@ -196,6 +226,7 @@ const IpcContext = createContext<IpcContext>({
   // connectDB,
   connect,
   getNearbyItems,
+  getAsset,
   createItem,
   updateItem,
   deleteItem,
