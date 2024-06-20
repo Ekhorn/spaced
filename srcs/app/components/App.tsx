@@ -8,7 +8,7 @@ import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
 import { ViewportProvider, useViewport } from './ViewportProvider.js';
 import { allowedMimeTypes } from '../lib/const.js';
-import { type MimeTypes } from '../lib/types.js';
+import { type FigureComponent, type MimeTypes } from '../lib/types.js';
 // import { getBoundingBox, throttle } from '../lib/utils.js';
 import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
 
@@ -30,18 +30,21 @@ export function App() {
       scalar(),
     );
     try {
-      const item = await createItem({
-        x: Math.floor(absolute.x),
-        y: Math.floor(absolute.y),
-        w: 0,
-        h: 0,
-        name: file.name,
-        mime: file.type,
-        schema: file.type.startsWith('text') ? await file.text() : '',
-        file: file.type.startsWith('text')
-          ? undefined
-          : [...new Uint8Array(await file.arrayBuffer())],
-      });
+      const item = await createItem(
+        {
+          x: Math.floor(absolute.x),
+          y: Math.floor(absolute.y),
+          w: 0,
+          h: 0,
+          schema: JSON.stringify({
+            type: 'figure',
+            name: file.name,
+            content: file.type.startsWith('text') ? await file.text() : '0',
+            mime: file.type,
+          } as FigureComponent),
+        },
+        [[...new Uint8Array(await file.arrayBuffer())]],
+      );
       // eslint-disable-next-line unicorn/prefer-spread
       setItems((value) => value.concat(item));
     } catch {
@@ -66,15 +69,21 @@ export function App() {
     if (data.kind === 'string') {
       data.getAsString(async (text) => {
         try {
-          const item = await createItem({
-            x: Math.floor(absolute.x),
-            y: Math.floor(absolute.y),
-            w: 0,
-            h: 0,
-            name: 'test',
-            mime: 'text/plain' as MimeTypes,
-            schema: text,
-          });
+          const item = await createItem(
+            {
+              x: Math.floor(absolute.x),
+              y: Math.floor(absolute.y),
+              w: 0,
+              h: 0,
+              schema: JSON.stringify({
+                type: 'div',
+                name: 'Untitled',
+                content: text,
+                mime: 'text/plain',
+              }),
+            },
+            [],
+          );
 
           // eslint-disable-next-line unicorn/prefer-spread
           setItems((value) => value.concat(item));
@@ -91,18 +100,21 @@ export function App() {
     }
 
     try {
-      const item = await createItem({
-        x: Math.floor(absolute.x),
-        y: Math.floor(absolute.y),
-        w: 0,
-        h: 0,
-        name: file.name,
-        mime: file.type as MimeTypes,
-        schema: file.type.startsWith('text') ? await file.text() : '',
-        file: file.type.startsWith('text')
-          ? undefined
-          : [...new Uint8Array(await file.arrayBuffer())],
-      });
+      const item = await createItem(
+        {
+          x: Math.floor(absolute.x),
+          y: Math.floor(absolute.y),
+          w: 0,
+          h: 0,
+          schema: JSON.stringify({
+            type: 'figure',
+            name: file.name,
+            content: file.type.startsWith('text') ? await file.text() : '0',
+            mime: file.type,
+          } as FigureComponent),
+        },
+        [[...new Uint8Array(await file.arrayBuffer())]],
+      );
 
       // eslint-disable-next-line unicorn/prefer-spread
       setItems((value) => value.concat(item));

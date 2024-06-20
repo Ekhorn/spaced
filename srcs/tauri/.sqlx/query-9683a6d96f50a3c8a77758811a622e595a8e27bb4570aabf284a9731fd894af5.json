@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\nINSERT INTO asset ( id, name, mime, data )\nVALUES ( ?1, ?2, ?3, ?4 )\n      ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "9683a6d96f50a3c8a77758811a622e595a8e27bb4570aabf284a9731fd894af5"
+}

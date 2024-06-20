@@ -111,6 +111,12 @@ async function handlePointerMove(event: PointerEvent) {
         : item,
     );
     for (const item of moved_items!.filter((item) => selected.has(item.id!))) {
+      // Consider aggregating the items into one update call.
+      // In sqlite, WAL mode is just enough for updating 1 moving item,
+      // without blocking the UI. Consider using custom throttle that also always
+      // fires the last update. The request can also be delegated to a worker. On
+      // the server the update can be queued, and the latest update can replace
+      // older still in queue updates (basically a capped queue of size 1).
       await updateItem(item);
     }
     setItems(moved_items);
