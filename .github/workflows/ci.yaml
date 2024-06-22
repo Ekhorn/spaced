@@ -126,7 +126,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/bake-action@v4
+      - uses: docker/bake-action@v5
       - run: docker images
       - run: docker save $(docker images --filter "reference=spaced/*" --format "{{.Repository}}:{{.Tag}}") -o images.tar
       - uses: actions/upload-artifact@v4
