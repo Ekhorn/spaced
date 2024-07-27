@@ -215,10 +215,12 @@ function RenderText(props: RenderTextProps) {
       content: ref.textContent!,
     };
 
-    const item = await updateItem({
-      ...props.item,
-      schema: JSON.stringify(schema),
-    });
+    const [item] = await updateItem([
+      {
+        ...props.item,
+        schema: JSON.stringify(schema),
+      },
+    ]);
     // eslint-disable-next-line solid/reactivity
     props.setItems((prev) => prev.with(props.index, item));
   }

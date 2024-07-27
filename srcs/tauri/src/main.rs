@@ -66,6 +66,10 @@ async fn try_connect(file_path: String) -> Result<(SqlitePool, String), Error> {
   let opts = SqliteConnectOptions::from_str(&file_path)?
     .create_if_missing(true)
     .foreign_keys(true)
+    /* *
+     * In sqlite, WAL mode is just fast enough to update 1 moving item per
+     * Tauri command invocation without any optimizations.
+     */
     .journal_mode(SqliteJournalMode::Wal);
 
   Ok((SqlitePool::connect_with(opts).await?, file_path))
@@ -199,38 +203,46 @@ VALUES ( ?1, ?2, ?3, ?4, ?5 ) RETURNING *
   Ok(item)
 }
 
+/**
+ * The items are updated in batch in a transaction improving performance. The batch
+ * transaction allows the patch_item command to be able to update at least 10 moving
+ * items without needing to throttle on the client, while without it can only handle
+ * 1 moving item per Tauri command invocation.
+ *
+ * The patch operations could be refined into:
+ * - Moving
+ * - Resizing
+ * - Schema updates
+ */
 #[tauri::command]
-async fn patch_item(
-  state: State<'_, AppState>,
-  id: i64,
-  x: i64,
-  y: i64,
-  w: i64,
-  h: i64,
-  schema: String,
-) -> Result<(), Error> {
+async fn patch_item(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), Error> {
   let pool = state.db.read().await;
+  let mut transaction = pool.clone().unwrap().begin().await?;
 
-  // https://github.com/launchbadge/sqlx/issues/2542
-  sqlx::query!(
-    r#"
-UPDATE item
-SET x = ?2,
-  y = ?3,
-  w = ?4,
-  h = ?5,
-  schema = ?6
-WHERE id = ?1
-    "#,
-    id,
-    x,
-    y,
-    w,
-    h,
-    schema,
-  )
-  .execute(&pool.clone().unwrap())
-  .await?;
+  for item in items {
+    // https://github.com/launchbadge/sqlx/issues/2542
+    sqlx::query!(
+      r#"
+  UPDATE item
+  SET x = ?2,
+    y = ?3,
+    w = ?4,
+    h = ?5,
+    schema = ?6
+  WHERE id = ?1
+      "#,
+      item.id,
+      item.x,
+      item.y,
+      item.w,
+      item.h,
+      item.schema,
+    )
+    .execute(&mut *transaction)
+    .await?;
+  }
+
+  transaction.commit().await?;
 
   Ok(())
 }
