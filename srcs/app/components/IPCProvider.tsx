@@ -178,26 +178,37 @@ async function createItem(item: Item, assets: number[][]) {
   throw new Error('Failed to create item.');
 }
 
-async function updateItem(item: Item) {
+async function updateItem(items: Item[]) {
   const storage = localStorage.getItem('storage');
   switch (storage) {
     case 'browser': {
       if (db) {
-        const key = await db.put(itemStore, item);
-        return await db.get(itemStore, key);
+        const tx = db.transaction(itemStore, 'readwrite');
+        const output = await Promise.all(
+          items.map(async (item) => {
+            const key = await tx.store.put(item);
+            return await tx.store.get(key);
+          }),
+        );
+        await tx.done;
+        return output;
       }
       break;
     }
     case 'local': {
       if (isTauri) {
-        await invoke('patch_item', item);
-        return item;
+        await invoke('patch_item', { items });
+        return items;
       }
       break;
     }
     case 'cloud': {
       if (localStorage.getItem('access_token')) {
-        return await socket.emitWithAck('item:update_inner', item);
+        return await Promise.all(
+          items.map(
+            async (item) => await socket.emitWithAck('item:update_inner', item),
+          ),
+        );
       }
       break;
     }
@@ -250,7 +261,7 @@ interface IpcContext {
   readonly getNearbyItems: () => Promise<Item[]>;
   readonly getAsset: (id: string) => Promise<Asset>;
   readonly createItem: (item: Item, assets: number[][]) => Promise<Item>;
-  readonly updateItem: (item: Item) => Promise<Item>;
+  readonly updateItem: (items: Item[]) => Promise<Item[]>;
   readonly deleteItem: (id: number) => Promise<number>;
 }
 const IpcContext = createContext<IpcContext>({
