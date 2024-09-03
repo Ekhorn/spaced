@@ -4,7 +4,16 @@ import { type Socket, io } from 'socket.io-client';
 import { type JSXElement, useContext, createContext } from 'solid-js';
 
 import { isTauri } from '../lib/const.js';
-import { type Storage, type Item } from '../lib/types.js';
+import {
+  assetStore,
+  type DB,
+  defaultStore,
+  itemAssetsStore,
+  itemStore,
+  upgrade,
+} from '../lib/idb.js';
+import { processRefs } from '../lib/item.js';
+import { type Storage, type Item, type Asset } from '../lib/types.js';
 
 const socket = io(window.location.origin, {
   autoConnect: false,
@@ -13,9 +22,7 @@ const socket = io(window.location.origin, {
   },
 });
 
-const defaultStore = 'spaced';
-const objectStore = 'item';
-let db: IDBPDatabase;
+let db: IDBPDatabase<DB>;
 
 async function connect(storage?: Storage, path?: string): Promise<boolean> {
   const selectedStorage = storage || localStorage.getItem('storage');
@@ -27,13 +34,9 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
         return true;
       }
       db = await openDB(defaultStore, 1, {
-        upgrade(d) {
-          d.createObjectStore(objectStore, {
-            keyPath: 'id',
-            autoIncrement: true,
-          });
-        },
+        upgrade,
       });
+      console.info(`Current migration version: ${db.version}`);
       return true;
     }
     case 'local': {
@@ -60,12 +63,12 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
   }
 }
 
-async function getNearByItems() {
+async function getNearbyItems() {
   const storage = localStorage.getItem('storage');
   switch (storage) {
     case 'browser': {
       if (db) {
-        return await db.getAll(objectStore);
+        return await db.getAll(itemStore);
       }
       break;
     }
@@ -88,19 +91,77 @@ async function getNearByItems() {
   throw new Error('Failed to get nearby items.');
 }
 
-async function createItem(item: Item) {
+async function getAsset(id: string) {
   const storage = localStorage.getItem('storage');
   switch (storage) {
     case 'browser': {
       if (db) {
-        const key = await db.add(objectStore, item);
-        return await db.get(objectStore, key);
+        return await db.get(assetStore, id);
       }
       break;
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('create_item', item);
+        return await invoke('get_asset', { id });
+      }
+      break;
+    }
+    case 'cloud': {
+      if (localStorage.getItem('access_token')) {
+        return await socket.emitWithAck('item:get_nearby');
+      }
+      break;
+    }
+    default: {
+      throw new Error('No storage type selected.');
+    }
+  }
+  throw new Error('Failed to get nearby items.');
+}
+
+async function createItem(item: Item, assets: number[][]) {
+  const storage = localStorage.getItem('storage');
+  switch (storage) {
+    case 'browser': {
+      if (db) {
+        const [schema, linkedAssets] = processRefs(
+          JSON.parse(item.schema!),
+          assets.map((data) => ({
+            id: crypto.randomUUID(),
+            name: '',
+            mime: '',
+            data,
+          })),
+        );
+        const tx = db.transaction(
+          [itemStore, assetStore, itemAssetsStore],
+          'readwrite',
+        );
+        const key = await Promise.all([
+          ...linkedAssets.map((asset) => tx.objectStore(assetStore).add(asset)),
+          tx.objectStore(itemStore).add({
+            ...item,
+            schema: JSON.stringify(schema),
+          }),
+        ]).then(async (resolved) => {
+          const item_id = resolved.at(-1) as number;
+          const asset_ids = resolved.slice(0, -1) as string[];
+          await Promise.all(
+            asset_ids.map((asset_id) =>
+              tx.objectStore(itemAssetsStore).add({ item_id, asset_id }),
+            ),
+          );
+          return item_id;
+        });
+        await tx.done;
+
+        return await db.get(itemStore, key);
+      }
+      break;
+    }
+    case 'local': {
+      if (isTauri) {
+        return await invoke('create_item', { ...item, assets });
       }
       break;
     }
@@ -117,25 +178,37 @@ async function createItem(item: Item) {
   throw new Error('Failed to create item.');
 }
 
-async function updateItem(item: Item) {
+async function updateItem(items: Item[]) {
   const storage = localStorage.getItem('storage');
   switch (storage) {
     case 'browser': {
       if (db) {
-        const key = await db.put(objectStore, item);
-        return await db.get(objectStore, key);
+        const tx = db.transaction(itemStore, 'readwrite');
+        const output = await Promise.all(
+          items.map(async (item) => {
+            const key = await tx.store.put(item);
+            return await tx.store.get(key);
+          }),
+        );
+        await tx.done;
+        return output;
       }
       break;
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('patch_item', item);
+        await invoke('patch_item', { items });
+        return items;
       }
       break;
     }
     case 'cloud': {
       if (localStorage.getItem('access_token')) {
-        return await socket.emitWithAck('item:update_inner', item);
+        return await Promise.all(
+          items.map(
+            async (item) => await socket.emitWithAck('item:update_inner', item),
+          ),
+        );
       }
       break;
     }
@@ -151,7 +224,7 @@ async function deleteItem(id: number) {
   switch (storage) {
     case 'browser': {
       if (db) {
-        await db.delete(objectStore, id);
+        await db.delete(itemStore, id);
         return id;
       }
       break;
@@ -185,9 +258,10 @@ interface IpcContext {
    */
   readonly connect: (storage?: Storage, path?: string) => Promise<boolean>;
 
-  readonly getNearByItems: () => Promise<Item[]>;
-  readonly createItem: (item: Item) => Promise<Item>;
-  readonly updateItem: (item: Item) => Promise<Item>;
+  readonly getNearbyItems: () => Promise<Item[]>;
+  readonly getAsset: (id: string) => Promise<Asset>;
+  readonly createItem: (item: Item, assets: number[][]) => Promise<Item>;
+  readonly updateItem: (items: Item[]) => Promise<Item[]>;
   readonly deleteItem: (id: number) => Promise<number>;
 }
 const IpcContext = createContext<IpcContext>({
@@ -195,7 +269,8 @@ const IpcContext = createContext<IpcContext>({
   // connectTauri,
   // connectDB,
   connect,
-  getNearByItems,
+  getNearbyItems,
+  getAsset,
   createItem,
   updateItem,
   deleteItem,

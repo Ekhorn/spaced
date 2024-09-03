@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api';
 import {
   type JSXElement,
   useContext,
@@ -8,10 +7,9 @@ import {
   onCleanup,
 } from 'solid-js';
 
+import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useState } from './StateProvider.js';
-import { isTauri } from '../lib/const.js';
-import { debounce } from '../lib/utils.js';
 import {
   Vec2D,
   scaleViewportOutFrom,
@@ -44,6 +42,7 @@ type ViewportProps = {
 };
 
 const { items, setItems } = useState();
+const { updateItem } = useIPC();
 const { getSelected } = useSelection();
 
 let pointerDelta = new Vec2D(0, 0);
@@ -74,7 +73,7 @@ function handlePointerDown(event: PointerEvent) {
   }
 }
 
-function handlePointerMove(event: PointerEvent) {
+async function handlePointerMove(event: PointerEvent) {
   if (event.pointerType === 'touch' && pointers.length === 2) {
     for (let i = 0; i < pointers.length; i++) {
       if (pointers[i].pointerId === event.pointerId) {
@@ -102,29 +101,19 @@ function handlePointerMove(event: PointerEvent) {
     .div(scalar());
   if (event.shiftKey && event.buttons === 1) {
     const selected = getSelected();
-    const moved_items = items().map((item) =>
+    const allItems = items().map((item) =>
       selected.has(item.id!)
         ? {
             ...item,
-            x: item.x + pointerDelta.x,
-            y: item.y + pointerDelta.y,
+            x: Math.floor(item.x + pointerDelta.x),
+            y: Math.floor(item.y + pointerDelta.y),
           }
         : item,
     );
-    if (isTauri) {
-      for (const item of moved_items!
-        .map((item) => ({
-          ...item,
-          x: Math.floor(item.x),
-          y: Math.floor(item.y),
-        }))
-        .filter((item) => selected.has(item.id!))) {
-        debounce(async () => {
-          await invoke('patch_item', item);
-        }, 100)();
-      }
-    }
-    setItems(moved_items);
+    const movedItems = allItems!.filter((item) => selected.has(item.id!));
+    // Not awaiting to avoid blocking the UI
+    updateItem(movedItems);
+    setItems(allItems);
   } else if (event.buttons === 1) {
     setAbsoluteViewportPosition((prev) => prev.add(pointerDelta.neg()));
   }
