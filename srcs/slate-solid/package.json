@@ -1,0 +1,12 @@
+{
+  "name": "slate-solid",
+  "private": true,
+  "type": "module",
+  "peerDependencies": {
+    "slate": "0.103.0",
+    "solid-js": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
