@@ -3,6 +3,7 @@
   "type": "module",
   "workspaces": [
     "srcs/app",
+    "srcs/slate-solid",
     "srcs/e2e"
   ],
   "scripts": {

@@ -5,16 +5,14 @@ import {
   createMemo,
   onMount,
   type Setter,
-  ErrorBoundary,
   mergeProps,
-  onCleanup,
-  createEffect,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { useIPC } from './IPCProvider.jsx';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
+import { Wysiwyg } from './WYSIWYG.jsx';
 import {
   type MimeTypes,
   type Item,
@@ -30,53 +28,30 @@ type ContainerProps = {
 
 function handleBeforeInput(event: InputEvent) {
   if (event.inputType === 'insertParagraph') {
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
     event.preventDefault();
     const text = document.createTextNode('\n');
-    const selection = window.getSelection();
-    if (selection) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(text);
+    const range = selection.getRangeAt(0);
+    const startContainer = range.startContainer;
+    const endOffset = range.endOffset;
+    range.deleteContents();
+    range.collapse(true);
+    range.insertNode(text);
+    if (
+      startContainer.nodeType === Node.TEXT_NODE &&
+      endOffset === startContainer.textContent?.length
+    ) {
+      startContainer.textContent += '\n';
+    } else {
       range.setStartAfter(text);
-      range.setEndAfter(text);
-      selection.removeAllRanges();
-      selection.addRange(range);
     }
+
+    // range.insertNode(text);
+    // range.setStartAfter(text);
   }
-}
-
-export function makeEventListener(
-  target: EventTarget,
-  type: string,
-  handler: (event: Event) => void,
-  options?: EventListenerOptions,
-): void {
-  createEffect(() => {
-    target.addEventListener(type, handler, options);
-    onCleanup(() => {
-      target.removeEventListener(type, handler, options);
-    });
-  });
-}
-
-export function useClickOutside(
-  ref: EventTarget,
-  handler: (event: Event) => void,
-): void {
-  function listener(event: Event): void {
-    if (!ref) {
-      return;
-    }
-    const composedPath = event.composedPath();
-    if (composedPath.includes(ref)) {
-      return;
-    }
-
-    handler(event);
-  }
-
-  makeEventListener(document, 'mousedown', listener);
-  makeEventListener(document, 'touchstart', listener);
 }
 
 export function Container(props: ContainerProps) {
@@ -118,7 +93,7 @@ export function Container(props: ContainerProps) {
   let ref!: HTMLDivElement;
 
   onMount(() => {
-    useClickOutside(ref, handleBlur);
+    document.addEventListener('focusout', handleBlur);
   });
 
   const schema = createMemo<ComponentSchemas>(() =>
@@ -137,27 +112,42 @@ export function Container(props: ContainerProps) {
   );
 
   return (
-    <div
-      class="absolute min-h-8 min-w-8 whitespace-pre rounded bg-white p-1 outline-1 hover:outline"
+    <Wysiwyg
       style={{
+        width: '672px',
+        padding: '4px',
+        'background-color': 'white',
         'pointer-events': 'all',
         'transform-origin': 'top left',
         'outline-style': selected() ? 'solid' : 'unset',
         translate: `
-          ${translation().x}px
-          ${-translation().y}px
-        `,
+        ${translation().x}px
+        ${-translation().y}px
+      `,
         scale: String(scalar()),
       }}
-      tabIndex={0}
-      onClick={handleClick}
-      onKeyUp={handleKeyUp}
-      ref={ref}
-    >
-      <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
-        <Render {...renderProps} />
-      </ErrorBoundary>
-    </div>
+    />
+    // <div
+    //   class="absolute min-h-8 min-w-8 whitespace-pre rounded bg-white p-1 outline-1 hover:outline"
+    //   style={{
+    //     'pointer-events': 'all',
+    //     'transform-origin': 'top left',
+    //     'outline-style': selected() ? 'solid' : 'unset',
+    //     translate: `
+    //       ${translation().x}px
+    //       ${-translation().y}px
+    //     `,
+    //     scale: String(scalar()),
+    //   }}
+    //   tabIndex={0}
+    //   onClick={handleClick}
+    //   onKeyUp={handleKeyUp}
+    //   ref={ref}
+    // >
+    //   <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
+    //     <Render {...renderProps} />
+    //   </ErrorBoundary>
+    // </div>
   );
 }
 
