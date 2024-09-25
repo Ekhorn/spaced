@@ -1,5 +1,5 @@
 import { type Range, type Element as SlateElement, Editor, Node } from 'slate';
-import { type Accessor, type JSXElement, Match, Switch } from 'solid-js';
+import { type JSXElement, Match, Switch } from 'solid-js';
 
 import { createChildren } from './children.js';
 import {
@@ -64,7 +64,7 @@ export const Element = (props: {
           'data-slate-inline'?: true;
           contentEditable?: false;
           dir?: 'rtl';
-          ref: Accessor<void>;
+          ref: (ref: HTMLElement | null) => void;
         } = {
           'data-slate-node': 'element',
           ref: ref,

@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import { type Element, type Text } from 'slate';
 import {
   createEffect,
@@ -59,30 +60,28 @@ export const Leaf = (props: {
   let placeholderResizeObserver: ResizeObserver | null = null;
   let showPlaceholderTimeoutRef: TimerId | null = null;
 
-  const callbackPlaceholderRef = createMemo(
-    (placeholderEl: HTMLElement | null) => {
-      disconnectPlaceholderResizeObserver(
-        placeholderResizeObserver,
-        placeholderEl == undefined,
-      );
+  const callbackPlaceholderRef = createMemo((placeholderEl) => {
+    disconnectPlaceholderResizeObserver(
+      placeholderResizeObserver,
+      placeholderEl == undefined,
+    );
 
-      if (placeholderEl == undefined) {
-        EDITOR_TO_PLACEHOLDER_ELEMENT.delete(editor);
-        props.leaf.onPlaceholderResize?.(null);
-      } else {
-        EDITOR_TO_PLACEHOLDER_ELEMENT.set(editor, placeholderEl);
+    if (placeholderEl == undefined) {
+      EDITOR_TO_PLACEHOLDER_ELEMENT.delete(editor);
+      props.leaf.onPlaceholderResize?.(null);
+    } else {
+      EDITOR_TO_PLACEHOLDER_ELEMENT.set(editor, placeholderEl as HTMLElement);
 
-        if (!placeholderResizeObserver) {
-          // Create a new observer and observe the placeholder element.
-          const ResizeObserver = window.ResizeObserver;
-          placeholderResizeObserver = new ResizeObserver(() => {
-            props.leaf.onPlaceholderResize?.(placeholderEl);
-          });
-        }
-        placeholderResizeObserver.observe(placeholderEl);
+      if (!placeholderResizeObserver) {
+        // Create a new observer and observe the placeholder element.
+        const ResizeObserver = window.ResizeObserver;
+        placeholderResizeObserver = new ResizeObserver(() => {
+          props.leaf.onPlaceholderResize?.(placeholderEl as HTMLElement);
+        });
       }
-    },
-  );
+      placeholderResizeObserver.observe(placeholderEl as HTMLElement);
+    }
+  });
 
   let children = (
     <String

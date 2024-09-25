@@ -29,7 +29,6 @@ export const Text = (props: {
 
   createRenderEffect(() => {
     const leaves = SlateText.decorations(props.text, props.decorations);
-    const key = SolidEditor.findKey(editor, props.text);
 
     for (let i = 0; i < leaves.length; i++) {
       const leaf = leaves[i];
@@ -37,7 +36,6 @@ export const Text = (props: {
       children.push(
         <Leaf
           isLast={props.isLast && i === leaves.length - 1}
-          key={`${key.id}-${i}`}
           renderPlaceholder={props.renderPlaceholder}
           leaf={leaf}
           text={props.text}
