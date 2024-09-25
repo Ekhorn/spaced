@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import { type Editor } from 'slate';
 import { createContext, useContext } from 'solid-js';
 

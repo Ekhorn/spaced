@@ -1,14 +1,6 @@
-import {
-  type BaseEditor,
-  Editor,
-  Node,
-  Path,
-  Point,
-  Range,
-  Text,
-  Transforms,
-} from 'slate';
-import { createEffect, createSignal } from 'solid-js';
+/* eslint-disable unicorn/no-null */
+import { Editor, Node, Path, Point, Range, Text, Transforms } from 'slate';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 import { useSlateStatic } from './use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
@@ -82,7 +74,7 @@ export function useMutationObserver(
     }
 
     mutationObserver().observe(node, options);
-    return () => mutationObserver().disconnect();
+    onCleanup(mutationObserver().disconnect);
   });
 }
 
@@ -129,17 +121,18 @@ const RESOLVE_DELAY = 25;
 const FLUSH_DELAY = 200;
 
 // Replace with `const debug = console.log` to debug
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debug = (..._: unknown[]) => {};
 
 // Type guard to check if a value is a DataTransfer
-const isDataTransfer = (value: any): value is DataTransfer =>
+const isDataTransfer = (value: unknown): value is DataTransfer =>
   value?.constructor.name === 'DataTransfer';
 
 export type CreateAndroidInputManagerOptions = {
-  editor: BaseEditor;
+  editor: SolidEditor;
 
-  scheduleOnDOMSelectionChange: DebouncedFunc<() => void>;
-  onDOMSelectionChange: DebouncedFunc<() => void>;
+  scheduleOnDOMSelectionChange: () => void; //DebouncedFunc<() => void>;
+  onDOMSelectionChange: () => void; //DebouncedFunc<() => void>;
 };
 
 export type AndroidInputManager = {
@@ -163,7 +156,7 @@ export type AndroidInputManager = {
 
 export function createAndroidInputManager({
   editor,
-  onDOMSelectionChange,
+  // onDOMSelectionChange,
   scheduleOnDOMSelectionChange,
 }: CreateAndroidInputManagerOptions): AndroidInputManager {
   let flushing: 'action' | boolean = false;
@@ -298,8 +291,9 @@ export function createAndroidInputManager({
         // Ensure we don't restore the pending user (dom) selection
         // since the document and dom state do not match.
         EDITOR_TO_PENDING_SELECTION.delete(editor);
-        scheduleOnDOMSelectionChange.cancel();
-        onDOMSelectionChange.cancel();
+        // TODO: implement
+        // scheduleOnDOMSelectionChange.cancel();
+        // onDOMSelectionChange.cancel();
         selectionRef?.unref();
       }
     }
@@ -326,8 +320,9 @@ export function createAndroidInputManager({
       scheduleOnDOMSelectionChange();
     }
 
-    scheduleOnDOMSelectionChange.flush();
-    onDOMSelectionChange.flush();
+    // TODO: implement
+    // scheduleOnDOMSelectionChange.flush();
+    // onDOMSelectionChange.flush();
 
     applyPendingSelection();
 
@@ -339,7 +334,7 @@ export function createAndroidInputManager({
     }
   };
 
-  const handleCompositionEnd = (_event: CompositionEvent) => {
+  const handleCompositionEnd = () => {
     if (compositionEndTimeoutId) {
       clearTimeout(compositionEndTimeoutId);
     }
@@ -350,7 +345,7 @@ export function createAndroidInputManager({
     }, RESOLVE_DELAY);
   };
 
-  const handleCompositionStart = (_event: CompositionEvent) => {
+  const handleCompositionStart = () => {
     debug('composition start');
 
     IS_COMPOSING.set(editor, true);
@@ -416,8 +411,9 @@ export function createAndroidInputManager({
     debug('scheduleAction', { at, run });
 
     EDITOR_TO_PENDING_SELECTION.delete(editor);
-    scheduleOnDOMSelectionChange.cancel();
-    onDOMSelectionChange.cancel();
+    // TODO: implement
+    // scheduleOnDOMSelectionChange.cancel();
+    // onDOMSelectionChange.cancel();
 
     if (hasPendingAction()) {
       flush();
@@ -440,7 +436,7 @@ export function createAndroidInputManager({
     const { inputType: type } = event;
     let targetRange: Range | null = null;
     const data: DataTransfer | string | undefined =
-      (event as any).dataTransfer || event.data || undefined;
+      event.dataTransfer || event.data || undefined;
 
     if (
       insertPositionHint !== false &&
@@ -450,7 +446,7 @@ export function createAndroidInputManager({
       insertPositionHint = false;
     }
 
-    let [nativeTargetRange] = (event as any).getTargetRanges();
+    let [nativeTargetRange] = event.getTargetRanges();
     if (nativeTargetRange) {
       targetRange = SolidEditor.toSlateRange(editor, nativeTargetRange, {
         exactMatch: false,
@@ -463,6 +459,7 @@ export function createAndroidInputManager({
     const window = SolidEditor.getWindow(editor);
     const domSelection = window.getSelection();
     if (!targetRange && domSelection) {
+      // @ts-expect-error mismatch
       nativeTargetRange = domSelection;
       targetRange = SolidEditor.toSlateRange(editor, domSelection, {
         exactMatch: false,
@@ -675,7 +672,7 @@ export function createAndroidInputManager({
       case 'insertReplacementText':
       case 'insertText': {
         if (isDataTransfer(data)) {
-          return scheduleAction(() => editor.insertData(editor, data), {
+          return scheduleAction(() => SolidEditor.insertData(editor, data), {
             at: targetRange,
           });
         }
@@ -835,7 +832,7 @@ export function createAndroidInputManager({
     }
   };
 
-  const handleKeyDown = (_: KeyboardEvent) => {
+  const handleKeyDown = () => {
     // COMPAT: Swiftkey closes the keyboard when typing inside a empty node
     // directly next to a non-contenteditable element (= the placeholder).
     // The only event fired soon enough for us to allow hiding the placeholder

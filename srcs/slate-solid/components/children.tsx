@@ -41,7 +41,6 @@ export function createChildren(props: {
       // eslint-disable-next-line unicorn/prefer-spread
       const p = path.concat(i);
       const n = props.node.children[i] as Descendant;
-      const key = SolidEditor.findKey(editor, n);
       const range = Editor.range(editor, p);
       const sel = props.selection && Range.intersection(range, props.selection);
       const ds = []; //decorate([n, p]);
@@ -59,11 +58,10 @@ export function createChildren(props: {
 
       if (Element.isElement(n)) {
         children.push(
-          <SelectedContext.Provider key={`provider-${key.id}`} value={!!sel}>
+          <SelectedContext.Provider value={!!sel}>
             <ElementComponent
               decorations={ds}
               element={n}
-              key={key.id}
               renderElement={props.renderElement}
               renderPlaceholder={props.renderPlaceholder}
               renderLeaf={props.renderLeaf}
@@ -75,10 +73,8 @@ export function createChildren(props: {
         children.push(
           <Text
             decorations={ds}
-            key={key.id}
-            editor={editor}
             isLast={isLeafBlock && i === props.node.children.length - 1}
-            parent={props.node}
+            parent={props.node as Element}
             renderPlaceholder={props.renderPlaceholder}
             renderLeaf={props.renderLeaf}
             text={n}

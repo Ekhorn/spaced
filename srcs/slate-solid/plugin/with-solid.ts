@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import {
   type BaseEditor,
   type Operation,
@@ -193,7 +194,10 @@ export const withSolid = <T extends BaseEditor>(
           changedPath = op.path;
         }
 
-        const changedNode = Node.get(editor, Path.parent(changedPath));
+        const changedNode = Node.get(
+          editor as unknown as Node,
+          Path.parent(changedPath),
+        );
         const changedNodeKey = SolidEditor.findKey(e, changedNode);
         const changedPathRef = Editor.pathRef(e, Path.parent(changedPath));
         pathRefMatches.push([changedPathRef, changedNodeKey]);
@@ -267,6 +271,7 @@ export const withSolid = <T extends BaseEditor>(
     // Remove any zero-width space spans from the cloned DOM so that they don't
     // show up elsewhere when pasted.
     for (const zw of contents.querySelectorAll('[data-slate-zero-width]')) {
+      // @ts-expect-error missing dataset
       const isNewline = zw.dataset.slateZeroWidth === 'n';
       zw.textContent = isNewline ? '\n' : '';
     }

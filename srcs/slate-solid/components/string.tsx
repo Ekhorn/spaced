@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import { type Text, type Element, Editor, Path, Node } from 'slate';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 

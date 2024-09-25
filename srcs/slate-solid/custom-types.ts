@@ -1,8 +1,17 @@
-import { type BaseText } from 'slate';
+import { type BaseRange, type BaseText } from 'slate';
+
+import { type SolidEditor } from './plugin/solid-editor.js';
 
 declare module 'slate' {
   interface CustomTypes {
+    Editor: SolidEditor;
     Text: BaseText & {
+      placeholder?: string;
+      onPlaceholderResize?: (node: HTMLElement | null) => void;
+      // FIXME: is unknown correct here?
+      [key: string]: unknown;
+    };
+    Range: BaseRange & {
       placeholder?: string;
       onPlaceholderResize?: (node: HTMLElement | null) => void;
       // FIXME: is unknown correct here?
@@ -12,8 +21,25 @@ declare module 'slate' {
 }
 
 declare global {
+  interface Window {
+    MSStream: boolean;
+  }
   interface DocumentOrShadowRoot {
     getSelection(): Selection | null;
+  }
+
+  interface CaretPosition {
+    readonly offsetNode: Node;
+    readonly offset: number;
+    getClientRect(): DOMRect | null;
+  }
+
+  interface Document {
+    caretPositionFromPoint(x: number, y: number): CaretPosition | null;
+  }
+
+  interface Node {
+    getRootNode(options?: GetRootNodeOptions): Document | ShadowRoot;
   }
 }
 

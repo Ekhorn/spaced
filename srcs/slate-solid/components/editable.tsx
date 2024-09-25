@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import {
   type NodeEntry,
   Editor,
@@ -22,7 +23,10 @@ import {
 } from 'solid-js';
 
 import { createChildren } from './children.js';
-import { useAndroidInputManager } from '../hooks/android-input-manager.js';
+import {
+  type AndroidInputManager,
+  useAndroidInputManager,
+} from '../hooks/android-input-manager.js';
 import { useSlate, useSlateWithV } from '../hooks/use-slate.js';
 import { useTrackUserInput } from '../hooks/useTrackUserInput.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
@@ -85,7 +89,6 @@ export interface RenderElementProps {
 /**
  * `RenderLeafProps` are passed to the `renderLeaf` handler.
  */
-
 export interface RenderLeafProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
@@ -163,7 +166,7 @@ export function Editable(props: EditableProps) {
   >();
   let processing = false;
 
-  const { onUserInput, receivedUserInput } = useTrackUserInput();
+  const { onUserInput } = useTrackUserInput();
 
   // Keep track of some state for the event handler logic.
   const state = createMemo(() => ({
@@ -275,7 +278,7 @@ export function Editable(props: EditableProps) {
   //   debounce(onDOMSelectionChange, 0),
   // );
 
-  let androidInputManagerRef: any;
+  let androidInputManagerRef: Accessor<AndroidInputManager> | null;
   onMount(() => {
     /**
      * The AndroidInputManager object has a cyclical dependency on onDOMSelectionChange
@@ -1022,6 +1025,7 @@ export function Editable(props: EditableProps) {
         // the editor to inside a void node's spacer element.
         if (
           isDOMElement(relatedTarget) &&
+          // @ts-expect-error missing dataset
           Object.hasOwn(relatedTarget.dataset, 'slateSpacer')
         ) {
           return;
@@ -1209,7 +1213,7 @@ export function Editable(props: EditableProps) {
               Editor.deleteFragment(editor);
             } else {
               const node = Node.parent(editor, selection.anchor.path);
-              if (Editor.isVoid(editor, node)) {
+              if (Editor.isVoid(editor, node as Element)) {
                 Transforms.delete(editor);
               }
             }
@@ -1359,6 +1363,7 @@ export function Editable(props: EditableProps) {
           // hotkeys ourselves. (2019/11/06)
           if (Hotkeys.isRedo(event)) {
             event.preventDefault();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const maybeHistoryEditor: any = editor;
 
             if (typeof maybeHistoryEditor.redo === 'function') {
@@ -1370,6 +1375,7 @@ export function Editable(props: EditableProps) {
 
           if (Hotkeys.isUndo(event)) {
             event.preventDefault();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const maybeHistoryEditor: any = editor;
 
             if (typeof maybeHistoryEditor.undo === 'function') {
@@ -1622,6 +1628,7 @@ export function Editable(props: EditableProps) {
           // application/x-slate-fragment items, so use the
           // ClipboardEvent here. (2023/03/15)
           (!HAS_BEFORE_INPUT_SUPPORT ||
+            // @ts-expect-error TODO: nativeEvent are React only?
             isPlainTextOnlyPaste(event.nativeEvent) ||
             IS_WEBKIT)
         ) {

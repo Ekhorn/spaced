@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import {
   type Node,
   type Path,
@@ -102,6 +103,7 @@ export interface SolidEditorInterface {
   /**
    * Get the target range from a DOM `event`.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   findEventRange: (editor: SolidEditor, event: any) => Range;
 
   /**
@@ -592,6 +594,7 @@ export const SolidEditor: SolidEditorInterface = {
       }
 
       const { length } = domNode.textContent;
+      // @ts-expect-error missing dataset
       const attr = text.dataset.slateLength;
       const trueLength = attr == undefined ? length : Number.parseInt(attr, 10);
       const end = start + trueLength;
@@ -796,6 +799,7 @@ export const SolidEditor: SolidEditorInterface = {
         // COMPAT: Android IMEs might remove the zero width space while composing,
         // and we don't add it for line-breaks.
         IS_ANDROID &&
+        // @ts-expect-error missing dataset
         domNode.dataset.slateZeroWidth === 'z' &&
         domNode.textContent?.startsWith('\uFEFF') &&
         // COMPAT: If the parent node is a Slate zero-width space, editor is
@@ -803,6 +807,7 @@ export const SolidEditor: SolidEditorInterface = {
         // composition the ASCII characters will be prepended to the zero-width
         // space, so subtract 1 from the offset to account for the zero-width
         // space character.
+        // @ts-expect-error missing dataset
         (Object.hasOwn(parentNode.dataset, 'slateZeroWidth') ||
           // COMPAT: In Firefox, `range.cloneContents()` returns an extra trailing '\n'
           // when the document ends with a new-line character. This results in the offset
@@ -814,12 +819,14 @@ export const SolidEditor: SolidEditorInterface = {
     }
 
     if (IS_ANDROID && !textNode && !exactMatch) {
+      // @ts-expect-error missing dataset
       const node = Object.hasOwn(parentNode.dataset, 'slateNode')
         ? parentNode
         : parentNode.closest('[data-slate-node]');
 
       if (node && SolidEditor.hasDOMNode(editor, node, { editable: true })) {
         const slateNode = SolidEditor.toSlateNode(editor, node);
+        // eslint-disable-next-line prefer-const
         let { offset, path } = Editor.start(
           editor,
           SolidEditor.findPath(editor, slateNode),
@@ -884,6 +891,7 @@ export const SolidEditor: SolidEditorInterface = {
             lastRange.startContainer instanceof HTMLTableRowElement
           ) {
             // HTMLElement, becouse Element is a slate element
+            // eslint-disable-next-line no-inner-declarations
             function getLastChildren(element: HTMLElement): HTMLElement {
               return element.childElementCount > 0
                 ? getLastChildren(<HTMLElement>element.children[0])
@@ -989,7 +997,7 @@ export const SolidEditor: SolidEditorInterface = {
     if (
       'getAttribute' in focusNode &&
       (focusNode as HTMLElement).getAttribute('contenteditable') === 'false' &&
-      (focusNode as HTMLElement.dataset.slateVoid) !== 'true'
+      (focusNode as unknown as HTMLElement['dataset']['slateVoid']) !== 'true'
     ) {
       focusNode = anchorNode;
       focusOffset = anchorNode.textContent?.length || 0;

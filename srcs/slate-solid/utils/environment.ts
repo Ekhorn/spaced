@@ -81,5 +81,4 @@ export const HAS_BEFORE_INPUT_SUPPORT =
   // globalThis is undefined in older browsers
   typeof globalThis !== 'undefined' &&
   globalThis.InputEvent &&
-  // @ts-ignore The `getTargetRanges` property isn't recognized.
   typeof globalThis.InputEvent.prototype.getTargetRanges === 'function';
