@@ -1,7 +1,8 @@
+/* eslint-disable unicorn/no-null */
 import { type Editor } from 'slate';
 import { createContext, createEffect, createMemo, useContext } from 'solid-js';
 
-function isError(error: any): error is Error {
+function isError(error: unknown): error is Error {
   return error instanceof Error;
 }
 
@@ -13,9 +14,9 @@ type EditorChangeHandler = (editor: Editor) => void;
 export const SlateSelectorContext = createContext<{
   getSlate: () => Editor;
   addEventListener: (callback: EditorChangeHandler) => () => void;
-}>({} as any);
+}>({} as never);
 
-const refEquality = (a: any, b: any) => a === b;
+const refEquality = (a: unknown, b: unknown) => a === b;
 
 /**
  * use redux style selectors to prevent rerendering on every keystroke.
@@ -39,9 +40,9 @@ export function useSlateSelector<T>(
   }
   const { addEventListener, getSlate } = context;
 
-  let latestSubscriptionCallbackError: Error;
-  let latestSelector: (editor: Editor) => T = () => null as any;
-  let latestSelectedState: T = null as any as T;
+  let latestSubscriptionCallbackError: Error | undefined;
+  let latestSelector: (editor: Editor) => T = () => null as unknown as T;
+  let latestSelectedState: T = null as unknown as T;
   let selectedState: T;
 
   try {

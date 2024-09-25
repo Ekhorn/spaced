@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import { SolidEditor } from '../plugin/solid-editor.js';
 
 import DOMNode = globalThis.Node;
@@ -31,6 +32,7 @@ export type DOMPoint = [Node, number];
 /**
  * Returns the host window of a DOM node
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getDefaultView = (value: any): Window | null => {
   return (
     (value && value.ownerDocument && value.ownerDocument.defaultView) || null
@@ -41,21 +43,21 @@ export const getDefaultView = (value: any): Window | null => {
  * Check if a DOM node is a comment node.
  */
 
-export const isDOMComment = (value: any): value is DOMComment => {
+export const isDOMComment = (value: unknown): value is DOMComment => {
   return isDOMNode(value) && value.nodeType === 8;
 };
 
 /**
  * Check if a DOM node is an element node.
  */
-export const isDOMElement = (value: any): value is DOMElement => {
+export const isDOMElement = (value: unknown): value is DOMElement => {
   return isDOMNode(value) && value.nodeType === 1;
 };
 
 /**
  * Check if a value is a DOM node.
  */
-export const isDOMNode = (value: any): value is DOMNode => {
+export const isDOMNode = (value: unknown): value is DOMNode => {
   const window = getDefaultView(value);
   return !!window && value instanceof window.Node;
 };
@@ -63,6 +65,7 @@ export const isDOMNode = (value: any): value is DOMNode => {
 /**
  * Check if a value is a DOM selection.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isDOMSelection = (value: any): value is DOMSelection => {
   const window = value && value.anchorNode && getDefaultView(value.anchorNode);
   return !!window && value instanceof window.Selection;
@@ -71,7 +74,7 @@ export const isDOMSelection = (value: any): value is DOMSelection => {
 /**
  * Check if a DOM node is an element node.
  */
-export const isDOMText = (value: any): value is DOMText => {
+export const isDOMText = (value: unknown): value is DOMText => {
   return isDOMNode(value) && value.nodeType === 3;
 };
 

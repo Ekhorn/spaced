@@ -48,19 +48,19 @@ const WINDOWS_HOTKEYS = {
 /**
  * Create a platform-aware hotkey checker.
  */
-
 const create = (key: string) => {
   const generic = HOTKEYS[<keyof typeof HOTKEYS>key];
   const apple = APPLE_HOTKEYS[<keyof typeof APPLE_HOTKEYS>key];
   const windows = WINDOWS_HOTKEYS[<keyof typeof WINDOWS_HOTKEYS>key];
+  type fn = (e: KeyboardEvent) => boolean;
   const isGeneric = generic && isHotkey(generic);
   const isApple = apple && isHotkey(apple);
   const isWindows = windows && isHotkey(windows);
 
   return (event: KeyboardEvent) => {
-    if (isGeneric && isGeneric(event)) return true;
-    if (IS_APPLE && isApple && isApple(event)) return true;
-    if (!IS_APPLE && isWindows && isWindows(event)) return true;
+    if (isGeneric && (isGeneric as fn)(event)) return true;
+    if (IS_APPLE && isApple && (isApple as fn)(event)) return true;
+    if (!IS_APPLE && isWindows && (isWindows as fn)(event)) return true;
     return false;
   };
 };
