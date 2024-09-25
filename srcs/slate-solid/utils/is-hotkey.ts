@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 // source https://github.com/ianstormtaylor/is-hotkey/blob/master/src/index.js
 
 /**
@@ -13,7 +14,7 @@ const MODIFIERS = {
   control: 'ctrlKey',
   meta: 'metaKey',
   shift: 'shiftKey',
-};
+} as const;
 
 const ALIASES = {
   add: '+',
@@ -37,9 +38,9 @@ const ALIASES = {
   up: 'arrowup',
   win: 'meta',
   windows: 'meta',
-};
+} as const;
 
-const CODES = {
+const CODES: Record<string, number> = {
   backspace: 8,
   tab: 9,
   enter: 13,
@@ -80,13 +81,12 @@ for (let f = 1; f < 20; f++) {
   CODES['f' + f] = 111 + f;
 }
 
-/**
- * Is hotkey?
- */
+export type Hotkey = string[] | string;
+export type Options = KeyboardEvent | { byKey?: boolean } | null;
 
-function isHotkey(hotkey, options, event) {
+function isHotkey(hotkey: Hotkey, options?: Options, event?: KeyboardEvent) {
   if (options && !('byKey' in options)) {
-    event = options;
+    event = options as KeyboardEvent;
     options = null;
   }
 
@@ -95,26 +95,23 @@ function isHotkey(hotkey, options, event) {
   }
 
   const array = hotkey.map((string) => parseHotkey(string, options));
-  const check = (e) => array.some((object) => compareHotkey(object, e));
+  const check = (e: KeyboardEvent) =>
+    array.some((object) => compareHotkey(object, e));
   const ret = event == undefined ? check : check(event);
   return ret;
 }
 
-function isCodeHotkey(hotkey, event) {
+function isCodeHotkey(hotkey: Hotkey, event: KeyboardEvent) {
   return isHotkey(hotkey, event);
 }
 
-function isKeyHotkey(hotkey, event) {
+function isKeyHotkey(hotkey: Hotkey, event: KeyboardEvent) {
   return isHotkey(hotkey, { byKey: true }, event);
 }
 
-/**
- * Parse.
- */
-
-function parseHotkey(hotkey, options) {
-  const byKey = options && options.byKey;
-  const ret = {};
+function parseHotkey(hotkey: string, options?: Options) {
+  const byKey = options && 'byKey' in options && options.byKey;
+  const ret: Record<string, boolean | string | number | null> = {};
 
   // Special case to handle the `+` key since we use it as a separator.
   hotkey = hotkey.replace('++', '+add');
@@ -123,7 +120,7 @@ function parseHotkey(hotkey, options) {
 
   // Ensure that all the modifiers are set to false unless the hotkey has them.
   for (const k in MODIFIERS) {
-    ret[MODIFIERS[k]] = false;
+    ret[MODIFIERS[k as keyof typeof MODIFIERS]] = false;
   }
 
   for (let value of values) {
@@ -134,9 +131,14 @@ function parseHotkey(hotkey, options) {
     }
 
     const name = toKeyName(value);
-    const modifier = MODIFIERS[name];
+    const modifier = MODIFIERS[name as keyof typeof MODIFIERS];
 
-    if (value.length > 1 && !modifier && !ALIASES[value] && !CODES[name]) {
+    if (
+      value.length > 1 &&
+      !modifier &&
+      !ALIASES[value as keyof typeof ALIASES] &&
+      !CODES[name]
+    ) {
       throw new TypeError(`Unknown modifier: "${value}"`);
     }
 
@@ -156,11 +158,7 @@ function parseHotkey(hotkey, options) {
   return ret;
 }
 
-/**
- * Compare.
- */
-
-function compareHotkey(object, event) {
+function compareHotkey(object: Record<string, unknown>, event: KeyboardEvent) {
   for (const key in object) {
     const expected = object[key];
     let actual;
@@ -174,7 +172,7 @@ function compareHotkey(object, event) {
     } else if (key === 'which') {
       actual = expected === 91 && event.which === 93 ? 91 : event.which;
     } else {
-      actual = event[key];
+      actual = event[key as keyof KeyboardEvent];
     }
 
     if (actual == undefined && expected === false) {
@@ -193,21 +191,18 @@ function compareHotkey(object, event) {
  * Utils.
  */
 
-function toKeyCode(name) {
+function toKeyCode(name: string) {
   name = toKeyName(name);
+  // eslint-disable-next-line unicorn/prefer-code-point
   const code = CODES[name] || name.toUpperCase().charCodeAt(0);
   return code;
 }
 
-function toKeyName(name) {
+function toKeyName(name: string) {
   name = name.toLowerCase();
-  name = ALIASES[name] || name;
+  name = ALIASES[name as keyof typeof ALIASES] || name;
   return name;
 }
-
-/**
- * Export.
- */
 
 export default isHotkey;
 

@@ -1,4 +1,3 @@
-// sum.test.js
 import { expect, test } from 'vitest';
 
 import { processRefs } from './item.js';
@@ -6,14 +5,14 @@ import { type Asset, type ComponentSchemas } from './types.js';
 
 test('processRefs should write ids to schema and assets', () => {
   const inputSchema: ComponentSchemas = {
-    type: 'div',
+    type: 'paragraph',
     name: 'test',
     mime: 'text/plain',
     content: 'test',
     styles: '{ display: none; }',
     descendants: [
       {
-        type: 'div',
+        type: 'paragraph',
         name: 'test',
         mime: 'text/plain',
         content: 'test',
@@ -36,7 +35,7 @@ test('processRefs should write ids to schema and assets', () => {
         ],
       },
       {
-        type: 'div',
+        type: 'paragraph',
         name: 'test',
         mime: 'text/plain',
         content: 'test',

@@ -6,6 +6,7 @@ import {
   onMount,
   type Setter,
   mergeProps,
+  ErrorBoundary,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
@@ -112,42 +113,34 @@ export function Container(props: ContainerProps) {
   );
 
   return (
-    <Wysiwyg
+    <div
+      class="absolute min-h-8 min-w-8 whitespace-pre rounded outline-1 hover:outline"
       style={{
-        width: '672px',
-        padding: '4px',
-        'background-color': 'white',
         'pointer-events': 'all',
         'transform-origin': 'top left',
         'outline-style': selected() ? 'solid' : 'unset',
         translate: `
-        ${translation().x}px
-        ${-translation().y}px
-      `,
+          ${translation().x}px
+          ${-translation().y}px
+        `,
         scale: String(scalar()),
       }}
-    />
-    // <div
-    //   class="absolute min-h-8 min-w-8 whitespace-pre rounded bg-white p-1 outline-1 hover:outline"
-    //   style={{
-    //     'pointer-events': 'all',
-    //     'transform-origin': 'top left',
-    //     'outline-style': selected() ? 'solid' : 'unset',
-    //     translate: `
-    //       ${translation().x}px
-    //       ${-translation().y}px
-    //     `,
-    //     scale: String(scalar()),
-    //   }}
-    //   tabIndex={0}
-    //   onClick={handleClick}
-    //   onKeyUp={handleKeyUp}
-    //   ref={ref}
-    // >
-    //   <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
-    //     <Render {...renderProps} />
-    //   </ErrorBoundary>
-    // </div>
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyUp={handleKeyUp}
+      ref={ref}
+    >
+      <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
+        <Wysiwyg
+          style={{
+            width: '672px',
+            padding: '4px',
+            'background-color': 'white',
+            'border-radius': '4px',
+          }}
+        />
+      </ErrorBoundary>
+    </div>
   );
 }
 
