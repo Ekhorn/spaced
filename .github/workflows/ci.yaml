@@ -10,6 +10,7 @@ on:
 env:
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
   SQLX_OFFLINE: true
+  CARGO_INCREMENTAL: 0
 
 jobs:
   prettier:
