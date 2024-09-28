@@ -7,7 +7,7 @@ x-distroless-tag: &x-distroless-tag DISTROLESS_TAG=${DISTROLESS_TAG:-nonroot}
 services:
   # A persistent database for local development.
   postgres-dev:
-    image: postgres:16
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_DB: spaced
