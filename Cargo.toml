@@ -15,7 +15,7 @@ rust-version = "1.80"
 
 [workspace.dependencies]
 anyhow = "1"
-amqprs = "1"
+amqprs = "2"
 axum = { version = "0.7" }
 axum-extra = { version = "0.9" }
 bytes = "1"
