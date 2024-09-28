@@ -21,6 +21,7 @@ mod clients;
 mod consumer;
 mod handlers;
 
+#[derive(Clone)]
 pub struct GlobalState {
   pub db_pool: PgPool,
   pub shared_amqp_channel: Arc<Channel>,

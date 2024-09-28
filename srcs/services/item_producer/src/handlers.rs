@@ -50,7 +50,7 @@ pub async fn get_nearby(
     data.xmax,
     data.ymax
   )
-  .fetch_all(db_pool)
+  .fetch_all(&db_pool)
   .await
   .unwrap();
 
@@ -79,7 +79,7 @@ pub async fn create(
     data.name,
     data.schema,
   )
-  .fetch_one(db_pool)
+  .fetch_one(&db_pool)
   .await
   .unwrap();
 
