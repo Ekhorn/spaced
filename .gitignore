@@ -2,6 +2,7 @@ target
 node_modules
 dist
 .env
+.direnv
 *.db*
 
 # Playwright test output

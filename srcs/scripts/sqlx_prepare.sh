@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export DATABASE_URL=sqlite:$(pwd)/srcs/tauri/dev.db
 touch $(pwd)/srcs/tauri/dev.db
