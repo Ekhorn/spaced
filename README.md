@@ -13,6 +13,9 @@ In order to run Spaced in development the following must be installed.
 - [Tauri](https://tauri.app/v1/guides/getting-started/prerequisites)
 <!-- - Protoc -->
 
+If you're using Nix, you can run `nix-shell`, or configure [`direnv`](https://nixos.wiki/wiki/Development_environment_with_nix-shell#direnv) to install
+the required Tauri dependencies.
+
 ## Getting started
 
 Install dependencies for web-frontend.
