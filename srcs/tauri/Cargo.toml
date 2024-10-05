@@ -7,14 +7,14 @@ edition.workspace = true
 rust-version.workspace = true
 
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sqlx = { workspace = true, features = ["runtime-tokio", "sqlite"] }
-tauri = { version = "1", features = ["dialog"] }
+tauri = { version = "2", features = ["dialog"] }
 thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true
