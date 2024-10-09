@@ -14,12 +14,17 @@ anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sqlx = { workspace = true, features = ["runtime-tokio", "sqlite"] }
-tauri = { version = "2", features = ["dialog"] }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
 thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 utils = { path = "../utils", features = ["logging"] }
 uuid = { version = "=1.10.0" }
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
