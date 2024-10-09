@@ -1,8 +1,8 @@
 let
   pkgs = import <nixpkgs> { };
 
-  libraries = with pkgs;[
-    webkitgtk
+  libraries = with pkgs; [
+    webkitgtk_4_1
     gtk3
     cairo
     gdk-pixbuf
@@ -18,8 +18,8 @@ let
     openssl_3
     glib
     gtk3
-    libsoup
-    webkitgtk
+    libsoup_3
+    webkitgtk_4_1
     appimagekit
     librsvg
   ];
