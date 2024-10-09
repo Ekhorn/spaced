@@ -10,3 +10,6 @@ srcs/e2e/test-results/
 srcs/e2e/playwright-report/
 srcs/e2e/blob-report/
 srcs/e2e/playwright/.cache/
+
+# Tauri 
+srcs/tauri/gen

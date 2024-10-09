@@ -2,41 +2,38 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../../dist",
-    "withGlobalTauri": false
+    "frontendDist": "../../dist",
+    "devUrl": "http://localhost:1420"
   },
-  "package": {
-    "productName": "spaced"
+  "bundle": {
+    "active": true,
+    "targets": "deb",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
   },
-  "tauri": {
-    "allowlist": {
-      "all": false
-    },
-    "bundle": {
-      "active": true,
-      "targets": "deb",
-      "identifier": "com.spaced.dev",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    },
-    "security": {
-      "csp": null
-    },
+  "productName": "spaced",
+  "mainBinaryName": "spaced",
+  "identifier": "fun.spaced.dev",
+  "plugins": {},
+  "app": {
+    "withGlobalTauri": false,
     "windows": [
       {
-        "fileDropEnabled": false,
+        "dragDropEnabled": false,
         "fullscreen": false,
         "resizable": true,
         "title": "spaced",
         "width": 800,
         "height": 600
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
   }
 }
