@@ -5,14 +5,14 @@ import { type Asset, type ComponentSchemas } from './types.js';
 
 test('processRefs should write ids to schema and assets', () => {
   const inputSchema: ComponentSchemas = {
-    type: 'paragraph',
+    type: 'div',
     name: 'test',
     mime: 'text/plain',
     content: 'test',
     styles: '{ display: none; }',
     descendants: [
       {
-        type: 'paragraph',
+        type: 'div',
         name: 'test',
         mime: 'text/plain',
         content: 'test',
@@ -35,7 +35,7 @@ test('processRefs should write ids to schema and assets', () => {
         ],
       },
       {
-        type: 'paragraph',
+        type: 'div',
         name: 'test',
         mime: 'text/plain',
         content: 'test',
