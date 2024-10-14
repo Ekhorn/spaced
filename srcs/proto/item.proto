@@ -4,13 +4,12 @@ package item;
 import "utils.proto";
 
 message ItemResponse {
-  int32 id = 1;
-  int32 x = 2;
-  int32 y = 3;
-  int32 w = 4;
-  int32 h = 5;
-  optional string name = 6;
-  optional string schema = 7;
+  int64 id = 1;
+  int64 x = 2;
+  int64 y = 3;
+  int64 w = 4;
+  int64 h = 5;
+  optional string schema = 6;
 }
 
 message ItemListResponse {

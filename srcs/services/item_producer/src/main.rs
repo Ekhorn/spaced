@@ -20,6 +20,7 @@ use tracing::{error, info};
 mod clients;
 mod consumer;
 mod handlers;
+mod item;
 
 pub struct GlobalState {
   pub db_pool: PgPool,
@@ -100,8 +101,8 @@ async fn app(db_pool: PgPool, shared_amqp_channel: Arc<Channel>) -> anyhow::Resu
       // Setup handlers
       socket.on("item:create", handlers::create);
       socket.on("item:get_nearby", handlers::get_nearby);
-      socket.on("item:update_outer", handlers::update_outer);
-      socket.on("item:update_inner", handlers::update_inner);
+      // socket.on("item:update_outer", handlers::update_outer);
+      // socket.on("item:update_inner", handlers::update_inner);
       socket.on_disconnect(|socket: SocketRef, reason: DisconnectReason| async move {
         info!("Socket.IO disconnected: {} {}", socket.id, reason);
         let mut users = clients::get_users().write().unwrap();

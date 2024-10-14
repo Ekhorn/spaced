@@ -36,6 +36,7 @@ tracing-subscriber.workspace = true
 futures.workspace = true
 futures-util.workspace = true
 utils = { path = "../../utils", features = ["logging"] }
+uuid = { version = "=1.10.0", features = ["v4"] }
 
 [dev-dependencies]
 rust_socketio = { version = "0.4.4", features = ["async"] }
