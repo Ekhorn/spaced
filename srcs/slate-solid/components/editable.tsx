@@ -22,13 +22,13 @@ import {
   on,
 } from 'solid-js';
 
-import { createChildren } from './children.jsx';
+import { createChildren } from './children.js';
 import {
   type AndroidInputManager,
   useAndroidInputManager,
-} from '../hooks/android-input-manager.jsx';
-import { useSlate, useSlateWithV } from '../hooks/use-slate.jsx';
-import { useTrackUserInput } from '../hooks/useTrackUserInput.jsx';
+} from '../hooks/android-input-manager.js';
+import { useSlate, useSlateWithV } from '../hooks/use-slate.js';
+import { useTrackUserInput } from '../hooks/useTrackUserInput.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { TRIPLE_CLICK } from '../utils/constants.js';
 import { getDirection } from '../utils/direction.js';

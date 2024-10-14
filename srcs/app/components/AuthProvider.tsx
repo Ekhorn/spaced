@@ -11,7 +11,7 @@ import {
   onMount,
 } from 'solid-js';
 
-import { useIPC } from './IPCProvider.jsx';
+import { useIPC } from './IPCProvider.js';
 
 const { socket } = useIPC();
 

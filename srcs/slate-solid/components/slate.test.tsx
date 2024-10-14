@@ -3,8 +3,8 @@ import { render } from '@solidjs/testing-library';
 import { createEditor, Transforms } from 'slate';
 import { expect, test, describe, vi } from 'vitest';
 
-import { Editable } from './editable.jsx';
-import { Slate } from './slate.jsx';
+import { Editable } from './editable.js';
+import { Slate } from './slate.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { withSolid } from '../plugin/with-solid.js';
 

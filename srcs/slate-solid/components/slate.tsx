@@ -15,9 +15,9 @@ import {
   on,
 } from 'solid-js';
 
-import { SlateSelectorContext, useSelectorContext } from './selector.jsx';
-import { EditorContext } from '../hooks/use-slate-static.jsx';
-import { type SlateContextValue, SlateContext } from '../hooks/use-slate.jsx';
+import { SlateSelectorContext, useSelectorContext } from './selector.js';
+import { EditorContext } from '../hooks/use-slate-static.js';
+import { type SlateContextValue, SlateContext } from '../hooks/use-slate.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { FocusedContext } from '../utils/focus.js';
 import { EDITOR_TO_ON_CHANGE } from '../utils/weakmaps.js';

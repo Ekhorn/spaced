@@ -2,7 +2,7 @@
 import { Editor, Node, Path, Point, Range, Text, Transforms } from 'slate';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
 
-import { useSlateStatic } from './use-slate-static.jsx';
+import { useSlateStatic } from './use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import {
   type StringDiff,

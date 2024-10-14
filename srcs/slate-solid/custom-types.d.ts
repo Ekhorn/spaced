@@ -1,6 +1,6 @@
 import { type BaseRange, type BaseText } from 'slate';
 
-import { type SolidEditor } from './plugin/solid-editor.js';
+import { type SolidEditor } from './plugin/solid-editor.ts';
 
 declare module 'slate' {
   interface CustomTypes {

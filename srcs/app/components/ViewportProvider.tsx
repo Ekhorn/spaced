@@ -7,7 +7,7 @@ import {
   onCleanup,
 } from 'solid-js';
 
-import { useIPC } from './IPCProvider.jsx';
+import { useIPC } from './IPCProvider.js';
 import { useSelection } from './SelectionProvider.js';
 import { useState } from './StateProvider.js';
 import {

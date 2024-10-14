@@ -1,7 +1,9 @@
-// Editor types
-
-import { type BaseEditor, type BaseRange, type Descendant } from 'slate';
+import { type Descendant, type BaseEditor, type BaseRange } from 'slate';
 import { type SolidEditor } from 'slate-solid';
+
+export type EmptyText = {
+  text: string;
+};
 
 export type CustomText = {
   bold?: boolean;
@@ -11,80 +13,92 @@ export type CustomText = {
   text: string;
 };
 
-export type EmptyText = {
-  text: string;
-};
+interface BaseElement<T extends CustomElement['type']> {
+  type: T;
+}
 
-export type BlockQuoteElement = {
-  type: 'block-quote';
+export interface BlockQuoteElement extends BaseElement {
+  type: 'block_quote';
   align?: string;
   children: Descendant[];
-};
+}
 
-export type BulletedListElement = {
-  type: 'bulleted-list';
+export interface BulletedListElement extends BaseElement {
+  type: 'bulleted_list';
   align?: string;
   children: Descendant[];
-};
+}
 
-export type CheckListItemElement = {
-  type: 'check-list-item';
+export interface CheckListItemElement extends BaseElement {
+  type: 'check_list_item';
   checked: boolean;
   children: Descendant[];
-};
+}
 
-export type HeadingElement = {
+export interface HeadingElement extends BaseElement {
   type: 'heading';
   align?: string;
   children: Descendant[];
-};
+}
 
-export type HeadingTwoElement = {
-  type: 'heading-two';
+export interface HeadingTwoElement extends BaseElement {
+  type: 'heading_two';
   align?: string;
   children: Descendant[];
-};
+}
 
-export type ImageElement = {
+export interface ImageElement extends BaseElement {
   type: 'image';
+  mime: string;
+  name: string;
+  uuid: string | number;
+}
+
+export interface LinkElement extends BaseElement {
+  type: 'link';
   url: string;
-  children: EmptyText[];
-};
+  children: Descendant[];
+}
 
-export type LinkElement = { type: 'link'; url: string; children: Descendant[] };
+export interface ButtonElement extends BaseElement {
+  type: 'button';
+  children: Descendant[];
+}
 
-export type ButtonElement = { type: 'button'; children: Descendant[] };
+export interface ListItemElement extends BaseElement {
+  type: 'list_item';
+  children: Descendant[];
+}
 
-export type ListItemElement = { type: 'list-item'; children: Descendant[] };
-
-export type ParagraphElement = {
+export interface ParagraphElement extends BaseElement {
   type: 'paragraph';
   align?: string;
   children: Descendant[];
-};
+}
 
-// export type TableElement = { type: 'table'; children: TableRow[] };
+// export interface TableElement extends BaseElement { type: 'table'; children: TableRow[] };
 
-// export type TableCellElement = { type: 'table-cell'; children: CustomText[] };
+// export interface TableCellElement extends BaseElement { type: 'table_cell'; children: CustomText[] };
 
-// export type TableRowElement = { type: 'table-row'; children: TableCell[] };
+// export interface TableRowElement extends BaseElement { type: 'table_row'; children: TableCell[] };
 
-export type VideoElement = {
-  type: 'video';
-  url: string;
-  children: EmptyText[];
-};
+// export interface VideoElement extends BaseElement {
+//   type: 'video';
+//   mime: string;
+//   name: string;
+//   uuid: string | number;
+// };
 
-export type CodeBlockElement = {
-  type: 'code-block';
+export interface CodeBlockElement extends BaseElement {
+  type: 'code_block';
   language: string;
-  children: Descendant[];
-};
+  children: EmptyText[];
+}
 
-export type CodeLineElement = {
-  type: 'code-line';
-  children: Descendant[];
-};
+export interface CodeLineElement extends BaseElement {
+  type: 'code_line';
+  children: EmptyText[];
+}
 
 type CustomElement =
   | BlockQuoteElement
@@ -100,7 +114,7 @@ type CustomElement =
   // | TableElement
   // | TableRowElement
   // | TableCellElement
-  | VideoElement
+  // | VideoElement
   | CodeBlockElement
   | CodeLineElement;
 

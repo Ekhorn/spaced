@@ -6,7 +6,7 @@ import {
   type RenderPlaceholderProps,
 } from './editable.js';
 import { Leaf } from './leaf.js';
-import { useSlateStatic } from '../hooks/use-slate-static.jsx';
+import { useSlateStatic } from '../hooks/use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import {
   EDITOR_TO_KEY_TO_ELEMENT,

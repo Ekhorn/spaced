@@ -11,8 +11,8 @@ import {
   type RenderLeafProps,
   type RenderPlaceholderProps,
 } from './editable.js';
-import String from './string.jsx';
-import { useSlateStatic } from '../hooks/use-slate-static.jsx';
+import String from './string.js';
+import { useSlateStatic } from '../hooks/use-slate-static.js';
 import { IS_WEBKIT, IS_ANDROID } from '../utils/environment.js';
 import {
   PLACEHOLDER_SYMBOL,

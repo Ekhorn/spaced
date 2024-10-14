@@ -1,8 +1,8 @@
 import { Show } from 'solid-js';
 
 import { CreateButton } from './CreateButton.js';
-import { LogOutButton } from './LogOutButton.jsx';
-import { StorageSelector } from './StorageSelector.jsx';
+import { LogOutButton } from './LogOutButton.js';
+import { StorageSelector } from './StorageSelector.js';
 import { isTauri } from '../../lib/const.js';
 
 export function Actions() {

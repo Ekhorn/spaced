@@ -2,7 +2,7 @@
 import { type Text, type Element, Editor, Path, Node } from 'slate';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
-import { useSlateStatic } from '../hooks/use-slate-static.jsx';
+import { useSlateStatic } from '../hooks/use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { IS_ANDROID, IS_IOS } from '../utils/environment.js';
 import { MARK_PLACEHOLDER_SYMBOL } from '../utils/weakmaps.js';

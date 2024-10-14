@@ -6,11 +6,11 @@ import {
   type RenderLeafProps,
   type RenderPlaceholderProps,
 } from './editable.js';
-import { Element as ElementComponent } from './element.jsx';
-import { Text } from './text.jsx';
+import { Element as ElementComponent } from './element.js';
+import { Text } from './text.js';
 import { SelectedContext } from '../hooks/use-selected.js';
-import { useSlateStatic } from '../hooks/use-slate-static.jsx';
-import { useSlateWithV } from '../hooks/use-slate.jsx';
+import { useSlateStatic } from '../hooks/use-slate-static.js';
+import { useSlateWithV } from '../hooks/use-slate.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { NODE_TO_INDEX, NODE_TO_PARENT } from '../utils/weakmaps.js';
 

@@ -3,8 +3,8 @@ import { createEditor, Text, Transforms } from 'slate';
 import { createEffect } from 'solid-js';
 import { expect, test, describe, vi } from 'vitest';
 
-import { Editable } from './editable.jsx';
-import { Slate } from './slate.jsx';
+import { Editable } from './editable.js';
+import { Slate } from './slate.js';
 import { withSolid } from '../plugin/with-solid.js';
 
 describe('slate-solid', () => {

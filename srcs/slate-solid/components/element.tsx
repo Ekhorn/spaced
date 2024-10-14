@@ -1,14 +1,14 @@
 import { type Range, type Element as SlateElement, Editor, Node } from 'slate';
 import { type JSXElement, Match, Switch } from 'solid-js';
 
-import { createChildren } from './children.jsx';
+import { createChildren } from './children.js';
 import {
   type RenderElementProps,
   type RenderLeafProps,
   type RenderPlaceholderProps,
 } from './editable.js';
-import { Text } from './text.jsx';
-import { useSlateStatic } from '../hooks/use-slate-static.jsx';
+import { Text } from './text.js';
+import { useSlateStatic } from '../hooks/use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { getDirection } from '../utils/direction.js';
 import {

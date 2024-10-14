@@ -27,7 +27,10 @@ import {
   FaSolidQuoteLeft,
   FaSolidUnderline,
 } from 'solid-icons/fa';
-import { type JSX, type JSXElement } from 'solid-js';
+import { type Setter, type JSX, type JSXElement } from 'solid-js';
+
+import { useIPC } from './IPCProvider.jsx';
+import { type Item } from '../lib/types.js';
 
 const ElementMap: Record<
   string,
@@ -131,7 +134,7 @@ function isBlockActive(editor: Editor, format: string, blockType = 'type') {
   return !!match;
 }
 
-const LIST_TYPES = new Set(['numbered-list', 'bulleted-list']);
+const LIST_TYPES = new Set(['numbered_list', 'bulleted_list']);
 
 const TEXT_ALIGN_TYPES = new Set(['left', 'center', 'right', 'justify']);
 
@@ -160,7 +163,7 @@ function toggleBlock(editor: Editor, format: string) {
           ? 'paragraph'
           : // eslint-disable-next-line unicorn/no-nested-ternary
             isList
-            ? 'list-item'
+            ? 'list_item'
             : (format as SlateElement['type']),
       };
   Transforms.setNodes<SlateElement>(editor, newProperties);
@@ -229,11 +232,32 @@ function ToolBar(props: { style: JSX.CSSProperties; children: JSXElement }) {
   );
 }
 
-export function Wysiwyg(props: { style: JSX.CSSProperties }) {
+export function Wysiwyg(props: {
+  initialValue: Descendant[];
+  style: JSX.CSSProperties;
+  setItems: Setter<Item[]>;
+  index: number;
+  item: Item;
+}) {
   const editor = withSolid(createEditor());
+  const { updateItem } = useIPC();
 
   return (
-    <Slate initialValue={example} editor={editor}>
+    <Slate
+      initialValue={props.initialValue}
+      editor={editor}
+      // eslint-disable-next-line solid/reactivity
+      onValueChange={async () => {
+        const [item] = await updateItem([
+          {
+            ...props.item,
+            schema: JSON.stringify(editor.children),
+          },
+        ]);
+        // eslint-disable-next-line solid/reactivity
+        props.setItems((prev) => prev.with(props.index, item));
+      }}
+    >
       <ToolBar style={props.style}>
         <MarkButton format="bold" icon={<FaSolidBold />} />
         <MarkButton format="italic" icon={<FaSolidItalic />} />
@@ -261,39 +285,3 @@ export function Wysiwyg(props: { style: JSX.CSSProperties }) {
     </Slate>
   );
 }
-
-const example: Descendant[] = [
-  {
-    type: 'paragraph',
-    children: [
-      { text: 'This is editable ' },
-      { text: 'rich', bold: true },
-      { text: ' text, ' },
-      { text: 'much', italic: true },
-      { text: ' better than a ' },
-      { text: '<textarea>', code: true },
-      { text: '!' },
-    ],
-  },
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text: "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: 'bold', bold: true },
-      {
-        text: ', or add a semantically rendered block quote in the middle of the page, like this:',
-      },
-    ],
-  },
-  {
-    type: 'block-quote',
-    children: [{ text: 'A wise quote.' }],
-  },
-  {
-    type: 'paragraph',
-    align: 'center',
-    children: [{ text: 'Try it out for yourself!' }],
-  },
-];

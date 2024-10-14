@@ -4,8 +4,8 @@ import { Show, createSignal, onMount } from 'solid-js';
 
 import { isTauri } from '../../lib/const.js';
 import { type Storage } from '../../lib/types.js';
-import { useIPC } from '../IPCProvider.jsx';
-import { useState } from '../StateProvider.jsx';
+import { useIPC } from '../IPCProvider.js';
+import { useState } from '../StateProvider.js';
 
 export function StorageSelector() {
   const { connect, getNearbyItems } = useIPC();
