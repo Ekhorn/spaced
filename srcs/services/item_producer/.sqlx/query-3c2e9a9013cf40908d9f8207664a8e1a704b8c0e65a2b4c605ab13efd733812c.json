@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO asset ( id, name, mime, data )\nVALUES ( $1, $2, $3, $4 )\n      ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3c2e9a9013cf40908d9f8207664a8e1a704b8c0e65a2b4c605ab13efd733812c"
+}

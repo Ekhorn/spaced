@@ -57,9 +57,7 @@ export function StorageSelector() {
         <option disabled={!isTauri} value="local">
           Local
         </option>
-        <option disabled value="cloud">
-          Cloud
-        </option>
+        <option value="cloud">Cloud</option>
       </select>
     </div>
   );
