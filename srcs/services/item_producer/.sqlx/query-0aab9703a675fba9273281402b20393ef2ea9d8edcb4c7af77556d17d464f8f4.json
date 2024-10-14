@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      INSERT INTO item (id, x, y, w, h, name, schema)\n      VALUES (DEFAULT, $1, $2, $3, $4, $5, $6)\n      RETURNING *\n      ",
+  "query": "\nINSERT INTO item ( x, y, w, h, schema )\nVALUES ( $1, $2, $3, $4, $5 ) RETURNING *\n      ",
   "describe": {
     "columns": [
       {
@@ -30,11 +30,6 @@
       },
       {
         "ordinal": 5,
-        "name": "name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 6,
         "name": "schema",
         "type_info": "Text"
       }
@@ -45,7 +40,6 @@
         "Int4",
         "Int4",
         "Int4",
-        "Varchar",
         "Text"
       ]
     },
@@ -55,9 +49,8 @@
       false,
       false,
       false,
-      true,
       true
     ]
   },
-  "hash": "61d57b39956ed52c40dc4878bac887bddd0ae282bebd56706f2188d89b8b221e"
+  "hash": "0aab9703a675fba9273281402b20393ef2ea9d8edcb4c7af77556d17d464f8f4"
 }
