@@ -1,24 +1,18 @@
-import { micromark } from 'micromark';
+// import { micromark } from 'micromark';
+import { type Descendant } from 'slate';
 import {
-  type Accessor,
-  type ValidComponent,
   createMemo,
   onMount,
   type Setter,
   mergeProps,
   ErrorBoundary,
 } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 
-import { useIPC } from './IPCProvider.jsx';
+import { useIPC } from './IPCProvider.js';
 import { useSelection } from './SelectionProvider.js';
 import { useViewport } from './ViewportProvider.js';
-import { Wysiwyg } from './WYSIWYG.jsx';
-import {
-  type MimeTypes,
-  type Item,
-  type ComponentSchemas,
-} from '../lib/types.js';
+import { Wysiwyg } from './WYSIWYG.js';
+import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
 type ContainerProps = {
@@ -26,34 +20,6 @@ type ContainerProps = {
   readonly item: Item;
   readonly setItems: Setter<Item[]>;
 };
-
-function handleBeforeInput(event: InputEvent) {
-  if (event.inputType === 'insertParagraph') {
-    const selection = window.getSelection();
-    if (!selection) {
-      return;
-    }
-    event.preventDefault();
-    const text = document.createTextNode('\n');
-    const range = selection.getRangeAt(0);
-    const startContainer = range.startContainer;
-    const endOffset = range.endOffset;
-    range.deleteContents();
-    range.collapse(true);
-    range.insertNode(text);
-    if (
-      startContainer.nodeType === Node.TEXT_NODE &&
-      endOffset === startContainer.textContent?.length
-    ) {
-      startContainer.textContent += '\n';
-    } else {
-      range.setStartAfter(text);
-    }
-
-    // range.insertNode(text);
-    // range.setStartAfter(text);
-  }
-}
 
 export function Container(props: ContainerProps) {
   const { absoluteViewportPosition, scalar } = useViewport();
@@ -97,9 +63,7 @@ export function Container(props: ContainerProps) {
     document.addEventListener('focusout', handleBlur);
   });
 
-  const schema = createMemo<ComponentSchemas>(() =>
-    JSON.parse(props.item.schema!),
-  );
+  const schema = createMemo<Descendant[]>(() => JSON.parse(props.item.schema!));
 
   const renderProps = mergeProps(
     {
@@ -132,12 +96,16 @@ export function Container(props: ContainerProps) {
     >
       <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
         <Wysiwyg
+          initialValue={schema()}
           style={{
             width: '672px',
             padding: '4px',
             'background-color': 'white',
             'border-radius': '4px',
           }}
+          index={props.index}
+          item={props.item}
+          setItems={props.setItems}
         />
       </ErrorBoundary>
     </div>
@@ -148,141 +116,97 @@ function RenderFallback() {
   return 'Error occured';
 }
 
-type RenderProps = {
-  readonly index: number;
-  readonly item: Item;
-  readonly ref: HTMLDivElement;
-  readonly schema: Accessor<ComponentSchemas>;
-  readonly selected: Accessor<boolean>;
-  readonly setItems: Setter<Item[]>;
-  readonly translation: Accessor<Vec2D>;
-  readonly scalar: Accessor<number>;
-};
+// type RenderProps = {
+//   readonly index: number;
+//   readonly item: Item;
+//   readonly ref: HTMLDivElement;
+//   readonly schema: Accessor<Descendant[]>;
+//   readonly selected: Accessor<boolean>;
+//   readonly setItems: Setter<Item[]>;
+//   readonly translation: Accessor<Vec2D>;
+//   readonly scalar: Accessor<number>;
+// };
 
-const renderMap: Record<MimeTypes, ValidComponent> = {
-  'text/plain': RenderText,
-  'text/markdown': RenderMarkdown,
-  'image/png': renderImage,
-  'image/svg+xml': renderImage,
-  'image/jpeg': renderImage,
-  'image/gif': renderImage,
-  'application/pdf': renderPdf,
-};
+// const renderMap: Record<MimeTypes, ValidComponent> = {
+//   'text/markdown': RenderMarkdown,
+//   'image/png': renderImage,
+//   'image/svg+xml': renderImage,
+//   'image/jpeg': renderImage,
+//   'image/gif': renderImage,
+//   'application/pdf': renderPdf,
+// };
 
-function RenderUnkown(props: RenderProps) {
-  // eslint-disable-next-line solid/reactivity
-  return `Unkown media type:\n${props.schema().mime}`;
-}
+// function RenderUnkown(props: RenderProps) {
+//   // eslint-disable-next-line solid/reactivity
+//   return `Unkown media type:\n${props.schema().mime}`;
+// }
 
-function Render(props: RenderProps) {
-  return (
-    <Dynamic
-      component={renderMap?.[props.schema().mime as MimeTypes] ?? RenderUnkown}
-      {...props}
-    />
-  );
-}
+// function Render(props: RenderProps) {
+//   return (
+//     <Dynamic
+//       component={renderMap?.[props.schema().mime as MimeTypes] ?? RenderUnkown}
+//       {...props}
+//     />
+//   );
+// }
 
-type RenderTextProps = RenderProps;
+// type RenderMarkdownProps = RenderProps;
 
-function RenderText(props: RenderTextProps) {
-  const { updateItem } = useIPC();
+// function RenderMarkdown(props: RenderMarkdownProps) {
+//   let ref!: HTMLDivElement;
 
-  let ref!: HTMLDivElement;
+//   onMount(async () => {
+//     const result = micromark(props.schema().content ?? '', {
+//       // extensions: [gfm()],
+//       // htmlExtensions: [gfmHtml()],
+//     });
+//     ref.innerHTML = String(result);
+//   });
 
-  async function handleKeyUp(e: KeyboardEvent) {
-    e.stopPropagation();
+//   return <div id="markdown-content" ref={ref} />;
+// }
 
-    const schema: ComponentSchemas = {
-      ...props.schema(),
-      content: ref.textContent!,
-    };
+// type RenderImage = RenderProps;
 
-    const [item] = await updateItem([
-      {
-        ...props.item,
-        schema: JSON.stringify(schema),
-      },
-    ]);
-    // eslint-disable-next-line solid/reactivity
-    props.setItems((prev) => prev.with(props.index, item));
-  }
+// function renderImage(props: RenderImage) {
+//   const { getAsset } = useIPC();
 
-  onMount(() => {
-    ref.textContent = props.schema().content ?? '';
-  });
+//   let ref!: HTMLImageElement;
 
-  return (
-    <div
-      onPaste={(e) => e.stopPropagation()}
-      onBeforeInput={handleBeforeInput}
-      onKeyUp={handleKeyUp}
-      contenteditable={props.selected()}
-      style={{
-        'line-height': '1rem',
-      }}
-      ref={ref}
-    ></div>
-  );
-}
+//   onMount(async () => {
+//     const { content } = props.schema();
+//     if (content) {
+//       const asset = await getAsset(content);
+//       const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
+//       ref.src = URL.createObjectURL(blob);
+//     }
+//   });
 
-type RenderMarkdownProps = RenderProps;
+//   return <img ref={ref} class="pointer-events-none" />;
+// }
 
-function RenderMarkdown(props: RenderMarkdownProps) {
-  let ref!: HTMLDivElement;
+// type RenderPdf = RenderProps;
 
-  onMount(async () => {
-    const result = micromark(props.schema().content ?? '', {
-      // extensions: [gfm()],
-      // htmlExtensions: [gfmHtml()],
-    });
-    ref.innerHTML = String(result);
-  });
+// function renderPdf(props: RenderPdf) {
+//   const { getAsset } = useIPC();
 
-  return <div id="markdown-content" ref={ref} />;
-}
+//   let ref!: HTMLObjectElement;
 
-type RenderImage = RenderProps;
+//   onMount(async () => {
+//     const { content } = props.schema();
+//     if (content) {
+//       const asset = await getAsset(content);
+//       const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
+//       ref.data = URL.createObjectURL(blob);
+//     }
+//   });
 
-function renderImage(props: RenderImage) {
-  const { getAsset } = useIPC();
-
-  let ref!: HTMLImageElement;
-
-  onMount(async () => {
-    const { content } = props.schema();
-    if (content) {
-      const asset = await getAsset(content);
-      const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
-      ref.src = URL.createObjectURL(blob);
-    }
-  });
-
-  return <img ref={ref} class="pointer-events-none" />;
-}
-
-type RenderPdf = RenderProps;
-
-function renderPdf(props: RenderPdf) {
-  const { getAsset } = useIPC();
-
-  let ref!: HTMLObjectElement;
-
-  onMount(async () => {
-    const { content } = props.schema();
-    if (content) {
-      const asset = await getAsset(content);
-      const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
-      ref.data = URL.createObjectURL(blob);
-    }
-  });
-
-  return (
-    <object
-      style={{
-        'pointer-events': 'all',
-      }}
-      ref={ref}
-    ></object>
-  );
-}
+//   return (
+//     <object
+//       style={{
+//         'pointer-events': 'all',
+//       }}
+//       ref={ref}
+//     ></object>
+//   );
+// }

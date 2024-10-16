@@ -1,3 +1,4 @@
+import { type Descendant } from 'slate';
 import { HiOutlinePlus } from 'solid-icons/hi';
 
 import { Vec2D, relativeToAbsolute } from '../../lib/vector.js';
@@ -24,12 +25,16 @@ export function CreateButton() {
           y: Math.floor(absolute.y),
           w: 0,
           h: 0,
-          schema: JSON.stringify({
-            type: 'div',
-            name: 'Untitled',
-            content: 'test',
-            mime: 'text/plain',
-          }),
+          schema: JSON.stringify([
+            {
+              type: 'paragraph',
+              children: [
+                {
+                  text: 'test',
+                },
+              ],
+            },
+          ] as Descendant[]),
         },
         [],
       );

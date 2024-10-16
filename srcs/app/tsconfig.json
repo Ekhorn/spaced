@@ -1,9 +1,13 @@
 {
   "extends": "../../tsconfig.json",
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "rootDir": ".",
+    "composite": true,
+    "skipLibCheck": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "types": ["vite/client"]
-  }
+  },
+  "references": [{ "path": "../slate-solid/tsconfig.build.json" }]
 }

@@ -1,44 +1,64 @@
-import { type Asset, type ComponentSchemas } from './types.js';
+import { type Descendant } from 'slate';
+
+import { type Asset } from './types.js';
 
 export function processRefs(
-  schema: ComponentSchemas,
+  schema: Descendant,
   assets: Asset[],
-): [schema: ComponentSchemas, assets: Asset[]] {
+): [schema: Descendant, assets: Asset[]] {
   const outputSchema = schema;
-  switch (schema.type) {
-    case 'div': {
-      if (schema.descendants) {
-        schema.descendants = schema.descendants.map(
-          (descendant) => processRefs(descendant, assets)[0],
-        );
+
+  if ('type' in schema) {
+    switch (schema.type) {
+      case 'heading':
+      case 'heading_two':
+      case 'check_list_item':
+      case 'bulleted_list':
+      case 'list_item':
+      case 'link':
+      case 'code_line':
+      case 'code_block': {
+        return [outputSchema, assets];
       }
-      return [outputSchema, assets];
-    }
-    case 'input': {
-      const figure = schema.descendants;
-      if (figure) {
-        const index = Number(figure.content);
+      case 'block_quote':
+      case 'button':
+      case 'paragraph': {
+        if (schema.children) {
+          schema.children = schema.children.map(
+            (descendant) => processRefs(descendant, assets)[0],
+          );
+        }
+        return [outputSchema, assets];
+      }
+      case 'image': {
+        const index = Number(schema.uuid);
         if (assets.length < index) {
           throw Error;
         }
-        assets[index].name = figure.name;
-        assets[index].mime = figure.mime;
-        figure.content = assets[index].id as string;
+        assets[index].name = schema.name;
+        assets[index].mime = schema.mime;
+        schema.uuid = assets[index].id as string;
+        return [outputSchema, assets];
       }
-      return [outputSchema, assets];
+      // case 'video': {
+      //   // TODO: implement
+      //   return [outputSchema, assets];
+      // }
+      // case 'input': {
+      //   const figure = schema.descendants;
+      //   if (figure) {
+      //     const index = Number(figure.content);
+      //     if (assets.length < index) {
+      //       throw Error;
+      //     }
+      //     assets[index].name = figure.name;
+      //     assets[index].mime = figure.mime;
+      //     figure.content = assets[index].id as string;
+      //   }
+      //   return [outputSchema, assets];
+      // }
     }
-    case 'figure': {
-      const index = Number(schema.content);
-      if (assets.length < index) {
-        throw Error;
-      }
-      assets[index].name = schema.name;
-      assets[index].mime = schema.mime;
-      schema.content = assets[index].id as string;
-      return [outputSchema, assets];
-    }
-    case 'break': {
-      return [outputSchema, assets];
-    }
+  } else {
+    return [outputSchema, assets];
   }
 }

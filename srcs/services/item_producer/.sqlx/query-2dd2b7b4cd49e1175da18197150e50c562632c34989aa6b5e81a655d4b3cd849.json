@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM item;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "x",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "y",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "w",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "h",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "schema",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "2dd2b7b4cd49e1175da18197150e50c562632c34989aa6b5e81a655d4b3cd849"
+}

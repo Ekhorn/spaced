@@ -10,6 +10,7 @@ module.exports = {
     'target',
     'node_modules',
     'srcs/tauri',
+    'srcs/slate-solid/lib',
     '*.config.*',
   ],
   parser: '@typescript-eslint/parser',

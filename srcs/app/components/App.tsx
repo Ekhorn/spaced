@@ -8,7 +8,8 @@ import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
 import { ViewportProvider, useViewport } from './ViewportProvider.js';
 import { allowedMimeTypes } from '../lib/const.js';
-import { type FigureComponent, type MimeTypes } from '../lib/types.js';
+import { type ImageElement } from '../lib/editor-types.js';
+import { type MimeTypes } from '../lib/types.js';
 // import { getBoundingBox, throttle } from '../lib/utils.js';
 import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
 
@@ -37,11 +38,11 @@ export function App() {
           w: 0,
           h: 0,
           schema: JSON.stringify({
-            type: 'figure',
+            type: 'image',
             name: file.name,
-            content: file.type.startsWith('text') ? await file.text() : '0',
             mime: file.type,
-          } as FigureComponent),
+            uuid: file.type.startsWith('text') ? await file.text() : '0',
+          } as ImageElement),
         },
         [[...new Uint8Array(await file.arrayBuffer())]],
       );
@@ -107,11 +108,11 @@ export function App() {
           w: 0,
           h: 0,
           schema: JSON.stringify({
-            type: 'figure',
+            type: 'image',
             name: file.name,
-            content: file.type.startsWith('text') ? await file.text() : '0',
             mime: file.type,
-          } as FigureComponent),
+            uuid: file.type.startsWith('text') ? await file.text() : '0',
+          } as ImageElement),
         },
         [[...new Uint8Array(await file.arrayBuffer())]],
       );
