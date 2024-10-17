@@ -98,7 +98,6 @@ export function Container(props: ContainerProps) {
         <Wysiwyg
           initialValue={schema()}
           style={{
-            width: '672px',
             padding: '4px',
             'background-color': 'white',
             'border-radius': '4px',
