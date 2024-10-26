@@ -1,5 +1,15 @@
 # Spaced
 
+> DISCLAIMER: Spaced is under active development. Security and privacy have been self-audited. I currently do not recommend using Spaced in production. Use Spaced at your own risk.
+>
+> See [privacy_audit.md](docs/archive/2024-2025/privacy_audit.md) and [security_audit.md](docs/archive/2024-2025/privacy_audit.md) documents.
+
+## Introduction
+
+For more details see [architecture.md](docs/guides/architecture.md)
+
+## Getting started
+
 ### Prerequisites
 
 In order to run Spaced in development the following must be installed.
@@ -20,8 +30,6 @@ You can choose either **Docker** or **Podman**. _Docker is used in the pipeline 
 | [Docker Compose](https://docs.docker.com/compose) | [Podman Compose](https://github.com/containers/podman-compose) |
 
 <!-- - Protoc -->
-
-## Getting started
 
 Install dependencies for web-frontend.
 
@@ -91,6 +99,10 @@ Use the following environment variable to change the distroless image tag. The d
 ```sh
 DISTROLESS_TAG=debug docker compose --profile services build
 ```
+
+## Security
+
+Please read the [security policy](SECURITY.md), before reporting a security vulnerability.
 
 ## Contributing
 
