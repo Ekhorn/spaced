@@ -22,7 +22,6 @@ describe('slate-solid', () => {
             initialValue={initialValue}
             onChange={() => {}}
           >
-            {/* @ts-expect-error TODO: resolve */}
             <Editable
               renderElement={({ children }) => {
                 createEffect(() => mounts());
@@ -57,7 +56,6 @@ describe('slate-solid', () => {
             initialValue={initialValue}
             onChange={() => {}}
           >
-            {/* @ts-expect-error TODO: resolve */}
             <Editable
               renderElement={({ children }) => {
                 createEffect(() => mounts());
@@ -97,7 +95,6 @@ describe('slate-solid', () => {
           onValueChange={onValueChange}
           onSelectionChange={onSelectionChange}
         >
-          {/* @ts-expect-error TODO: resolve */}
           <Editable />
         </Slate>
       ));
@@ -125,7 +122,6 @@ describe('slate-solid', () => {
           onValueChange={onValueChange}
           onSelectionChange={onSelectionChange}
         >
-          {/* @ts-expect-error TODO: resolve */}
           <Editable />
         </Slate>
       ));
@@ -153,7 +149,6 @@ describe('slate-solid', () => {
           onValueChange={onValueChange}
           onSelectionChange={onSelectionChange}
         >
-          {/* @ts-expect-error TODO: resolve */}
           <Editable />
         </Slate>
       ));
@@ -189,7 +184,6 @@ describe('slate-solid', () => {
           onValueChange={onValueChange}
           onSelectionChange={onSelectionChange}
         >
-          {/* @ts-expect-error TODO: resolve */}
           <Editable />
         </Slate>
       ));

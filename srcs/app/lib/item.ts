@@ -10,7 +10,7 @@ export function processRefs(
 
   if ('type' in schema) {
     switch (schema.type) {
-      case 'heading':
+      case 'heading_one':
       case 'heading_two':
       case 'check_list_item':
       case 'bulleted_list':

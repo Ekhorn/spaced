@@ -120,6 +120,12 @@ export type RenderPlaceholderProps = {
   };
 };
 
+type ElementAttributes<T extends HTMLElement> = Omit<
+  Partial<T>,
+  'style' | keyof JSX.CustomEventHandlersLowerCase<T>
+> &
+  JSX.CustomEventHandlersCamelCase<T>;
+
 export type EditableProps = {
   decorate?: (entry: NodeEntry) => Range[];
   onDOMBeforeInput?: (event: InputEvent) => void;
@@ -134,7 +140,7 @@ export type EditableProps = {
   renderPlaceholder?: (props: RenderPlaceholderProps) => JSXElement;
   scrollSelectionIntoView?: (editor: SolidEditor, domRange: DOMRange) => void;
   disableDefaultStyles?: boolean;
-} & JSXElement;
+} & ElementAttributes<HTMLTextAreaElement>;
 
 export const defaultDecorate: (entry: NodeEntry) => Range[] = () => [];
 

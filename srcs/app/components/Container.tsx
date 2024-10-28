@@ -1,25 +1,36 @@
 // import { micromark } from 'micromark';
-import { type Descendant } from 'slate';
+import { createEditor, type Descendant } from 'slate';
 import {
+  Editable,
+  type RenderElementProps,
+  type RenderLeafProps,
+  Slate,
+  withSolid,
+} from 'slate-solid';
+import {
+  type JSX,
+  type Accessor,
+  type JSXElement,
   createMemo,
-  onMount,
   type Setter,
   mergeProps,
   ErrorBoundary,
 } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 import { useIPC } from './IPCProvider.js';
 import { useSelection } from './SelectionProvider.js';
+import { Toolbar } from './Toolbar.jsx';
 import { useViewport } from './ViewportProvider.js';
-import { Wysiwyg } from './WYSIWYG.js';
+import { type CustomElement } from '../lib/editor-types.js';
 import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
-type ContainerProps = {
+interface ContainerProps {
   readonly index: number;
   readonly item: Item;
   readonly setItems: Setter<Item[]>;
-};
+}
 
 export function Container(props: ContainerProps) {
   const { absoluteViewportPosition, scalar } = useViewport();
@@ -39,8 +50,12 @@ export function Container(props: ContainerProps) {
   function handleClick() {
     register(props.item.id!);
   }
-  function handleBlur() {
-    if (holdingCtrl() || holdingShift()) {
+  function handleFocusOut(event: FocusEvent) {
+    if (
+      (event.currentTarget as Node).contains(event.relatedTarget as Node) ||
+      holdingCtrl() ||
+      holdingShift()
+    ) {
       return;
     }
     unregister(props.item.id!);
@@ -57,32 +72,16 @@ export function Container(props: ContainerProps) {
       return;
     }
   }
-  let ref!: HTMLDivElement;
-
-  onMount(() => {
-    document.addEventListener('focusout', handleBlur);
-  });
-
   const schema = createMemo<Descendant[]>(() => JSON.parse(props.item.schema!));
 
-  const renderProps = mergeProps(
-    {
-      ref,
-      scalar,
-      selected,
-      translation,
-      schema,
-    },
-    props,
-  );
+  const renderProps = mergeProps({ selected }, props);
 
   return (
     <div
-      class="absolute min-h-8 min-w-8 whitespace-pre rounded outline-1 hover:outline"
+      class="absolute min-h-8 min-w-8 whitespace-pre rounded"
       style={{
         'pointer-events': 'all',
         'transform-origin': 'top left',
-        'outline-style': selected() ? 'solid' : 'unset',
         translate: `
           ${translation().x}px
           ${-translation().y}px
@@ -92,62 +91,129 @@ export function Container(props: ContainerProps) {
       tabIndex={0}
       onClick={handleClick}
       onKeyUp={handleKeyUp}
-      ref={ref}
+      onFocusOut={handleFocusOut}
     >
-      <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
-        <Wysiwyg
-          initialValue={schema()}
-          style={{
-            padding: '4px',
-            'background-color': 'white',
-            'border-radius': '4px',
-          }}
-          index={props.index}
-          item={props.item}
-          setItems={props.setItems}
-        />
+      <ErrorBoundary fallback={<RenderFallback {...props} />}>
+        <Render initialValue={schema()} {...renderProps} />
       </ErrorBoundary>
     </div>
   );
 }
 
-function RenderFallback() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function RenderFallback(_props: ContainerProps) {
   return 'Error occured';
 }
 
-// type RenderProps = {
-//   readonly index: number;
-//   readonly item: Item;
-//   readonly ref: HTMLDivElement;
-//   readonly schema: Accessor<Descendant[]>;
-//   readonly selected: Accessor<boolean>;
-//   readonly setItems: Setter<Item[]>;
-//   readonly translation: Accessor<Vec2D>;
-//   readonly scalar: Accessor<number>;
-// };
+interface RenderProps extends ContainerProps {
+  readonly selected: Accessor<boolean>;
+}
 
-// const renderMap: Record<MimeTypes, ValidComponent> = {
-//   'text/markdown': RenderMarkdown,
-//   'image/png': renderImage,
-//   'image/svg+xml': renderImage,
-//   'image/jpeg': renderImage,
-//   'image/gif': renderImage,
-//   'application/pdf': renderPdf,
-// };
+export function Render(
+  props: RenderProps & {
+    initialValue: Descendant[];
+  },
+) {
+  const editor = withSolid(createEditor());
+  const { updateItem } = useIPC();
 
-// function RenderUnkown(props: RenderProps) {
-//   // eslint-disable-next-line solid/reactivity
-//   return `Unkown media type:\n${props.schema().mime}`;
-// }
+  return (
+    <Slate
+      initialValue={props.initialValue}
+      editor={editor}
+      // eslint-disable-next-line solid/reactivity
+      onValueChange={async () => {
+        const [item] = await updateItem([
+          {
+            ...props.item,
+            schema: JSON.stringify(editor.children),
+          },
+        ]);
+        // eslint-disable-next-line solid/reactivity
+        props.setItems((prev) => prev.with(props.index, item));
+      }}
+    >
+      <Toolbar selected={props.selected} />
+      <div class="h-1 w-[424px]" />
+      <Editable
+        readOnly={!props.selected()}
+        renderElement={RenderElement}
+        renderLeaf={RenderLeaf}
+        placeholder="Enter some rich text…"
+        spellCheck
+        style={{
+          padding: '4px',
+          'background-color': 'white',
+          'border-radius': '4px',
+        }}
+      />
+    </Slate>
+  );
+}
 
-// function Render(props: RenderProps) {
-//   return (
-//     <Dynamic
-//       component={renderMap?.[props.schema().mime as MimeTypes] ?? RenderUnkown}
-//       {...props}
-//     />
-//   );
-// }
+type Element = (
+  props: {
+    children: JSXElement;
+    style: JSX.CSSProperties;
+  } & object,
+) => JSXElement;
+
+/* eslint-disable solid/no-destructure */
+const block_quote: Element = (props) => <blockquote {...props} />,
+  bulleted_list: Element = (props) => <ul {...props} />,
+  heading_one: Element = (props) => <h1 {...props} />,
+  heading_two: Element = (props) => <h2 {...props} />,
+  numbered_list: Element = (props) => <ol {...props} />,
+  list_item: Element = (props) => <li {...props} />;
+/* eslint-enable solid/no-destructure */
+
+const elementsMap: Record<CustomElement['type'], Element> = {
+  block_quote,
+  bulleted_list,
+  heading_one,
+  heading_two,
+  numbered_list,
+  list_item,
+};
+
+function RenderElement(props: RenderElementProps): JSXElement {
+  return (
+    <Dynamic
+      children={props.children}
+      component={
+        elementsMap[props.element.type] ?? ((props) => <p {...props} />)
+      }
+      style={{
+        'text-align':
+          props && 'align' in props.element ? props.element.align : undefined,
+      }}
+      {...props.attributes}
+    />
+  );
+}
+
+function RenderLeaf(props: RenderLeafProps) {
+  return (
+    <span {...props.attributes}>
+      {(() => {
+        let children = props.children as JSXElement;
+        if (props.leaf.bold) {
+          children = <strong>{children}</strong>;
+        }
+        if (props.leaf.code) {
+          children = <code>{children}</code>;
+        }
+        if (props.leaf.italic) {
+          children = <em>{children}</em>;
+        }
+        if (props.leaf.underline) {
+          children = <u>{children}</u>;
+        }
+        return children;
+      })()}
+    </span>
+  );
+}
 
 // type RenderMarkdownProps = RenderProps;
 

@@ -22,7 +22,6 @@ describe('slate-solid', () => {
 
         render(() => (
           <Slate editor={editor} initialValue={initialValue}>
-            {/* @ts-expect-error TODO: resolve */}
             <Editable />
           </Slate>
         ));
@@ -57,7 +56,6 @@ describe('slate-solid', () => {
 
         render(() => (
           <Slate editor={editor} initialValue={initialValue}>
-            {/* @ts-expect-error TODO: resolve */}
             <Editable />
           </Slate>
         ));
@@ -99,7 +97,6 @@ describe('slate-solid', () => {
             onChange={onChange}
             onSelectionChange={onSlectionChange}
           >
-            {/* @ts-expect-error TODO: resolve */}
             <Editable />
           </Slate>
         ));

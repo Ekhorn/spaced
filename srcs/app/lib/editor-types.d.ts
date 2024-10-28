@@ -35,8 +35,8 @@ export interface CheckListItemElement extends BaseElement {
   children: Descendant[];
 }
 
-export interface HeadingElement extends BaseElement {
-  type: 'heading';
+export interface HeadingOneElement extends BaseElement {
+  type: 'heading_one';
   align?: string;
   children: Descendant[];
 }
@@ -104,7 +104,7 @@ type CustomElement =
   | BlockQuoteElement
   | BulletedListElement
   | CheckListItemElement
-  | HeadingElement
+  | HeadingOneElement
   | HeadingTwoElement
   | ImageElement
   | LinkElement
