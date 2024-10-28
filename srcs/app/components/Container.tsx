@@ -7,6 +7,7 @@ import {
   Slate,
   withSolid,
 } from 'slate-solid';
+import isHotkey from 'slate-solid/utils/is-hotkey.js';
 import {
   type JSX,
   type Accessor,
@@ -20,11 +21,18 @@ import { Dynamic } from 'solid-js/web';
 
 import { useIPC } from './IPCProvider.js';
 import { useSelection } from './SelectionProvider.js';
-import { Toolbar } from './Toolbar.jsx';
+import { toggleMark, Toolbar } from './Toolbar.jsx';
 import { useViewport } from './ViewportProvider.js';
 import { type CustomElement } from '../lib/editor-types.js';
 import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
+
+const HOTKEYS = {
+  'mod+b': 'bold',
+  'mod+i': 'italic',
+  'mod+u': 'underline',
+  'mod+`': 'code',
+};
 
 interface ContainerProps {
   readonly index: number;
@@ -145,6 +153,15 @@ export function Render(
           padding: '4px',
           'background-color': 'white',
           'border-radius': '4px',
+        }}
+        onKeyDown={(event: KeyboardEvent) => {
+          for (const hotkey in HOTKEYS) {
+            if (isHotkey(hotkey, event)) {
+              event.preventDefault();
+              const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS];
+              toggleMark(editor, mark);
+            }
+          }
         }}
       />
     </Slate>

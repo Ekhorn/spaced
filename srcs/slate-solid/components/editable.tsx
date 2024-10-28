@@ -44,6 +44,7 @@ import {
   isPlainTextOnlyPaste,
 } from '../utils/dom.js';
 import {
+  CAN_USE_DOM,
   HAS_BEFORE_INPUT_SUPPORT,
   IS_ANDROID,
   IS_CHROME,
@@ -940,27 +941,47 @@ export function Editable(props: EditableProps) {
     <div
       role={slate.readOnly ? undefined : 'textbox'}
       aria-multiline={slate.readOnly ? undefined : true}
+      {...attributes}
+      spellCheck={
+        HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM ? attributes.spellCheck : false
+      }
+      autoCorrect={
+        HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+          ? attributes.autoCorrect
+          : 'false'
+      }
+      autoCapitalize={
+        HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+          ? attributes.autoCapitalize
+          : 'false'
+      }
       data-slate-editor
       data-slate-node="value"
       contentEditable={!slate.readOnly}
+      // eslint-disable-next-line solid/reactivity
+      ref={callbackRef}
       style={{
-        // in some cases, a decoration needs access to the range / selection to decorate a text node,
-        // then you will select the whole text node when you select part the of text
-        // this magic zIndex="-1" will fix it
-        'z-index': 999,
-        // Allow positioning relative to the editable element.
-        position: 'relative',
-        // Preserve adjacent whitespace and new lines.
-        'white-space': 'pre-wrap',
-        // Allow words to break if they are too long.
-        'word-wrap': 'break-word',
-        // Make the minimum height that of the placeholder.
-        ...(placeholderHeight() ? { minHeight: placeholderHeight() } : {}),
+        ...(props.disableDefaultStyles
+          ? {}
+          : {
+              // in some cases, a decoration needs access to the range / selection to decorate a text node,
+              // then you will select the whole text node when you select part the of text
+              // this magic zIndex="-1" will fix it
+              'z-index': -1,
+              // Allow positioning relative to the editable element.
+              position: 'relative',
+              // Preserve adjacent whitespace and new lines.
+              'white-space': 'pre-wrap',
+              // Allow words to break if they are too long.
+              'word-wrap': 'break-word',
+              // Make the minimum height that of the placeholder.
+              ...(placeholderHeight()
+                ? { minHeight: placeholderHeight() }
+                : {}),
+            }),
         // Allow for passed-in styles to override anything.
         ...props?.style,
       }}
-      // eslint-disable-next-line solid/reactivity
-      ref={callbackRef}
       onBeforeInput={(event) => {
         // COMPAT: Certain browsers don't support the `beforeinput` event, so we
         // fall back to React's leaky polyfill instead just for it. It
@@ -1634,8 +1655,7 @@ export function Editable(props: EditableProps) {
           // application/x-slate-fragment items, so use the
           // ClipboardEvent here. (2023/03/15)
           (!HAS_BEFORE_INPUT_SUPPORT ||
-            // @ts-expect-error TODO: nativeEvent are React only?
-            isPlainTextOnlyPaste(event.nativeEvent) ||
+            isPlainTextOnlyPaste(event) ||
             IS_WEBKIT)
         ) {
           event.preventDefault();
@@ -1683,11 +1703,11 @@ const defaultScrollSelectionIntoView = (
 };
 
 /**
- * Check if an event is overrided by a handler.
+ * Check if an event is overriden by a handler.
  */
 export const isEventHandled = <EventType extends Event>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  event: any,
+  event: EventType,
   handler?: (event: EventType) => void | boolean,
 ) => {
   if (!handler) {
@@ -1701,7 +1721,7 @@ export const isEventHandled = <EventType extends Event>(
     return shouldTreatEventAsHandled;
   }
 
-  return event.isDefaultPrevented() || event.isPropagationStopped();
+  return event.defaultPrevented;
 };
 
 /**
