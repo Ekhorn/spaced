@@ -1,5 +1,6 @@
 // import { micromark } from 'micromark';
 import { createEditor, type Descendant } from 'slate';
+import { withHistory } from 'slate-history';
 import {
   Editable,
   type RenderElementProps,
@@ -122,7 +123,7 @@ export function Render(
     initialValue: Descendant[];
   },
 ) {
-  const editor = withSolid(createEditor());
+  const editor = withHistory(withSolid(createEditor()));
   const { updateItem } = useIPC();
 
   return (
