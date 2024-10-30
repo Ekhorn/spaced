@@ -10,18 +10,19 @@ export function processRefs(
 
   if ('type' in schema) {
     switch (schema.type) {
+      /* eslint-disable no-fallthrough */
       case 'heading_one':
-      case 'heading_two':
-      case 'check_list_item':
-      case 'bulleted_list':
+      // case 'heading_two':
       case 'list_item':
-      case 'link':
-      case 'code_line':
-      case 'code_block': {
+      case 'bulleted_list':
+      case 'ordered_list':
+      case 'check_list':
+      case 'link': {
+        // case 'code_block':
         return [outputSchema, assets];
       }
       case 'block_quote':
-      case 'button':
+      // case 'button':
       case 'paragraph': {
         if (schema.children) {
           schema.children = schema.children.map(
@@ -57,6 +58,7 @@ export function processRefs(
       //   }
       //   return [outputSchema, assets];
       // }
+      /* eslint-enable no-fallthrough */
     }
   } else {
     return [outputSchema, assets];

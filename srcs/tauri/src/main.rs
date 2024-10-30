@@ -135,6 +135,7 @@ async fn create_item(
   y: i64,
   w: i64,
   h: i64,
+  editor: String,
   schema: String,
   mut assets: Vec<Vec<u8>>,
 ) -> Result<Item, Error> {
@@ -182,13 +183,14 @@ VALUES ( ?1, ?2, ?3, ?4 )
   let item = sqlx::query_as!(
     Item,
     r#"
-INSERT INTO item ( x, y, w, h, schema )
-VALUES ( ?1, ?2, ?3, ?4, ?5 ) RETURNING *
+INSERT INTO item ( x, y, w, h, editor, schema )
+VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 ) RETURNING *
       "#,
     x,
     y,
     w,
     h,
+    editor,
     schema,
   )
   .fetch_one(&mut *transaction)
@@ -237,7 +239,8 @@ async fn patch_item(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), 
     y = ?3,
     w = ?4,
     h = ?5,
-    schema = ?6
+    editor = ?6,
+    schema = ?7
   WHERE id = ?1
       "#,
       item.id,
@@ -245,6 +248,7 @@ async fn patch_item(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), 
       item.y,
       item.w,
       item.h,
+      item.editor,
       item.schema,
     )
     .execute(&mut *transaction)

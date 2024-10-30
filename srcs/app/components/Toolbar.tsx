@@ -9,12 +9,16 @@ import {
   FaSolidCode,
   FaSolidHeading,
   FaSolidItalic,
+  FaSolidList,
   FaSolidListOl,
   FaSolidListUl,
   FaSolidQuoteLeft,
   FaSolidUnderline,
 } from 'solid-icons/fa';
 import { type JSXElement, type Accessor } from 'solid-js';
+
+import { LIST_TYPES, TEXT_ALIGN_TYPES } from '../lib/const.js';
+import { type TextAlign, type CustomElement } from '../lib/editor-types.js';
 
 function isMarkActive(editor: Editor, format: string) {
   const marks = Editor.marks(editor);
@@ -38,10 +42,6 @@ function isBlockActive(editor: Editor, format: string, blockType = 'type') {
   return !!match;
 }
 
-const LIST_TYPES = new Set(['numbered_list', 'bulleted_list']);
-
-const TEXT_ALIGN_TYPES = new Set(['left', 'center', 'right', 'justify']);
-
 function toggleBlock(editor: Editor, format: string) {
   const isActive = isBlockActive(
     editor,
@@ -61,7 +61,7 @@ function toggleBlock(editor: Editor, format: string) {
   const resolveList = isList ? 'list_item' : (format as SlateElement['type']);
   const newProperties: Partial<SlateElement> = TEXT_ALIGN_TYPES.has(format)
     ? {
-        align: isActive ? undefined : format,
+        align: isActive ? undefined : (format as Exclude<TextAlign, undefined>),
       }
     : {
         type: isActive ? 'paragraph' : resolveList,
@@ -104,7 +104,10 @@ function MarkButton(props: { format: string; icon: JSXElement }) {
   );
 }
 
-function BlockButton(props: { format: string; icon: JSXElement }) {
+function BlockButton(props: {
+  format: CustomElement['type'] | 'left' | 'center' | 'right' | 'justify';
+  icon: JSXElement;
+}) {
   const editor = useSlate();
   return (
     <button
@@ -139,10 +142,11 @@ export function Toolbar(props: { selected: Accessor<boolean> }) {
       <MarkButton format="underline" icon={<FaSolidUnderline />} />
       <MarkButton format="code" icon={<FaSolidCode />} />
       <BlockButton format="heading_one" icon={<FaSolidHeading />} />
-      <BlockButton format="heading_two" icon={<FaSolidHeading />} />
+      {/* <BlockButton format="heading_two" icon={<FaSolidHeading />} /> */}
       <BlockButton format="block_quote" icon={<FaSolidQuoteLeft />} />
-      <BlockButton format="numbered_list" icon={<FaSolidListOl />} />
       <BlockButton format="bulleted_list" icon={<FaSolidListUl />} />
+      <BlockButton format="ordered_list" icon={<FaSolidListOl />} />
+      <BlockButton format="check_list" icon={<FaSolidList />} />
       <BlockButton format="left" icon={<FaSolidAlignLeft />} />
       <BlockButton format="center" icon={<FaSolidAlignCenter />} />
       <BlockButton format="right" icon={<FaSolidAlignRight />} />

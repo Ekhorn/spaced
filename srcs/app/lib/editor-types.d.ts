@@ -1,5 +1,6 @@
 import { type Descendant, type BaseEditor, type BaseRange } from 'slate';
 import { type SolidEditor } from 'slate-solid';
+import { type JSX } from 'solid-js';
 
 export type EmptyText = {
   text: string;
@@ -13,39 +14,56 @@ export type CustomText = {
   text: string;
 };
 
+export type TextAlign = JSX.CSSProperties['text-align'];
+export type ListTypes =
+  | BulletedListElement['type']
+  | OrderedListElement['type'];
+
 interface BaseElement<T extends CustomElement['type']> {
   type: T;
 }
 
 export interface BlockQuoteElement extends BaseElement {
   type: 'block_quote';
-  align?: string;
+  align?: TextAlign;
+  children: Descendant[];
+}
+
+export interface ListItemElement extends BaseElement {
+  type: 'list_item';
   children: Descendant[];
 }
 
 export interface BulletedListElement extends BaseElement {
   type: 'bulleted_list';
-  align?: string;
+  align?: TextAlign;
   children: Descendant[];
 }
 
-export interface CheckListItemElement extends BaseElement {
-  type: 'check_list_item';
+export interface OrderedListElement extends BaseElement {
+  type: 'ordered_list';
+  align?: TextAlign;
+  children: Descendant[];
+}
+
+export interface CheckListElement extends BaseElement {
+  type: 'check_list';
+  align?: TextAlign;
   checked: boolean;
   children: Descendant[];
 }
 
 export interface HeadingOneElement extends BaseElement {
   type: 'heading_one';
-  align?: string;
+  align?: TextAlign;
   children: Descendant[];
 }
 
-export interface HeadingTwoElement extends BaseElement {
-  type: 'heading_two';
-  align?: string;
-  children: Descendant[];
-}
+// export interface HeadingTwoElement extends BaseElement {
+//   type: 'heading_two';
+//   align?: TextAlign;
+//   children: Descendant[];
+// }
 
 export interface ImageElement extends BaseElement {
   type: 'image';
@@ -60,19 +78,14 @@ export interface LinkElement extends BaseElement {
   children: Descendant[];
 }
 
-export interface ButtonElement extends BaseElement {
-  type: 'button';
-  children: Descendant[];
-}
-
-export interface ListItemElement extends BaseElement {
-  type: 'list_item';
-  children: Descendant[];
-}
+// export interface ButtonElement extends BaseElement {
+//   type: 'button';
+//   children: Descendant[];
+// }
 
 export interface ParagraphElement extends BaseElement {
   type: 'paragraph';
-  align?: string;
+  align?: TextAlign;
   children: Descendant[];
 }
 
@@ -89,34 +102,33 @@ export interface ParagraphElement extends BaseElement {
 //   uuid: string | number;
 // };
 
-export interface CodeBlockElement extends BaseElement {
-  type: 'code_block';
-  language: string;
-  children: EmptyText[];
-}
-
-export interface CodeLineElement extends BaseElement {
-  type: 'code_line';
-  children: EmptyText[];
-}
+// export interface CodeBlockElement extends BaseElement {
+//   type: 'code_block';
+//   language: string;
+//   children: EmptyText[];
+// }
 
 type CustomElement =
   | BlockQuoteElement
+  | ListItemElement
   | BulletedListElement
-  | CheckListItemElement
+  | OrderedListElement
+  | CheckListElement
   | HeadingOneElement
-  | HeadingTwoElement
+  // | HeadingTwoElement
+  // | HeadingThreeElement
+  // | HeadingFourElement
+  // | HeadingFiveElement
+  // | HeadingSixElement
   | ImageElement
   | LinkElement
-  | ButtonElement
-  | ListItemElement
-  | ParagraphElement
-  // | TableElement
-  // | TableRowElement
-  // | TableCellElement
-  // | VideoElement
-  | CodeBlockElement
-  | CodeLineElement;
+  // | ButtonElement
+  | ParagraphElement;
+// | TableElement
+// | TableRowElement
+// | TableCellElement
+// | VideoElement
+// | CodeBlockElement;
 
 export type CustomEditor = BaseEditor & SolidEditor;
 

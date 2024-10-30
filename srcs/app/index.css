@@ -11,101 +11,56 @@ body {
   touch-action: none;
 }
 
-#markdown-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+input,
+textarea {
 }
 
-#markdown-content h1 {
+h1 {
   color: #333;
   font-size: 2.5em;
 }
 
-#markdown-content h2 {
+h2 {
   color: #666;
   font-size: 2em;
 }
 
-#markdown-content p {
-  margin: 1em 0;
-  font-size: 1.2em;
+p {
+  font-size: 1em;
+  margin: 0;
 }
 
-#markdown-content a {
+a {
   color: #007bff;
   text-decoration: none;
 }
 
-#markdown-content a:hover {
+a:hover {
   text-decoration: underline;
 }
 
-/* Lists */
-#markdown-content ul {
+ul {
   list-style: disc;
   padding-left: 20px;
 }
 
-#markdown-content ol {
+ol {
   list-style: decimal;
-  padding-left: 20px;
-}
-
-/* Code blocks */
-#markdown-content pre {
-  background: #f4f4f4;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-#markdown-content code {
-  background: #f4f4f4;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-family: monospace;
-}
-
-/* Blockquotes */
-#markdown-content blockquote {
-  border-left: 4px solid #ccc;
-  padding-left: 10px;
-  color: #666;
-  margin: 1em 0;
-}
-
-/*WYSIWYG*/
-
-input,
-textarea {
-  font-family: 'Roboto', sans-serif;
-  line-height: 1.4;
-  background: #eee;
-}
-
-body {
-  margin: 0;
-}
-
-p {
-  margin: 0;
+  padding-left: 24px;
 }
 
 pre {
-  padding: 10px;
   background-color: #eee;
+  border-radius: 4px;
+  padding: 10px;
   white-space: pre-wrap;
 }
 
 :not(pre) > code {
-  font-family: monospace;
   background-color: #eee;
+  border-radius: 4px;
+  font-family: monospace;
   padding: 3px;
-}
-
-img {
-  max-width: 100%;
-  max-height: 20em;
 }
 
 blockquote {
@@ -114,7 +69,6 @@ blockquote {
   margin-right: 0;
   padding-left: 10px;
   color: #aaa;
-  font-style: italic;
 }
 
 blockquote[dir='rtl'] {
@@ -122,6 +76,11 @@ blockquote[dir='rtl'] {
   padding-left: 0;
   padding-right: 10px;
   border-right: 2px solid #ddd;
+}
+
+img {
+  max-width: 100%;
+  max-height: 20em;
 }
 
 table {
@@ -150,10 +109,6 @@ input:focus {
 iframe {
   width: 100%;
   border: 1px solid #eee;
-}
-
-[data-slate-editor] > * + * {
-  margin-top: 1em;
 }
 
 .fancy {

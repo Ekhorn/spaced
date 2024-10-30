@@ -37,6 +37,7 @@ export function App() {
           y: Math.floor(absolute.y),
           w: 0,
           h: 0,
+          editor: 'rich',
           schema: JSON.stringify({
             type: 'image',
             name: file.name,
@@ -76,6 +77,7 @@ export function App() {
               y: Math.floor(absolute.y),
               w: 0,
               h: 0,
+              editor: 'rich',
               schema: JSON.stringify({
                 type: 'div',
                 name: 'Untitled',
@@ -107,6 +109,7 @@ export function App() {
           y: Math.floor(absolute.y),
           w: 0,
           h: 0,
+          editor: 'rich',
           schema: JSON.stringify({
             type: 'image',
             name: file.name,

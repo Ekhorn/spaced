@@ -7,6 +7,7 @@ pub struct Item {
   pub y: i64,
   pub w: i64,
   pub h: i64,
+  pub editor: String,
   pub schema: Option<String>,
 }
 

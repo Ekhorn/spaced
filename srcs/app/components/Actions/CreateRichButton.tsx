@@ -1,12 +1,12 @@
 import { type Descendant } from 'slate';
-import { HiOutlinePlus } from 'solid-icons/hi';
+import { FaSolidFileCirclePlus } from 'solid-icons/fa';
 
 import { Vec2D, relativeToAbsolute } from '../../lib/vector.js';
 import { useIPC } from '../IPCProvider.js';
 import { useState } from '../StateProvider.js';
 import { useViewport } from '../ViewportProvider.js';
 
-export function CreateButton() {
+export function CreateRichButton() {
   const { absoluteViewportPosition, scalar } = useViewport();
   const { setItems } = useState();
   const { createItem } = useIPC();
@@ -25,6 +25,7 @@ export function CreateButton() {
           y: Math.floor(absolute.y),
           w: 0,
           h: 0,
+          editor: 'rich',
           schema: JSON.stringify([
             {
               type: 'paragraph',
@@ -52,7 +53,7 @@ export function CreateButton() {
       class="z-50 flex h-8 w-8 place-content-center place-items-center rounded border-[1px] border-[#505050] bg-[#2D2D2D] text-gray-400 transition-colors hover:border-[#777777] hover:bg-[#333333]"
       title="Create Item"
     >
-      <HiOutlinePlus />
+      <FaSolidFileCirclePlus />
     </button>
   );
 }

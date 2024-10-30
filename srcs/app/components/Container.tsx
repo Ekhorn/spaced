@@ -1,11 +1,19 @@
-// import { micromark } from 'micromark';
-import { createEditor, type Descendant } from 'slate';
+import {
+  createEditor,
+  Editor,
+  Element as SlateElement,
+  Node as SlateNode,
+  Transforms,
+  type Descendant,
+} from 'slate';
 import { withHistory } from 'slate-history';
 import {
   Editable,
   type RenderElementProps,
   type RenderLeafProps,
   Slate,
+  SolidEditor,
+  useSlateStatic,
   withSolid,
 } from 'slate-solid';
 import isHotkey from 'slate-solid/utils/is-hotkey.js';
@@ -24,7 +32,12 @@ import { useIPC } from './IPCProvider.js';
 import { useSelection } from './SelectionProvider.js';
 import { toggleMark, Toolbar } from './Toolbar.jsx';
 import { useViewport } from './ViewportProvider.js';
-import { type CustomElement } from '../lib/editor-types.js';
+import {
+  type CheckListElement,
+  type CustomEditor,
+  type CustomElement,
+} from '../lib/editor-types.js';
+import { withDelBackFix, withShortcuts, MD_SHORTCUTS } from '../lib/plugins.js';
 import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
@@ -82,7 +95,6 @@ export function Container(props: ContainerProps) {
     }
   }
   const schema = createMemo<Descendant[]>(() => JSON.parse(props.item.schema!));
-
   const renderProps = mergeProps({ selected }, props);
 
   return (
@@ -123,8 +135,55 @@ export function Render(
     initialValue: Descendant[];
   },
 ) {
-  const editor = withHistory(withSolid(createEditor()));
+  // eslint-disable-next-line solid/reactivity
+  const isMarkdown = props.item.editor === 'markdown';
+
+  const plugins: (<T extends CustomEditor>(editor: T) => T)[] = [
+    withDelBackFix,
+    withSolid,
+    withHistory,
+  ];
+  if (isMarkdown) {
+    plugins.push(withShortcuts);
+  }
+
+  // eslint-disable-next-line unicorn/no-array-reduce
+  const editor = plugins.reduce((acc, fn) => fn(acc), createEditor());
+
   const { updateItem } = useIPC();
+
+  const handleDOMBeforeInput = () => {
+    queueMicrotask(() => {
+      const pendingDiffs = SolidEditor.androidPendingDiffs(editor);
+
+      const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
+        if (!diff.text.endsWith(' ')) {
+          return false;
+        }
+
+        const { text } = SlateNode.leaf(editor, path);
+        const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1);
+        if (!(beforeText in MD_SHORTCUTS)) {
+          return;
+        }
+
+        const blockEntry = Editor.above(editor, {
+          at: path,
+          match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        });
+        if (!blockEntry) {
+          return false;
+        }
+
+        const [, blockPath] = blockEntry;
+        return Editor.isStart(editor, Editor.start(editor, path), blockPath);
+      });
+
+      if (scheduleFlush) {
+        SolidEditor.androidScheduleFlush(editor);
+      }
+    });
+  };
 
   return (
     <Slate
@@ -145,6 +204,7 @@ export function Render(
       <Toolbar selected={props.selected} />
       <div class="h-1 w-[424px]" />
       <Editable
+        onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
         readOnly={!props.selected()}
         renderElement={RenderElement}
         renderLeaf={RenderLeaf}
@@ -170,28 +230,70 @@ export function Render(
 }
 
 type Element = (
-  props: {
-    children: JSXElement;
-    style: JSX.CSSProperties;
-  } & object,
+  props: Omit<RenderElementProps, 'attributes'> &
+    RenderElementProps['attributes'] & { style?: string | JSX.CSSProperties },
 ) => JSXElement;
 
-/* eslint-disable solid/no-destructure */
-const block_quote: Element = (props) => <blockquote {...props} />,
-  bulleted_list: Element = (props) => <ul {...props} />,
-  heading_one: Element = (props) => <h1 {...props} />,
-  heading_two: Element = (props) => <h2 {...props} />,
-  numbered_list: Element = (props) => <ol {...props} />,
-  list_item: Element = (props) => <li {...props} />;
-/* eslint-enable solid/no-destructure */
+/* eslint-disable solid/no-destructure, @typescript-eslint/no-unused-vars */
+const block_quote: Element = ({ element, ...p }) => <blockquote {...p} />,
+  bulleted_list: Element = ({ element, ...props }) => <ul {...props} />,
+  heading_one: Element = ({ element, ...props }) => <h1 {...props} />,
+  // heading_two: Element = ({element, ...props}) => <h2 {...props} />,
+  ordered_list: Element = ({ element, ...props }) => <ol {...props} />,
+  list_item: Element = ({ element, ...props }) => <li {...props} />,
+  link: Element = ({ element, ...props }) => <a {...props} />,
+  paragraph: Element = ({ element, ...props }) => <p {...props} />;
+/* eslint-enable solid/no-destructure, @typescript-eslint/no-unused-vars */
 
-const elementsMap: Record<CustomElement['type'], Element> = {
+// eslint-disable-next-line solid/no-destructure
+const check_list: Element = ({ children, element, ...attributes }) => {
+  const editor = useSlateStatic();
+  // const readOnly = useReadOnly()
+  const { checked } = element as CheckListElement;
+  return (
+    <div class="flex flex-row items-center" {...attributes}>
+      <span contenteditable={false} class="mx-1">
+        <input
+          type="checkbox"
+          checked={checked}
+          class="w-max"
+          onChange={(event) => {
+            const path = SolidEditor.findPath(editor, element);
+            const newProperties: Partial<SlateElement> = {
+              checked: event.target.checked,
+            };
+            Transforms.setNodes(editor, newProperties, { at: path });
+          }}
+        />
+      </span>
+      <span
+        // contenteditable={false /*!readOnly*/}
+        class="flex-1"
+        style={{
+          opacity: `${checked ? 0.666 : 1}`,
+          'text-decoration': `${checked ? 'line-through' : 'none'}`,
+          // "&:focus" {
+          //   "outline": none;
+          // }
+        }}
+      >
+        {children}
+      </span>
+    </div>
+  );
+};
+
+const elementsMap: Record<Exclude<CustomElement['type'], 'image'>, Element> = {
   block_quote,
-  bulleted_list,
-  heading_one,
-  heading_two,
-  numbered_list,
   list_item,
+  ordered_list,
+  bulleted_list,
+  check_list,
+  heading_one,
+  // heading_two,
+  // image,
+  link,
+  paragraph,
 };
 
 function RenderElement(props: RenderElementProps): JSXElement {
@@ -199,11 +301,14 @@ function RenderElement(props: RenderElementProps): JSXElement {
     <Dynamic
       children={props.children}
       component={
-        elementsMap[props.element.type] ?? ((props) => <p {...props} />)
+        elementsMap[
+          props.element.type as Exclude<CustomElement['type'], 'image'>
+        ] ?? ((props) => <p {...props} />)
       }
+      element={props.element}
       style={{
         'text-align':
-          props && 'align' in props.element ? props.element.align : undefined,
+          'align' in props.element ? props.element.align : undefined,
       }}
       {...props.attributes}
     />
@@ -232,24 +337,6 @@ function RenderLeaf(props: RenderLeafProps) {
     </span>
   );
 }
-
-// type RenderMarkdownProps = RenderProps;
-
-// function RenderMarkdown(props: RenderMarkdownProps) {
-//   let ref!: HTMLDivElement;
-
-//   onMount(async () => {
-//     const result = micromark(props.schema().content ?? '', {
-//       // extensions: [gfm()],
-//       // htmlExtensions: [gfmHtml()],
-//     });
-//     ref.innerHTML = String(result);
-//   });
-
-//   return <div id="markdown-content" ref={ref} />;
-// }
-
-// type RenderImage = RenderProps;
 
 // function renderImage(props: RenderImage) {
 //   const { getAsset } = useIPC();

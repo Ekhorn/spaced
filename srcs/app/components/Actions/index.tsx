@@ -1,6 +1,7 @@
 import { Show } from 'solid-js';
 
-import { CreateButton } from './CreateButton.js';
+import { CreateMarkdownButton } from './CreateMarkdownButton.jsx';
+import { CreateRichButton } from './CreateRichButton.jsx';
 import { LogOutButton } from './LogOutButton.jsx';
 import { StorageSelector } from './StorageSelector.jsx';
 import { isTauri } from '../../lib/const.js';
@@ -12,7 +13,8 @@ export function Actions() {
         <LogOutButton />
       </Show>
       <StorageSelector />
-      <CreateButton />
+      <CreateRichButton />
+      <CreateMarkdownButton />
     </div>
   );
 }
