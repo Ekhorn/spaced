@@ -1,0 +1,40 @@
+@startuml C4_Elements
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+LAYOUT_WITH_LEGEND()
+Person(user, "Student / Expert / Life-long learner")
+System_Boundary(boundry, "Spaced"){
+  ' CLIENTS
+  Container(desktop_client, "Desktop client", "Tauri + SolidJS + Typescript", "Provides the user's the functionality to interact with their items, settings and spaces in a desktop app.")
+  Container(browser_client, "Browser client", "SolidJS + Typescript", "Provides the user's the functionality to interact with their items, settings and spaces via their web browser.")
+  ' REVERSE PROXY
+  Container(static_file_server, "Static File Server", "Nginx", "Traffics the users request to right server.")
+  Container(reverse_proxy, "Reverse proxy", "Traefik", "Load balancing & Request routing.")
+  Container(message_broker, "Message broker", "RabbitMQ", "Receives messages and queues them up for consumer services to process further")
+  ' WEBSOCKET SERVERS
+  Container(item_socket_1, "Item Socket 1", "WebSocket + Socket.IO", "Manages live interactions with items and spaces between multiple clients.")
+  Container(item_socket_2, "Item Socket 2", "WebSocket + Socket.IO", "Manages live interactions with items and spaces between multiple clients.")
+  ' METRICS
+  Container(prometheus, "Prometheus", "Prometheus", "Aggregates metrics from WebSocket servers and cAdvisor.")
+  Container(cadvisor, "cAdvisor", "cAdvisor", "Collects container metrics.")
+  ' DATABASE
+  ContainerDb(postgres, "Database", "PostgreSQL (+ PostGIS)", "To store at least some item data or atleast item metadata and user settings.")
+}
+' USER > CLIENTS
+Rel_D(user, browser_client, "Manages their items in Spaced via the browser.")
+Rel_D(user, desktop_client, "Manages their items in Spaced via the desktop app.")
+' CLIENT > REVERSE PROXY
+Rel_D(desktop_client, reverse_proxy, "Request", "HTTPS/WSS")
+Rel_D(browser_client, reverse_proxy, "Request", "HTTPS/WSS")
+' REVERSE PROXY > WEBSOCKETS
+Rel_R(reverse_proxy, item_socket_1, "Realtime bi-directional communication", "HTTPS/WSS")
+Rel_R(reverse_proxy, item_socket_2, "Realtime bi-directional communication", "HTTPS/WSS")
+Rel_D(reverse_proxy, static_file_server, "Request", "HTTPS")
+' Rel_L(reverse_proxy, message_broker, "Messaging", "TCP")
+Rel_R(item_socket_1, message_broker, "Messaging", "TCP")
+Rel_R(item_socket_2, message_broker, "Messaging", "TCP")
+Rel_L(prometheus, item_socket_1, "Request", "HTTPS/WSS")
+Rel_L(prometheus, item_socket_2, "Request", "HTTPS/WSS")
+Rel_D(prometheus, cadvisor, "Request", "HTTPS/WSS")
+Rel_D(item_socket_1, postgres, "Retrieves data from and write to.", "TCP")
+Rel_D(item_socket_2, postgres, "Retrieves data from and write to.", "TCP")
+@enduml
