@@ -6,6 +6,7 @@ node_modules
 /docs/archive
 /package
 /tauri
+/srcs/slate-solid/lib
 .env
 .env.*
 !.env.example
