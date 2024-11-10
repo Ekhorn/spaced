@@ -27,6 +27,7 @@ import {
   ErrorBoundary,
   onMount,
   onCleanup,
+  Show,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
@@ -126,6 +127,7 @@ export function Container(props: ContainerProps) {
           ${-translation().y}px
         `,
         scale: String(scalar()),
+        width: `${props.item.w}px`,
       }}
       tabIndex={0}
       onClick={handleClick}
@@ -221,8 +223,10 @@ export function Render(
         props.setItems((prev) => prev.with(props.index, item));
       }}
     >
-      <Toolbar selected={props.selected} />
-      <div class="h-1 w-[424px]" />
+      <Show when={!isMarkdown}>
+        <Toolbar selected={props.selected} />
+        <div class="h-1 w-[424px]" />
+      </Show>
       <Editable
         onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
         readOnly={!props.selected()}
