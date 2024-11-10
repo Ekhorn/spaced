@@ -5,6 +5,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@solid-primitives/map": "^0.4.0",
     "@tauri-apps/api": "^1.0.0",
     "@types/node": "^20.0.0",
     "autoprefixer": "^10.0.0",

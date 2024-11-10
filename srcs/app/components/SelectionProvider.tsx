@@ -1,3 +1,4 @@
+import { ReactiveWeakMap } from '@solid-primitives/map';
 import {
   type JSXElement,
   useContext,
@@ -5,11 +6,11 @@ import {
   createSignal,
 } from 'solid-js';
 
-const [getSelected, setSelections] = createSignal(new Set<number>());
+export const ITEM_TO_SELECTION: Record<number, HTMLElement> = {};
 
-function register(selectable: number) {
-  setSelections((prev) => new Set<number>([...prev, selectable]));
-}
+const selections = new ReactiveWeakMap<HTMLElement, boolean>();
+
+const [selecting, setSelecting] = createSignal(false);
 const [holdingCtrl, setHoldingCtrl] = createSignal(false);
 const [holdingShift, setHoldingShift] = createSignal(false);
 window.addEventListener('keydown', (e) => {
@@ -17,25 +18,24 @@ window.addEventListener('keydown', (e) => {
   setHoldingShift(e.shiftKey);
 });
 window.addEventListener('keyup', (e) => {
-  setHoldingCtrl(e.ctrlKey);
-  setHoldingShift(e.shiftKey);
+  switch (e.key) {
+    case 'Control': {
+      return setHoldingCtrl(false);
+    }
+    case 'Shift': {
+      return setHoldingShift(false);
+    }
+  }
 });
 window.addEventListener('click', (e) => {
   setHoldingCtrl(e.ctrlKey);
   setHoldingShift(e.shiftKey);
 });
-function unregister(selectable: number) {
-  setSelections((prev) => {
-    const selections = new Set(prev);
-    selections.delete(selectable);
-    return selections;
-  });
-}
 
 const SelectiontContext = createContext({
-  getSelected,
-  register,
-  unregister,
+  selections,
+  selecting,
+  setSelecting,
   holdingCtrl,
   holdingShift,
 });

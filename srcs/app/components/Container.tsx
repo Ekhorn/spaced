@@ -25,11 +25,13 @@ import {
   type Setter,
   mergeProps,
   ErrorBoundary,
+  onMount,
+  onCleanup,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { useIPC } from './IPCProvider.js';
-import { useSelection } from './SelectionProvider.js';
+import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
 import { toggleMark, Toolbar } from './Toolbar.jsx';
 import { useViewport } from './ViewportProvider.js';
 import {
@@ -64,14 +66,30 @@ export function Container(props: ContainerProps) {
     ),
   );
 
-  const { getSelected, holdingCtrl, holdingShift, register, unregister } =
+  const { holdingCtrl, holdingShift, selections, setSelecting } =
     useSelection();
   const { deleteItem } = useIPC();
-  const selected = createMemo(() => getSelected().has(props.item.id!));
 
+  let ref!: HTMLDivElement;
+
+  onMount(() => {
+    ITEM_TO_SELECTION[props.item.id!] = ref;
+    onCleanup(() => {
+      delete ITEM_TO_SELECTION[props.item.id!];
+    });
+  });
+
+  const selected = () => Boolean(ref && selections.get(ref));
   function handleClick() {
-    register(props.item.id!);
+    selections.set(ref, true);
   }
+  function handlePointerMove(event: PointerEvent) {
+    if (event.buttons === 1 && !holdingShift() && selections.get(ref)) {
+      event.stopPropagation();
+      setSelecting(true);
+    }
+  }
+
   function handleFocusOut(event: FocusEvent) {
     if (
       (event.currentTarget as Node).contains(event.relatedTarget as Node) ||
@@ -80,7 +98,7 @@ export function Container(props: ContainerProps) {
     ) {
       return;
     }
-    unregister(props.item.id!);
+    selections.set(ref, false);
   }
   async function handleKeyUp(event: KeyboardEvent) {
     event.stopPropagation();
@@ -111,8 +129,10 @@ export function Container(props: ContainerProps) {
       }}
       tabIndex={0}
       onClick={handleClick}
+      onPointerMove={handlePointerMove}
       onKeyUp={handleKeyUp}
       onFocusOut={handleFocusOut}
+      ref={ref}
     >
       <ErrorBoundary fallback={<RenderFallback {...props} />}>
         <Render initialValue={schema()} {...renderProps} />
