@@ -1,82 +1,60 @@
-import { micromark } from 'micromark';
 import {
+  createEditor,
+  Editor,
+  Element as SlateElement,
+  Node as SlateNode,
+  Transforms,
+  type Descendant,
+} from 'slate';
+import { withHistory } from 'slate-history';
+import {
+  Editable,
+  type RenderElementProps,
+  type RenderLeafProps,
+  Slate,
+  SolidEditor,
+  useSlateStatic,
+  withSolid,
+} from 'slate-solid';
+import isHotkey from 'slate-solid/utils/is-hotkey.js';
+import {
+  type JSX,
   type Accessor,
-  type ValidComponent,
+  type JSXElement,
   createMemo,
-  onMount,
   type Setter,
-  ErrorBoundary,
   mergeProps,
+  ErrorBoundary,
+  onMount,
   onCleanup,
-  createEffect,
+  Show,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { type Item } from 'types';
 
-import { useIPC } from './IPCProvider.jsx';
-import { useSelection } from './SelectionProvider.js';
+import { useIPC } from './IPCProvider.js';
+import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
+import { toggleMark, Toolbar } from './Toolbar.jsx';
 import { useViewport } from './ViewportProvider.js';
 import {
-  type MimeTypes,
-  type Item,
-  type ComponentSchemas,
-} from '../lib/types.js';
+  type CheckListElement,
+  type CustomEditor,
+  type CustomElement,
+} from '../lib/editor-types.js';
+import { withDelBackFix, withShortcuts, MD_SHORTCUTS } from '../lib/plugins.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
-type ContainerProps = {
+const HOTKEYS = {
+  'mod+b': 'bold',
+  'mod+i': 'italic',
+  'mod+u': 'underline',
+  'mod+`': 'code',
+};
+
+interface ContainerProps {
   readonly index: number;
   readonly item: Item;
   readonly setItems: Setter<Item[]>;
-};
-
-function handleBeforeInput(event: InputEvent) {
-  if (event.inputType === 'insertParagraph') {
-    event.preventDefault();
-    const text = document.createTextNode('\n');
-    const selection = window.getSelection();
-    if (selection) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(text);
-      range.setStartAfter(text);
-      range.setEndAfter(text);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  }
-}
-
-export function makeEventListener(
-  target: EventTarget,
-  type: string,
-  handler: (event: Event) => void,
-  options?: EventListenerOptions,
-): void {
-  createEffect(() => {
-    target.addEventListener(type, handler, options);
-    onCleanup(() => {
-      target.removeEventListener(type, handler, options);
-    });
-  });
-}
-
-export function useClickOutside(
-  ref: EventTarget,
-  handler: (event: Event) => void,
-): void {
-  function listener(event: Event): void {
-    if (!ref) {
-      return;
-    }
-    const composedPath = event.composedPath();
-    if (composedPath.includes(ref)) {
-      return;
-    }
-
-    handler(event);
-  }
-
-  makeEventListener(document, 'mousedown', listener);
-  makeEventListener(document, 'touchstart', listener);
 }
 
 export function Container(props: ContainerProps) {
@@ -89,19 +67,39 @@ export function Container(props: ContainerProps) {
     ),
   );
 
-  const { getSelected, holdingCtrl, holdingShift, register, unregister } =
+  const { holdingCtrl, holdingShift, selections, setSelecting } =
     useSelection();
   const { deleteItem } = useIPC();
-  const selected = createMemo(() => getSelected().has(props.item.id!));
 
+  let ref!: HTMLDivElement;
+
+  onMount(() => {
+    ITEM_TO_SELECTION[props.item.id!] = ref;
+    onCleanup(() => {
+      delete ITEM_TO_SELECTION[props.item.id!];
+    });
+  });
+
+  const selected = () => Boolean(ref && selections.get(ref));
   function handleClick() {
-    register(props.item.id!);
+    selections.set(ref, true);
   }
-  function handleBlur() {
-    if (holdingCtrl() || holdingShift()) {
+  function handlePointerMove(event: PointerEvent) {
+    if (event.buttons === 1 && !holdingShift() && selections.get(ref)) {
+      event.stopPropagation();
+      setSelecting(true);
+    }
+  }
+
+  function handleFocusOut(event: FocusEvent) {
+    if (
+      (event.currentTarget as Node).contains(event.relatedTarget as Node) ||
+      holdingCtrl() ||
+      holdingShift()
+    ) {
       return;
     }
-    unregister(props.item.id!);
+    selections.set(ref, false);
   }
   async function handleKeyUp(event: KeyboardEvent) {
     event.stopPropagation();
@@ -115,191 +113,295 @@ export function Container(props: ContainerProps) {
       return;
     }
   }
-  let ref!: HTMLDivElement;
-
-  onMount(() => {
-    useClickOutside(ref, handleBlur);
-  });
-
-  const schema = createMemo<ComponentSchemas>(() =>
-    JSON.parse(props.item.schema!),
-  );
-
-  const renderProps = mergeProps(
-    {
-      ref,
-      scalar,
-      selected,
-      translation,
-      schema,
-    },
-    props,
-  );
+  const schema = createMemo<Descendant[]>(() => JSON.parse(props.item.schema!));
+  const renderProps = mergeProps({ selected }, props);
 
   return (
     <div
-      class="absolute min-h-8 min-w-8 whitespace-pre rounded bg-white p-1 outline-1 hover:outline"
+      class="absolute min-h-8 min-w-8 whitespace-pre rounded"
+      data-spaced-item={props.item.id}
       style={{
         'pointer-events': 'all',
         'transform-origin': 'top left',
-        'outline-style': selected() ? 'solid' : 'unset',
         translate: `
           ${translation().x}px
           ${-translation().y}px
         `,
         scale: String(scalar()),
+        width: `${props.item.w}px`,
       }}
       tabIndex={0}
       onClick={handleClick}
+      onPointerMove={handlePointerMove}
       onKeyUp={handleKeyUp}
+      onFocusOut={handleFocusOut}
       ref={ref}
     >
-      <ErrorBoundary fallback={<RenderFallback {...renderProps} />}>
-        <Render {...renderProps} />
+      <ErrorBoundary fallback={<RenderFallback {...props} />}>
+        <Render initialValue={schema()} {...renderProps} />
       </ErrorBoundary>
     </div>
   );
 }
 
-function RenderFallback() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function RenderFallback(_props: ContainerProps) {
   return 'Error occured';
 }
 
-type RenderProps = {
-  readonly index: number;
-  readonly item: Item;
-  readonly ref: HTMLDivElement;
-  readonly schema: Accessor<ComponentSchemas>;
+interface RenderProps extends ContainerProps {
   readonly selected: Accessor<boolean>;
-  readonly setItems: Setter<Item[]>;
-  readonly translation: Accessor<Vec2D>;
-  readonly scalar: Accessor<number>;
-};
-
-const renderMap: Record<MimeTypes, ValidComponent> = {
-  'text/plain': RenderText,
-  'text/markdown': RenderMarkdown,
-  'image/png': renderImage,
-  'image/svg+xml': renderImage,
-  'image/jpeg': renderImage,
-  'image/gif': renderImage,
-  'application/pdf': renderPdf,
-};
-
-function RenderUnkown(props: RenderProps) {
-  // eslint-disable-next-line solid/reactivity
-  return `Unkown media type:\n${props.schema().mime}`;
 }
 
-function Render(props: RenderProps) {
+export function Render(
+  props: RenderProps & {
+    initialValue: Descendant[];
+  },
+) {
+  // eslint-disable-next-line solid/reactivity
+  const isMarkdown = props.item.editor === 'markdown';
+
+  const plugins: (<T extends CustomEditor>(editor: T) => T)[] = [
+    withDelBackFix,
+    withSolid,
+    withHistory,
+  ];
+  if (isMarkdown) {
+    plugins.push(withShortcuts);
+  }
+
+  // eslint-disable-next-line unicorn/no-array-reduce
+  const editor = plugins.reduce((acc, fn) => fn(acc), createEditor());
+
+  const { updateItem } = useIPC();
+
+  const handleDOMBeforeInput = () => {
+    queueMicrotask(() => {
+      const pendingDiffs = SolidEditor.androidPendingDiffs(editor);
+
+      const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
+        if (!diff.text.endsWith(' ')) {
+          return false;
+        }
+
+        const { text } = SlateNode.leaf(editor, path);
+        const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1);
+        if (!(beforeText in MD_SHORTCUTS)) {
+          return;
+        }
+
+        const blockEntry = Editor.above(editor, {
+          at: path,
+          match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        });
+        if (!blockEntry) {
+          return false;
+        }
+
+        const [, blockPath] = blockEntry;
+        return Editor.isStart(editor, Editor.start(editor, path), blockPath);
+      });
+
+      if (scheduleFlush) {
+        SolidEditor.androidScheduleFlush(editor);
+      }
+    });
+  };
+
+  return (
+    <Slate
+      initialValue={props.initialValue}
+      editor={editor}
+      // eslint-disable-next-line solid/reactivity
+      onValueChange={async () => {
+        const [item] = await updateItem([
+          {
+            ...props.item,
+            schema: JSON.stringify(editor.children),
+          },
+        ]);
+        // eslint-disable-next-line solid/reactivity
+        props.setItems((prev) => prev.with(props.index, item));
+      }}
+    >
+      <Show when={!isMarkdown}>
+        <Toolbar selected={props.selected} />
+        <div class="h-1 w-[424px]" />
+      </Show>
+      <Editable
+        onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
+        readOnly={!props.selected()}
+        renderElement={RenderElement}
+        renderLeaf={RenderLeaf}
+        placeholder="Enter some rich text…"
+        spellCheck
+        style={{
+          padding: '4px',
+          'background-color': 'white',
+          'border-radius': '4px',
+        }}
+        onKeyDown={(event: KeyboardEvent) => {
+          for (const hotkey in HOTKEYS) {
+            if (isHotkey(hotkey, event)) {
+              event.preventDefault();
+              const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS];
+              toggleMark(editor, mark);
+            }
+          }
+        }}
+      />
+    </Slate>
+  );
+}
+
+type Element = (
+  props: Omit<RenderElementProps, 'attributes'> &
+    RenderElementProps['attributes'] & { style?: string | JSX.CSSProperties },
+) => JSXElement;
+
+/* eslint-disable solid/no-destructure, @typescript-eslint/no-unused-vars */
+const block_quote: Element = ({ element, ...p }) => <blockquote {...p} />,
+  bulleted_list: Element = ({ element, ...props }) => <ul {...props} />,
+  heading_one: Element = ({ element, ...props }) => <h1 {...props} />,
+  // heading_two: Element = ({element, ...props}) => <h2 {...props} />,
+  ordered_list: Element = ({ element, ...props }) => <ol {...props} />,
+  list_item: Element = ({ element, ...props }) => <li {...props} />,
+  link: Element = ({ element, ...props }) => <a {...props} />,
+  paragraph: Element = ({ element, ...props }) => <p {...props} />;
+/* eslint-enable solid/no-destructure, @typescript-eslint/no-unused-vars */
+
+// eslint-disable-next-line solid/no-destructure
+const check_list: Element = ({ children, element, ...attributes }) => {
+  const editor = useSlateStatic();
+  // const readOnly = useReadOnly()
+  const { checked } = element as CheckListElement;
+  return (
+    <div class="flex flex-row items-center" {...attributes}>
+      <span contenteditable={false} class="mx-1">
+        <input
+          type="checkbox"
+          checked={checked}
+          class="w-max"
+          onChange={(event) => {
+            const path = SolidEditor.findPath(editor, element);
+            const newProperties: Partial<SlateElement> = {
+              checked: event.target.checked,
+            };
+            Transforms.setNodes(editor, newProperties, { at: path });
+          }}
+        />
+      </span>
+      <span
+        // contenteditable={false /*!readOnly*/}
+        class="flex-1"
+        style={{
+          opacity: `${checked ? 0.666 : 1}`,
+          'text-decoration': `${checked ? 'line-through' : 'none'}`,
+          // "&:focus" {
+          //   "outline": none;
+          // }
+        }}
+      >
+        {children}
+      </span>
+    </div>
+  );
+};
+
+const elementsMap: Record<Exclude<CustomElement['type'], 'image'>, Element> = {
+  block_quote,
+  list_item,
+  ordered_list,
+  bulleted_list,
+  check_list,
+  heading_one,
+  // heading_two,
+  // image,
+  link,
+  paragraph,
+};
+
+function RenderElement(props: RenderElementProps): JSXElement {
   return (
     <Dynamic
-      component={renderMap?.[props.schema().mime as MimeTypes] ?? RenderUnkown}
-      {...props}
+      children={props.children}
+      component={
+        elementsMap[
+          props.element.type as Exclude<CustomElement['type'], 'image'>
+        ] ?? ((props) => <p {...props} />)
+      }
+      element={props.element}
+      style={{
+        'text-align':
+          'align' in props.element ? props.element.align : undefined,
+      }}
+      {...props.attributes}
     />
   );
 }
 
-type RenderTextProps = RenderProps;
-
-function RenderText(props: RenderTextProps) {
-  const { updateItem } = useIPC();
-
-  let ref!: HTMLDivElement;
-
-  async function handleKeyUp(e: KeyboardEvent) {
-    e.stopPropagation();
-
-    const schema: ComponentSchemas = {
-      ...props.schema(),
-      content: ref.textContent!,
-    };
-
-    const [item] = await updateItem([
-      {
-        ...props.item,
-        schema: JSON.stringify(schema),
-      },
-    ]);
-    // eslint-disable-next-line solid/reactivity
-    props.setItems((prev) => prev.with(props.index, item));
-  }
-
-  onMount(() => {
-    ref.textContent = props.schema().content ?? '';
-  });
-
+function RenderLeaf(props: RenderLeafProps) {
   return (
-    <div
-      onPaste={(e) => e.stopPropagation()}
-      onBeforeInput={handleBeforeInput}
-      onKeyUp={handleKeyUp}
-      contenteditable={props.selected()}
-      style={{
-        'line-height': '1rem',
-      }}
-      ref={ref}
-    ></div>
+    <span {...props.attributes}>
+      {(() => {
+        let children = props.children as JSXElement;
+        if (props.leaf.bold) {
+          children = <strong>{children}</strong>;
+        }
+        if (props.leaf.code) {
+          children = <code>{children}</code>;
+        }
+        if (props.leaf.italic) {
+          children = <em>{children}</em>;
+        }
+        if (props.leaf.underline) {
+          children = <u>{children}</u>;
+        }
+        return children;
+      })()}
+    </span>
   );
 }
 
-type RenderMarkdownProps = RenderProps;
+// function renderImage(props: RenderImage) {
+//   const { getAsset } = useIPC();
 
-function RenderMarkdown(props: RenderMarkdownProps) {
-  let ref!: HTMLDivElement;
+//   let ref!: HTMLImageElement;
 
-  onMount(async () => {
-    const result = micromark(props.schema().content ?? '', {
-      // extensions: [gfm()],
-      // htmlExtensions: [gfmHtml()],
-    });
-    ref.innerHTML = String(result);
-  });
+//   onMount(async () => {
+//     const { content } = props.schema();
+//     if (content) {
+//       const asset = await getAsset(content);
+//       const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
+//       ref.src = URL.createObjectURL(blob);
+//     }
+//   });
 
-  return <div id="markdown-content" ref={ref} />;
-}
+//   return <img ref={ref} class="pointer-events-none" />;
+// }
 
-type RenderImage = RenderProps;
+// type RenderPdf = RenderProps;
 
-function renderImage(props: RenderImage) {
-  const { getAsset } = useIPC();
+// function renderPdf(props: RenderPdf) {
+//   const { getAsset } = useIPC();
 
-  let ref!: HTMLImageElement;
+//   let ref!: HTMLObjectElement;
 
-  onMount(async () => {
-    const { content } = props.schema();
-    if (content) {
-      const asset = await getAsset(content);
-      const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
-      ref.src = URL.createObjectURL(blob);
-    }
-  });
+//   onMount(async () => {
+//     const { content } = props.schema();
+//     if (content) {
+//       const asset = await getAsset(content);
+//       const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
+//       ref.data = URL.createObjectURL(blob);
+//     }
+//   });
 
-  return <img ref={ref} class="pointer-events-none" />;
-}
-
-type RenderPdf = RenderProps;
-
-function renderPdf(props: RenderPdf) {
-  const { getAsset } = useIPC();
-
-  let ref!: HTMLObjectElement;
-
-  onMount(async () => {
-    const { content } = props.schema();
-    if (content) {
-      const asset = await getAsset(content);
-      const blob = new Blob([new Uint8Array(asset.data)], { type: asset.mime });
-      ref.data = URL.createObjectURL(blob);
-    }
-  });
-
-  return (
-    <object
-      style={{
-        'pointer-events': 'all',
-      }}
-      ref={ref}
-    ></object>
-  );
-}
+//   return (
+//     <object
+//       style={{
+//         'pointer-events': 'all',
+//       }}
+//       ref={ref}
+//     ></object>
+//   );
+// }

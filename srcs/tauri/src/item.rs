@@ -7,6 +7,7 @@ pub struct Item {
   pub y: i64,
   pub w: i64,
   pub h: i64,
+  pub editor: String,
   pub schema: Option<String>,
 }
 
@@ -19,107 +20,154 @@ pub struct Asset {
 }
 
 #[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
-struct BaseComponent {
-  name: String,
+pub struct EmptyText {
+  pub text: String,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct CustomText {
+  pub text: String,
+  pub bold: Option<bool>,
+  pub italic: Option<bool>,
+  pub code: Option<bool>,
+  pub underline: Option<bool>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct BlockQuoteElement {
+  align: Option<String>,
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct BulletedListElement {
+  align: Option<String>,
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct CheckListItemElement {
+  checked: bool,
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct HeadingElement {
+  align: Option<String>,
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct HeadingTwoElement {
+  align: Option<String>,
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct ImageElement {
   mime: String,
-  content: String,
-  styles: Option<String>,
+  name: String,
+  uuid: String,
 }
 
 #[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
-pub struct Div {
-  #[serde(flatten)]
-  base: BaseComponent,
-  descendants: Option<Vec<Components>>,
-  variant: Option<String>,
-}
-#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
-pub struct Input {
-  #[serde(flatten)]
-  base: BaseComponent,
-  descendants: Option<Figure>,
-  variant: Option<InputVariant>,
-}
-#[derive(Serialize, PartialEq, Deserialize, Clone, Copy, Debug)]
-enum InputVariant {
-  SingleLine,
-  MultiLine,
-  Time,
-  DateTime,
-  Date,
-  Radio,
-  Check,
-  Number,
-  File,
-  Color,
-}
-#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
-pub struct Figure {
-  #[serde(flatten)]
-  base: BaseComponent,
-  variant: Option<FigureVariant>,
-}
-#[derive(Serialize, PartialEq, Deserialize, Clone, Copy, Debug)]
-enum FigureVariant {
-  Img,
-  Canvas,
-}
-#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
-pub struct Break {
-  #[serde(flatten)]
-  base: BaseComponent,
+pub struct LinkElement {
+  url: String,
+  children: Vec<Descendant>,
 }
 
 #[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
-#[serde(rename_all = "lowercase")]
+pub struct ButtonElement {
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct ListItemElement {
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct ParagraphElement {
+  align: Option<String>,
+  children: Vec<Descendant>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct CodeBlockElement {
+  language: String,
+  children: Vec<EmptyText>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+pub struct CodeLineElement {
+  children: Vec<EmptyText>,
+}
+
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+#[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
-pub enum Components {
-  Div(Div),
-  Input(Input),
-  Figure(Figure),
-  Break(Break),
+pub enum Element {
+  BlockQuote(BlockQuoteElement),
+  BulletedList(BulletedListElement),
+  CheckListItem(CheckListItemElement),
+  Heading(HeadingElement),
+  HeadingTwo(HeadingTwoElement),
+  Image(ImageElement),
+  Link(LinkElement),
+  Button(ButtonElement),
+  ListItem(ListItemElement),
+  Paragraph(ParagraphElement),
+  CodeBlock(CodeBlockElement),
+  CodeLine(CodeLineElement),
 }
 
-impl Components {
+#[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum Descendant {
+  Text(CustomText),
+  Element(Element),
+}
+
+impl Descendant {
   pub fn process_refs(self, assets: &mut Vec<Asset>) -> (Self, &Vec<Asset>) {
     (
       match self {
-        Components::Div(mut div) => {
-          if let Some(components) = div.descendants {
-            div.descendants = Some(
-              components
-                .iter()
-                .map(|descendant| descendant.clone().process_refs(assets).0)
-                .collect::<Vec<Components>>(),
-            );
+        Descendant::Element(element) => match element {
+          Element::BlockQuote(mut element) => {
+            element.children = element
+              .children
+              .iter()
+              .map(|descendant| descendant.clone().process_refs(assets).0)
+              .collect::<Vec<Descendant>>();
+            Descendant::Element(Element::BlockQuote(element))
           }
-          Components::Div(div)
-        }
-        Components::Input(mut input) => {
-          if let Some(ref mut figure) = input.descendants {
-            if let Ok(content) = figure.base.content.parse::<usize>() {
-              if assets.len() < content {
-                panic!("Exceeded asset count");
-              }
-              assets[content].name = figure.clone().base.name;
-              assets[content].mime = figure.clone().base.mime;
-              figure.base.content = assets[content].clone().id;
-              input.descendants = Some(figure.clone())
+          Element::Button(mut element) => {
+            element.children = element
+              .children
+              .iter()
+              .map(|descendant| descendant.clone().process_refs(assets).0)
+              .collect::<Vec<Descendant>>();
+            Descendant::Element(Element::Button(element))
+          }
+          Element::Paragraph(mut element) => {
+            element.children = element
+              .children
+              .iter()
+              .map(|descendant| descendant.clone().process_refs(assets).0)
+              .collect::<Vec<Descendant>>();
+            Descendant::Element(Element::Paragraph(element))
+          }
+          Element::Image(mut image) => {
+            if let Ok(content) = image.uuid.parse::<usize>() {
+              assert!(assets.len() >= content, "Exceeded asset count");
+              assets[content].name = image.clone().name;
+              assets[content].mime = image.clone().mime;
+              image.uuid = assets[content].clone().id;
             }
+            Descendant::Element(Element::Image(image))
           }
-          Components::Input(input)
-        }
-        Components::Figure(mut figure) => {
-          if let Ok(content) = figure.base.content.parse::<usize>() {
-            if assets.len() < content {
-              panic!("Exceeded asset count");
-            }
-            assets[content].name = figure.clone().base.name;
-            assets[content].mime = figure.clone().base.mime;
-            figure.base.content = assets[content].clone().id;
-          }
-          Components::Figure(figure.clone())
-        }
+          other => Descendant::Element(other),
+        },
         other => other,
       },
       assets,
@@ -137,69 +185,55 @@ mod tests {
   fn test() {
     let schema = r#"
     {
-      "type": "div",
-      "name": "test",
-      "mime": "text/plain",
-      "content": "test",
-      "styles": "{ display: none; }",
-      "descendants": [
+      "type": "paragraph",
+      "children": [
         {
-          "type": "div",
-          "name": "test",
-          "mime": "text/plain",
-          "content": "test",
-          "styles": "{ display: none; }",
-          "descendants": [
-            {
-              "type": "input",
-              "name": "test",
-              "mime": "text/plain",
-              "content": "",
-              "styles": "{ display: none; }",
-              "descendants": {
-                "type": "figure",
-                "name": "test",
-                "mime": "image/png",
-                "content": "3",
-                "styles": "{ display: none; }"
-              }
-            }
-          ]
+          "text": "test"
         },
         {
-          "type": "div",
-          "name": "test",
-          "mime": "text/plain",
-          "content": "test",
-          "styles": "{ display: none; }",
-          "descendants": [
+          "type": "paragraph",
+          "children": [
             {
-              "type": "figure",
-              "name": "test",
-              "mime": "image/png",
-              "content": "1",
-              "styles": "{ display: none; }"
+              "text": "test"
             },
             {
-              "type": "figure",
-              "name": "test",
+              "type": "image",
               "mime": "image/png",
-              "content": "2",
-              "styles": "{ display: none; }"
+              "name": "image",
+              "uuid": "3"
             }
           ]
         },
         {
-          "type": "figure",
-          "name": "test",
+          "type": "paragraph",
+          "children": [
+            {
+              "text": "test"
+            },
+            {
+              "type": "image",
+              "mime": "image/png",
+              "name": "image",
+              "uuid": "1"
+            },
+            {
+              "type": "image",
+              "mime": "image/png",
+              "name": "image",
+              "uuid": "2"
+            }
+          ]
+        },
+        {
+          "type": "image",
           "mime": "image/png",
-          "content": "0",
-          "styles": "{ display: none; }"
+          "name": "image",
+          "uuid": "0"
         }
       ]
     }
     "#;
-    let item_schema = serde_json::from_str::<Components>(&schema).unwrap();
+    let item_schema = serde_json::from_str::<Descendant>(&schema).unwrap();
     let mut assets = vec![None, None, None, None]
       .iter_mut()
       .map(|asset| Asset {
@@ -214,73 +248,59 @@ mod tests {
     assert_eq!(prepared_assets.len(), 4);
     for asset in prepared_assets.iter() {
       assert!(Uuid::parse_str(&asset.id).is_ok());
-      assert_eq!(asset.name, String::from("test"));
+      assert_eq!(asset.name, String::from("image"));
       assert_eq!(asset.mime, String::from("image/png"));
       assert_eq!(asset.data, None);
     }
     println!("{prepared_assets:#?}");
-    let expected_schema = serde_json::from_str::<Components>(
+    let expected_schema = serde_json::from_str::<Descendant>(
       format!(
         r#"
     {{
-      "type": "div",
-      "name": "test",
-      "mime": "text/plain",
-      "content": "test",
-      "styles": "{{ display: none; }}",
-      "descendants": [
+      "type": "paragraph",
+      "children": [
         {{
-          "type": "div",
-          "name": "test",
-          "mime": "text/plain",
-          "content": "test",
-          "styles": "{{ display: none; }}",
-          "descendants": [
-            {{
-              "type": "input",
-              "name": "test",
-              "mime": "text/plain",
-              "content": "",
-              "styles": "{{ display: none; }}",
-              "descendants": {{
-                "type": "figure",
-                "name": "test",
-                "mime": "image/png",
-                "content": "{}",
-                "styles": "{{ display: none; }}"
-              }}
-            }}
-          ]
+          "text": "test"
         }},
         {{
-          "type": "div",
-          "name": "test",
-          "mime": "text/plain",
-          "content": "test",
-          "styles": "{{ display: none; }}",
-          "descendants": [
+          "type": "paragraph",
+          "children": [
             {{
-              "type": "figure",
-              "name": "test",
-              "mime": "image/png",
-              "content": "{}",
-              "styles": "{{ display: none; }}"
+              "text": "test"
             }},
             {{
-              "type": "figure",
-              "name": "test",
+              "type": "image",
               "mime": "image/png",
-              "content": "{}",
-              "styles": "{{ display: none; }}"
+              "name": "image",
+              "uuid": "{}"
             }}
           ]
         }},
         {{
-          "type": "figure",
-          "name": "test",
+          "type": "paragraph",
+          "children": [
+            {{
+              "text": "test"
+            }},
+            {{
+              "type": "image",
+              "mime": "image/png",
+              "name": "image",
+              "uuid": "{}"
+            }},
+            {{
+              "type": "image",
+              "mime": "image/png",
+              "name": "image",
+              "uuid": "{}"
+            }}
+          ]
+        }},
+        {{
+          "type": "image",
           "mime": "image/png",
-          "content": "{}",
-          "styles": "{{ display: none; }}"
+          "name": "image",
+          "uuid": "{}"
         }}
       ]
     }}

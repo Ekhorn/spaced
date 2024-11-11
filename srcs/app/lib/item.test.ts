@@ -1,76 +1,66 @@
-// sum.test.js
+import { type Descendant } from 'slate';
+import { type Asset } from 'types';
 import { expect, test } from 'vitest';
 
 import { processRefs } from './item.js';
-import { type Asset, type ComponentSchemas } from './types.js';
 
 test('processRefs should write ids to schema and assets', () => {
-  const inputSchema: ComponentSchemas = {
-    type: 'div',
-    name: 'test',
-    mime: 'text/plain',
-    content: 'test',
-    styles: '{ display: none; }',
-    descendants: [
+  const inputSchema: Descendant = {
+    type: 'paragraph',
+    children: [
       {
-        type: 'div',
-        name: 'test',
-        mime: 'text/plain',
-        content: 'test',
-        styles: '{ display: none; }',
-        descendants: [
+        text: 'test',
+      },
+      {
+        type: 'paragraph',
+        children: [
           {
-            type: 'input',
-            name: 'test',
-            mime: 'text/plain',
-            content: '',
-            styles: '{ display: none; }',
-            descendants: {
-              type: 'figure',
-              name: 'test',
-              mime: 'image/png',
-              content: '3',
-              styles: '{ display: none; }',
-            },
+            text: 'test',
+          },
+          {
+            type: 'paragraph',
+            children: [
+              { text: 'test' },
+              {
+                type: 'image',
+                name: 'image',
+                mime: 'image/png',
+                uuid: '3',
+              },
+            ],
           },
         ],
       },
       {
-        type: 'div',
-        name: 'test',
-        mime: 'text/plain',
-        content: 'test',
-        styles: '{ display: none; }',
-        descendants: [
+        type: 'paragraph',
+        children: [
           {
-            type: 'figure',
-            name: 'test',
-            mime: 'image/png',
-            content: '1',
-            styles: '{ display: none; }',
+            text: 'test',
           },
           {
-            type: 'figure',
-            name: 'test',
+            type: 'image',
+            name: 'image',
             mime: 'image/png',
-            content: '2',
-            styles: '{ display: none; }',
+            uuid: '1',
+          },
+          {
+            type: 'image',
+            name: 'image',
+            mime: 'image/png',
+            uuid: '2',
           },
         ],
       },
       {
-        type: 'figure',
-        name: 'test',
+        type: 'image',
+        name: 'image',
         mime: 'image/png',
-        content: '0',
-        styles: '{ display: none; }',
+        uuid: '0',
       },
     ],
   };
   const assets = Array.from({ length: 4 }).fill({
     id: crypto.randomUUID(),
-    name: 'image',
-    mime: '',
     data: [],
   }) as Asset[];
   const [schema, preparedAssets] = processRefs(inputSchema, assets);
@@ -79,72 +69,66 @@ test('processRefs should write ids to schema and assets', () => {
     expect(asset.id).toMatch(
       /[\dA-Fa-f]{8}(?:-[\dA-Fa-f]{4}){3}-[\dA-Fa-f]{12}/,
     );
-    expect(asset.name).toBe('test');
+    expect(asset.name).toBe('image');
     expect(asset.mime).toBe('image/png');
     expect(asset.data).toStrictEqual([]);
   }
   expect(schema).toMatchInlineSnapshot(`
     {
-      "content": "test",
-      "descendants": [
+      "children": [
         {
-          "content": "test",
-          "descendants": [
-            {
-              "content": "",
-              "descendants": {
-                "content": "${assets[3].id}",
-                "mime": "image/png",
-                "name": "test",
-                "styles": "{ display: none; }",
-                "type": "figure",
-              },
-              "mime": "text/plain",
-              "name": "test",
-              "styles": "{ display: none; }",
-              "type": "input",
-            },
-          ],
-          "mime": "text/plain",
-          "name": "test",
-          "styles": "{ display: none; }",
-          "type": "div",
+          "text": "test",
         },
         {
-          "content": "test",
-          "descendants": [
+          "children": [
             {
-              "content": "${assets[1].id}",
-              "mime": "image/png",
-              "name": "test",
-              "styles": "{ display: none; }",
-              "type": "figure",
+              "text": "test",
             },
             {
-              "content": "${assets[2].id}",
-              "mime": "image/png",
-              "name": "test",
-              "styles": "{ display: none; }",
-              "type": "figure",
+              "children": [
+                {
+                  "text": "test",
+                },
+                {
+                  "mime": "image/png",
+                  "name": "image",
+                  "type": "image",
+                  "uuid": "${assets[3].id}",
+                },
+              ],
+              "type": "paragraph",
             },
           ],
-          "mime": "text/plain",
-          "name": "test",
-          "styles": "{ display: none; }",
-          "type": "div",
+          "type": "paragraph",
         },
         {
-          "content": "${assets[0].id}",
+          "children": [
+            {
+              "text": "test",
+            },
+            {
+              "mime": "image/png",
+              "name": "image",
+              "type": "image",
+              "uuid": "${assets[1].id}",
+            },
+            {
+              "mime": "image/png",
+              "name": "image",
+              "type": "image",
+              "uuid": "${assets[2].id}",
+            },
+          ],
+          "type": "paragraph",
+        },
+        {
           "mime": "image/png",
-          "name": "test",
-          "styles": "{ display: none; }",
-          "type": "figure",
+          "name": "image",
+          "type": "image",
+          "uuid": "${assets[0].id}",
         },
       ],
-      "mime": "text/plain",
-      "name": "test",
-      "styles": "{ display: none; }",
-      "type": "div",
+      "type": "paragraph",
     }
   `);
 });

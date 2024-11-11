@@ -8,7 +8,7 @@ import {
 } from 'solid-js';
 
 import { useIPC } from './IPCProvider.jsx';
-import { useSelection } from './SelectionProvider.js';
+import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
 import { useState } from './StateProvider.js';
 import {
   Vec2D,
@@ -43,7 +43,7 @@ type ViewportProps = {
 
 const { items, setItems } = useState();
 const { updateItem } = useIPC();
-const { getSelected } = useSelection();
+const { selecting, selections, setSelecting } = useSelection();
 
 let pointerDelta = new Vec2D(0, 0);
 let lastDistance: number;
@@ -100,24 +100,31 @@ async function handlePointerMove(event: PointerEvent) {
     .sub(lastRelativePointerPosition())
     .div(scalar());
   if (event.shiftKey && event.buttons === 1) {
-    const selected = getSelected();
-    const allItems = items().map((item) =>
-      selected.has(item.id!)
-        ? {
-            ...item,
-            x: Math.floor(item.x + pointerDelta.x),
-            y: Math.floor(item.y + pointerDelta.y),
-          }
-        : item,
-    );
-    const movedItems = allItems!.filter((item) => selected.has(item.id!));
+    const allItems = [],
+      movedItems = [];
+    for (let item of items()) {
+      if (selections.get(ITEM_TO_SELECTION[item.id!])) {
+        item = {
+          ...item,
+          x: Math.floor(item.x + pointerDelta.x),
+          y: Math.floor(item.y + pointerDelta.y),
+        };
+        movedItems.push(item);
+      }
+      allItems.push(item);
+    }
+
     // Not awaiting to avoid blocking the UI
     updateItem(movedItems);
     setItems(allItems);
-  } else if (event.buttons === 1) {
+  } else if (event.buttons === 1 && !selecting()) {
     setAbsoluteViewportPosition((prev) => prev.add(pointerDelta.neg()));
   }
   setLastRelativePointerPosition(new Vec2D(event.clientX, -event.clientY));
+
+  if (event.buttons === 0) {
+    setSelecting(false);
+  }
 }
 
 function handlePointerRemove(event: PointerEvent) {

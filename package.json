@@ -3,6 +3,8 @@
   "type": "module",
   "workspaces": [
     "srcs/app",
+    "srcs/slate-solid",
+    "srcs/types",
     "srcs/e2e"
   ],
   "scripts": {
@@ -13,7 +15,7 @@
     "codegen": "npm --workspace e2e run codegen",
     "deploy": "srcs/scripts/deploy.sh",
     "dev": "vite",
-    "e2e": "npm --workspace e2e run e2e",
+    "e2e": "npm --workspace e2e run e2e --",
     "fmt": "cargo fmt --check --all",
     "fmt:fix": "cargo fmt --all",
     "prepare": "husky",
@@ -36,6 +38,7 @@
     "solid-icons": "^1.1.0"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.0",
     "@tauri-apps/cli": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",

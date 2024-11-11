@@ -1,14 +1,15 @@
 import { Index, onMount } from 'solid-js';
 
-import { Actions } from './Actions/index.js';
 import { AuthProvider } from './AuthProvider.js';
 import { Background } from './Background.js';
 import { Container } from './Container.js';
+import { Controls } from './Controls.jsx';
 import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
 import { ViewportProvider, useViewport } from './ViewportProvider.js';
 import { allowedMimeTypes } from '../lib/const.js';
-import { type FigureComponent, type MimeTypes } from '../lib/types.js';
+import { type ImageElement } from '../lib/editor-types.js';
+import { type MimeTypes } from '../lib/types.js';
 // import { getBoundingBox, throttle } from '../lib/utils.js';
 import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
 
@@ -36,12 +37,13 @@ export function App() {
           y: Math.floor(absolute.y),
           w: 0,
           h: 0,
+          editor: 'rich',
           schema: JSON.stringify({
-            type: 'figure',
+            type: 'image',
             name: file.name,
-            content: file.type.startsWith('text') ? await file.text() : '0',
             mime: file.type,
-          } as FigureComponent),
+            uuid: file.type.startsWith('text') ? await file.text() : '0',
+          } as ImageElement),
         },
         [[...new Uint8Array(await file.arrayBuffer())]],
       );
@@ -75,6 +77,7 @@ export function App() {
               y: Math.floor(absolute.y),
               w: 0,
               h: 0,
+              editor: 'rich',
               schema: JSON.stringify({
                 type: 'div',
                 name: 'Untitled',
@@ -106,12 +109,13 @@ export function App() {
           y: Math.floor(absolute.y),
           w: 0,
           h: 0,
+          editor: 'rich',
           schema: JSON.stringify({
-            type: 'figure',
+            type: 'image',
             name: file.name,
-            content: file.type.startsWith('text') ? await file.text() : '0',
             mime: file.type,
-          } as FigureComponent),
+            uuid: file.type.startsWith('text') ? await file.text() : '0',
+          } as ImageElement),
         },
         [[...new Uint8Array(await file.arrayBuffer())]],
       );
@@ -181,7 +185,7 @@ export function App() {
           {/* TODO: resolve FOUC */}
           <Background />
           <main class="absolute h-full w-full" onDrop={handleDrop}>
-            <Actions />
+            <Controls />
             <Index each={items()}>
               {(item, index) => (
                 <Container index={index} item={item()} setItems={setItems} />

@@ -1,13 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use item::{Asset, Components, Item};
+use item::{Asset, Descendant, Item};
 use serde::{Serialize, Serializer};
 use sqlx::{
   sqlite::{SqliteConnectOptions, SqliteJournalMode},
   SqlitePool,
 };
-use std::{env, str::FromStr};
+use std::{env, str::FromStr, vec};
 use tauri::{api::dialog::blocking::FileDialogBuilder, State};
 use tokio::sync::RwLock;
 use tracing::info;
@@ -135,13 +135,14 @@ async fn create_item(
   y: i64,
   w: i64,
   h: i64,
+  editor: String,
   schema: String,
   mut assets: Vec<Vec<u8>>,
 ) -> Result<Item, Error> {
   let pool = state.db.read().await;
   let mut transaction = pool.clone().unwrap().begin().await?;
 
-  let item_schema = serde_json::from_str::<Components>(&schema).unwrap();
+  let decendants = serde_json::from_str::<Vec<Descendant>>(&schema).unwrap();
   let mut assets = assets
     .iter_mut()
     .map(|asset| Asset {
@@ -151,9 +152,18 @@ async fn create_item(
       data: Some(asset.to_vec()),
     })
     .collect::<Vec<Asset>>();
-  let (output_schema, prepared_assets) = item_schema.process_refs(&mut assets);
+  let mut output_descendants: Vec<Descendant> = vec![];
+  let mut prepared_assets: Vec<Asset> = vec![];
 
-  for asset in prepared_assets {
+  for descendant in decendants {
+    let (d, a) = descendant.process_refs(&mut assets);
+    output_descendants.push(d);
+    for a in a {
+      prepared_assets.push(a.clone());
+    }
+  }
+
+  for asset in &prepared_assets {
     sqlx::query!(
       r#"
 INSERT INTO asset ( id, name, mime, data )
@@ -168,18 +178,19 @@ VALUES ( ?1, ?2, ?3, ?4 )
     .await?;
   }
 
-  let schema = serde_json::to_string::<Components>(&output_schema)?;
+  let schema = serde_json::to_string::<Vec<Descendant>>(&output_descendants)?;
 
   let item = sqlx::query_as!(
     Item,
     r#"
-INSERT INTO item ( x, y, w, h, schema )
-VALUES ( ?1, ?2, ?3, ?4, ?5 ) RETURNING *
+INSERT INTO item ( x, y, w, h, editor, schema )
+VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 ) RETURNING *
       "#,
     x,
     y,
     w,
     h,
+    editor,
     schema,
   )
   .fetch_one(&mut *transaction)
@@ -228,7 +239,8 @@ async fn patch_item(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), 
     y = ?3,
     w = ?4,
     h = ?5,
-    schema = ?6
+    editor = ?6,
+    schema = ?7
   WHERE id = ?1
       "#,
       item.id,
@@ -236,6 +248,7 @@ async fn patch_item(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), 
       item.y,
       item.w,
       item.h,
+      item.editor,
       item.schema,
     )
     .execute(&mut *transaction)

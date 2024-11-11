@@ -27,4 +27,9 @@ export default defineConfig(async () => ({
     target: 'esnext',
     outDir: '../../dist',
   },
+  test: {
+    root: 'srcs',
+    exclude: ['e2e'],
+    environment: 'jsdom',
+  },
 }));

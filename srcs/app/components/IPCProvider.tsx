@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api';
 import { type IDBPDatabase, openDB } from 'idb';
 import { type Socket, io } from 'socket.io-client';
 import { type JSXElement, useContext, createContext } from 'solid-js';
+import { type Item, type Asset } from 'types';
 
 import { isTauri } from '../lib/const.js';
 import {
@@ -13,7 +14,7 @@ import {
   upgrade,
 } from '../lib/idb.js';
 import { processRefs } from '../lib/item.js';
-import { type Storage, type Item, type Asset } from '../lib/types.js';
+import { type Storage } from '../lib/types.js';
 
 const socket = io(window.location.origin, {
   autoConnect: false,

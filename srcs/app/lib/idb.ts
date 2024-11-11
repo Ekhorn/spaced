@@ -1,6 +1,5 @@
 import { type IDBPDatabase, type DBSchema } from 'idb';
-
-import { type Asset, type Item } from './types.js';
+import { type Asset, type Item } from 'types';
 
 export const defaultStore = 'spaced';
 export const itemStore = 'item';
