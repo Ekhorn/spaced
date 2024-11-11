@@ -1,13 +1,23 @@
-tsconfig.tsbuildinfo
-target
-node_modules
-dist
-.env
-.direnv
-*.db*
-
-# Playwright test output
+# Playwright
 srcs/e2e/test-results/
 srcs/e2e/playwright-report/
 srcs/e2e/blob-report/
 srcs/e2e/playwright/.cache/
+
+# Typescript
+tsconfig.tsbuildinfo
+srcs/slate-solid/lib
+
+# Rust
+target
+
+# NPM
+node_modules
+
+# Vite
+dist
+
+# General
+.env
+.direnv
+*.db*

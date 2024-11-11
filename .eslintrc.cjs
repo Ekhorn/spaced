@@ -6,11 +6,27 @@ module.exports = {
     node: true,
   },
   ignorePatterns: [
-    'dist',
-    'target',
-    'node_modules',
-    'srcs/tauri',
+    // Playwright
+    'srcs/e2e/test-results/',
+    'srcs/e2e/playwright-report/',
+    'srcs/e2e/blob-report/',
+    'srcs/e2e/playwright/.cache/',
+
+    // Typescript
+    'tsconfig.tsbuildinfo',
     'srcs/slate-solid/lib',
+
+    // Rust
+    'srcs/tauri',
+    'target',
+
+    // Vite
+    'dist',
+
+    // NPM
+    'node_modules',
+
+    // General
     '*.config.*',
   ],
   parser: '@typescript-eslint/parser',

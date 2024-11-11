@@ -136,6 +136,7 @@ export function Toolbar(props: { selected: Accessor<boolean> }) {
     <div
       class="absolute flex w-full -translate-y-full transform rounded bg-white p-1"
       style={props.selected() ? {} : { display: 'none' }}
+      data-testid="toolbar"
     >
       <MarkButton format="bold" icon={<FaSolidBold />} />
       <MarkButton format="italic" icon={<FaSolidItalic />} />

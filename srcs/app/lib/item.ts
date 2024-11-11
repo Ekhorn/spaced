@@ -1,6 +1,5 @@
 import { type Descendant } from 'slate';
-
-import { type Asset } from './types.js';
+import { type Asset } from 'types';
 
 export function processRefs(
   schema: Descendant,

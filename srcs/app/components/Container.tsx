@@ -30,6 +30,7 @@ import {
   Show,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { type Item } from 'types';
 
 import { useIPC } from './IPCProvider.js';
 import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
@@ -41,7 +42,6 @@ import {
   type CustomElement,
 } from '../lib/editor-types.js';
 import { withDelBackFix, withShortcuts, MD_SHORTCUTS } from '../lib/plugins.js';
-import { type Item } from '../lib/types.js';
 import { absoluteToRelative, Vec2D } from '../lib/vector.js';
 
 const HOTKEYS = {
@@ -119,6 +119,7 @@ export function Container(props: ContainerProps) {
   return (
     <div
       class="absolute min-h-8 min-w-8 whitespace-pre rounded"
+      data-spaced-item={props.item.id}
       style={{
         'pointer-events': 'all',
         'transform-origin': 'top left',

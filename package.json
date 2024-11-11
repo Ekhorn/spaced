@@ -4,6 +4,7 @@
   "workspaces": [
     "srcs/app",
     "srcs/slate-solid",
+    "srcs/types",
     "srcs/e2e"
   ],
   "scripts": {
@@ -14,7 +15,7 @@
     "codegen": "npm --workspace e2e run codegen",
     "deploy": "srcs/scripts/deploy.sh",
     "dev": "vite",
-    "e2e": "npm --workspace e2e run e2e",
+    "e2e": "npm --workspace e2e run e2e --",
     "fmt": "cargo fmt --check --all",
     "fmt:fix": "cargo fmt --all",
     "prepare": "husky",

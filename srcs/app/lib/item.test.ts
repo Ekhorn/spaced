@@ -1,8 +1,8 @@
 import { type Descendant } from 'slate';
+import { type Asset } from 'types';
 import { expect, test } from 'vitest';
 
 import { processRefs } from './item.js';
-import { type Asset } from './types.js';
 
 test('processRefs should write ids to schema and assets', () => {
   const inputSchema: Descendant = {

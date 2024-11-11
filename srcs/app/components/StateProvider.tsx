@@ -4,8 +4,7 @@ import {
   createContext,
   createSignal,
 } from 'solid-js';
-
-import { type Item } from '../lib/types.js';
+import { type Item } from 'types';
 
 const [items, setItems] = createSignal<Item[]>([]);
 const StateContext = createContext({

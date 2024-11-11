@@ -7,7 +7,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@playwright/test": "^1.0.0"
+    "@playwright/test": "1.47.2"
   },
   "engines": {
     "node": ">=18"

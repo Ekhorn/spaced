@@ -4,6 +4,8 @@
 
 ### Testing
 
+**Rust**
+
 > Note: The `DATABASE_URL` must be present as environment variable for the database tests. The `DATABASE_URL` is automatically set using the `build.rs` file if the build is not a release build.
 
 Running all tests
@@ -16,6 +18,34 @@ Running tests for a specific workspace member
 
 ```sh
 cargo test -p item_producer
+```
+
+**Vitest**
+
+Running unit/component tests
+
+```sh
+npm test
+```
+
+**Playwright**
+
+Running End-to-End tests locally
+
+```sh
+npm run e2e
+```
+
+The following command is recommended when writing End-to-End tests.
+
+```sh
+npm run e2e -- --ui
+```
+
+To use Playwright codegen run the following command.
+
+```sh
+npm run codegen
 ```
 
 ### Updating migrations
