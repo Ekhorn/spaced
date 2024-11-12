@@ -8,7 +8,7 @@ function isError(error: unknown): error is Error {
 
 type EditorChangeHandler = (editor: Editor) => void;
 /**
- * A React context for sharing the editor selector context in a way to control rerenders
+ * A Solidjs context for sharing the editor selector context in a way to control rerenders
  */
 
 export const SlateSelectorContext = createContext<{

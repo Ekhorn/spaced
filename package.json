@@ -4,6 +4,7 @@
   "workspaces": [
     "srcs/app",
     "srcs/slate-solid",
+    "srcs/slate-yjs-solid",
     "srcs/types",
     "srcs/e2e"
   ],

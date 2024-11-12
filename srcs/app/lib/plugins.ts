@@ -1,5 +1,6 @@
 import {
   Editor,
+  normalizeNode,
   Point,
   Range,
   Element as SlateElement,
@@ -133,6 +134,26 @@ export const withShortcuts = <T extends Editor>(editor: T) => {
     }
 
     insertText(text);
+  };
+
+  return editor;
+};
+
+export const withValidNode = <T extends Editor>(editor: T) => {
+  const { normalizeNode } = editor;
+
+  editor.normalizeNode = (entry) => {
+    const [node] = entry;
+
+    if (!Editor.isEditor(node) || node.children.length > 0) {
+      return normalizeNode(entry);
+    }
+
+    Transforms.insertNodes(
+      editor,
+      [{ type: 'paragraph', children: [{ text: '' }] }],
+      { at: [0] },
+    );
   };
 
   return editor;

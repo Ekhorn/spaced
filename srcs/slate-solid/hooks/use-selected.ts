@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'solid-js';
 
 /**
- * A React context for sharing the `selected` state of an element.
+ * A Solidjs context for sharing the `selected` state of an element.
  */
 export const SelectedContext = createContext(false);
 
