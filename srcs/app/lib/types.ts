@@ -8,3 +8,8 @@ export type MimeTypes =
   typeof allowedMimeTypes extends Set<infer U> ? U : never;
 
 export type Editors = Item['editor'];
+
+export type CursorData = {
+  name: string;
+  color: string;
+};

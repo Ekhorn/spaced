@@ -1,5 +1,7 @@
 import { withCursors, withYjs, YjsEditor } from '@slate-yjs/core';
 import {
+  type Range,
+  type NodeEntry,
   createEditor,
   Editor,
   Element as SlateElement,
@@ -8,12 +10,12 @@ import {
 import { withHistory } from 'slate-history';
 import { Editable, Slate, SolidEditor, withSolid } from 'slate-solid';
 import isHotkey from 'slate-solid/utils/is-hotkey.js';
-import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import { useDecorateRemoteCursors } from 'slate-yjs-solid';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 
 import { type RenderProps } from './Container.js';
-import { Cursors } from './Cursors.jsx';
 import { RenderElement, RenderLeaf } from './Elements.js';
 import { useIPC } from './IPCProvider.js';
 import { toggleMark, Toolbar } from './Toolbar.js';
@@ -37,53 +39,78 @@ export function CollaborativeEditor(props: RenderProps) {
   const [sharedType, setSharedType] = createSignal<Y.XmlText>();
   const [provider, setProvider] = createSignal<SocketIOProvider>();
 
-  onMount(() => {
-    const yDoc = new Y.Doc();
-    const sharedDoc = yDoc.get('slate', Y.XmlText);
+  const yDoc = new Y.Doc();
+  const sharedDoc = yDoc.get('slate', Y.XmlText);
+  const yProvider = new SocketIOProvider(window.origin, 'test-room', yDoc, {});
 
-    const yProvider = new SocketIOProvider(
-      window.origin,
-      'test-room',
-      yDoc,
-      {},
+  yProvider.on(
+    'status',
+    ({ status }: { status: 'connected' | 'disconnected' }) => {
+      console.log(status);
+    },
+  );
+
+  yProvider.on('sync', setConnected);
+  setSharedType(sharedDoc);
+  setProvider(yProvider);
+
+  onCleanup(() => {
+    yDoc?.destroy();
+    yProvider?.off('sync', setConnected);
+    yProvider?.destroy();
+  });
+
+  const wrapper = () => {
+    const editor = withCursors(
+      // eslint-disable-next-line solid/reactivity
+      withYjs(createEditor(), sharedType()),
+      // eslint-disable-next-line solid/reactivity
+      provider()?.awareness,
+      {
+        // The current user's name and color
+        data: {
+          name: 'Chris',
+          color: '#00ff00',
+        },
+      },
     );
 
-    yProvider.on('status', ({ status }: { status: string }) => {
-      console.log(status); // Logs "connected" or "disconnected"
+    createEffect(() => {
+      if (YjsEditor.connect && sharedType() && provider()) {
+        YjsEditor.connect(editor);
+      }
+      onCleanup(() => YjsEditor.disconnect(editor));
     });
 
-    yProvider.on('sync', setConnected);
-    setSharedType(sharedDoc);
-    setProvider(yProvider);
-
-    onCleanup(() => {
-      yDoc?.destroy();
-      yProvider?.off('sync', setConnected);
-      yProvider?.destroy();
-    });
-  });
+    return (
+      <SlateEditor
+        {...props}
+        editor={editor}
+        decorate={useDecorateRemoteCursors() as (entry: NodeEntry) => Range[]}
+      />
+    );
+  };
 
   return (
     <Show
       when={connected() && sharedType() && provider()}
-      fallback={<div>Loading…</div>}
+      fallback={<div class="flex rounded bg-white p-1">Loading…</div>}
     >
-      <SlateEditor sharedType={sharedType()} provider={provider()} {...props} />
+      {wrapper()}
     </Show>
   );
 }
 
 function SlateEditor(
   props: RenderProps & {
-    sharedType?: Y.XmlText;
-    provider?: SocketIOProvider;
+    editor?: Editor;
+    decorate?: (entry: NodeEntry) => Range[];
   },
 ) {
   // eslint-disable-next-line solid/reactivity
   const isMarkdown = props.item.editor === 'markdown';
-
   const plugins: (<T extends CustomEditor>(editor: T) => T)[] = [
-    withValidNode,
+    withValidNode, // TODO: find solution that doesn't add new lines on save
     withDelBackFix,
     withSolid,
     withHistory,
@@ -92,22 +119,11 @@ function SlateEditor(
     plugins.push(withShortcuts);
   }
 
-  const editor = withCursors(
-    // eslint-disable-next-line unicorn/no-array-reduce
-    plugins.reduce(
-      (acc, fn) => fn(acc),
-      // eslint-disable-next-line solid/reactivity
-      withYjs(createEditor(), props.sharedType),
-    ),
+  // eslint-disable-next-line unicorn/no-array-reduce
+  const editor = plugins.reduce(
+    (acc, fn) => fn(acc),
     // eslint-disable-next-line solid/reactivity
-    props.provider?.awareness,
-    {
-      // The current user's name and color
-      data: {
-        name: 'Chris',
-        color: '#00ff00',
-      },
-    },
+    props.editor ?? createEditor(),
   );
 
   const { updateItem } = useIPC();
@@ -145,13 +161,6 @@ function SlateEditor(
     });
   };
 
-  createEffect(() => {
-    if (YjsEditor.connect && props.sharedType) {
-      YjsEditor.connect(editor);
-    }
-    onCleanup(() => YjsEditor.disconnect(editor));
-  });
-
   return (
     <Slate
       initialValue={props.initialValue}
@@ -172,8 +181,8 @@ function SlateEditor(
         <Toolbar selected={props.selected} />
         <div class="h-1 w-[424px]" />
       </Show>
-      {/* <Cursors> */}
       <Editable
+        decorate={props.decorate}
         onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
         readOnly={!props.selected()}
         renderElement={RenderElement}
@@ -195,7 +204,6 @@ function SlateEditor(
           }
         }}
       />
-      {/* </Cursors> */}
     </Slate>
   );
 }

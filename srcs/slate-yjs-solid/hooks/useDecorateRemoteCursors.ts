@@ -96,7 +96,7 @@ export function useDecorateRemoteCursors<
       return [];
     }
 
-    return Object.entries(cursors).flatMap(([clientId, state]) => {
+    return Object.entries(cursors()).flatMap(([clientId, state]) => {
       const range = getCursorRange(editor, state);
       if (!range) {
         return [];
