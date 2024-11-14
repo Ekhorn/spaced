@@ -1,10 +1,11 @@
-import { type Element as SlateElement, Transforms } from 'slate';
+import { type Text, type Element as SlateElement, Transforms } from 'slate';
 import {
   type RenderElementProps,
   type RenderLeafProps,
   SolidEditor,
   useSlateStatic,
 } from 'slate-solid';
+import { getRemoteCaretsOnLeaf, getRemoteCursorsOnLeaf } from 'slate-yjs-solid';
 import { type JSX, type JSXElement } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
@@ -12,6 +13,7 @@ import {
   type CheckListElement,
   type CustomElement,
 } from '../lib/editor-types.js';
+import { type CursorData } from '../lib/types.js';
 
 type Element = (
   props: Omit<RenderElementProps, 'attributes'> &
@@ -56,9 +58,6 @@ const check_list: Element = ({ children, element, ...attributes }) => {
         style={{
           opacity: `${checked ? 0.666 : 1}`,
           'text-decoration': `${checked ? 'line-through' : 'none'}`,
-          // "&:focus" {
-          //   "outline": none;
-          // }
         }}
       >
         {children}
@@ -100,24 +99,58 @@ export function RenderElement(props: RenderElementProps): JSXElement {
 }
 
 export function RenderLeaf(props: RenderLeafProps) {
-  return (
-    <span {...props.attributes}>
-      {(() => {
-        let children = props.children as JSXElement;
-        if (props.leaf.bold) {
-          children = <strong>{children}</strong>;
-        }
-        if (props.leaf.code) {
-          children = <code>{children}</code>;
-        }
-        if (props.leaf.italic) {
-          children = <em>{children}</em>;
-        }
-        if (props.leaf.underline) {
-          children = <u>{children}</u>;
-        }
-        return children;
-      })()}
-    </span>
-  );
+  const wrapper = () => {
+    let children = props.children as JSXElement;
+
+    for (const cursor of getRemoteCursorsOnLeaf<CursorData, Text>(props.leaf)) {
+      if (cursor.data) {
+        children = (
+          <span style={{ 'background-color': cursor.data.color }}>
+            {children}
+          </span>
+        );
+      }
+    }
+
+    for (const caret of getRemoteCaretsOnLeaf<CursorData, Text>(props.leaf)) {
+      if (caret.data) {
+        children = (
+          <span class="relative">
+            <span
+              contentEditable={false}
+              class="absolute bottom-0 left-[-1px] top-0 w-0.5"
+              style={{ 'background-color': caret.data.color }}
+            />
+            <span
+              contentEditable={false}
+              class="absolute left-[-1px] top-0 select-none whitespace-nowrap rounded rounded-bl-none px-1.5 py-0.5 text-xs text-white"
+              style={{
+                'background-color': caret.data.color,
+                transform: 'translateY(-100%)',
+              }}
+            >
+              {caret.data.name}
+            </span>
+            {children}
+          </span>
+        );
+      }
+    }
+
+    if (props.leaf.bold) {
+      children = <strong>{children}</strong>;
+    }
+    if (props.leaf.code) {
+      children = <code>{children}</code>;
+    }
+    if (props.leaf.italic) {
+      children = <em>{children}</em>;
+    }
+    if (props.leaf.underline) {
+      children = <u>{children}</u>;
+    }
+    return children;
+  };
+
+  return <span {...props.attributes}>{wrapper()}</span>;
 }

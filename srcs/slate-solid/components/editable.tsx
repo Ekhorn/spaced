@@ -1664,7 +1664,7 @@ export function Editable(props: EditableProps) {
       }}
     >
       <Children
-        decorations={(props?.decorate && props.decorate([editor, []])) || []}
+        decorations={(props.decorate && props.decorate([editor, []])) || []}
         node={editor}
         renderElement={props.renderElement}
         renderPlaceholder={props.renderPlaceholder!}
