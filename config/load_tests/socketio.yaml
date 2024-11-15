@@ -1,0 +1,17 @@
+config:
+  target: 'http://localhost:8080'
+  socketio:
+    query: 'EIO=4&transport=websocket'
+    transports: ['websocket']
+  phases:
+    - duration: 60
+      arrivalRate: 25
+
+scenarios:
+  - name: initial test
+    engine: socketio
+    flow:
+      - namespace: '/yjs|test-room'
+        emit:
+          channel: 'echo'
+          data: '["awareness-update",{"_placeholder":true,"num":0}]'

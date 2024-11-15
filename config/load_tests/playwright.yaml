@@ -1,0 +1,8 @@
+config:
+  target: http://localhost:1420
+  engines:
+    playwright: {}
+  processor: './test.js'
+scenarios:
+  - engine: playwright
+    testFunction: 'createItemAndWriteCheckList'
