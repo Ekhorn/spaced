@@ -11,7 +11,7 @@ use socketioxide::{
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tracing::info;
-use yrs::sync::Awareness;
+use yrs::{sync::Awareness, updates::encoder::Encode, TransactionMut};
 
 mod y;
 
@@ -51,29 +51,38 @@ impl GlobalState {
   fn init_document(&self, namespace: String, socket: SocketIo) -> Arc<Awareness> {
     self.documents.get(&namespace).map_or_else(
       || {
-        let v = Arc::new(Awareness::default());
         let nsp = namespace.clone();
-        v.doc()
-          .observe_after_transaction_with("update", move |txn| {
-            info!("observe_after_transaction");
-            socket
-              .of(format!("/yjs|{}", nsp))
-              .unwrap()
-              .emit("sync-update", &Value::from(txn.encode_update_v1()))
-              .unwrap();
-          })
+        let nsp_clone = namespace.clone();
+        let socket_clone = socket.clone();
+        let sync_update = move |tx: &mut TransactionMut| {
+          info!("observe_after_transaction");
+          socket_clone
+            .of(format!("/yjs|{}", nsp))
+            .unwrap()
+            .emit("sync-update", &Value::from(tx.encode_update_v1()))
+            .unwrap();
+        };
+
+        let awareness = Arc::new(Awareness::default());
+
+        awareness
+          .doc()
+          // TODO: figure out why _with is needed for subscriptions to work
+          .observe_after_transaction_with("update", sync_update)
           .unwrap();
-
-        v.on_update(move |_, _, _| {
+        awareness.on_update_with("update", move |awareness, _, _| {
           info!("awareness on_update");
-        });
-        v.on_change(move |_, _, _| {
-          info!("awareness on_change");
+          let data = awareness.update().unwrap().encode_v1();
+          socket
+            .of(format!("/yjs|{}", nsp_clone))
+            .unwrap()
+            .emit("awareness-update", &Value::from(data))
+            .unwrap();
         });
 
-        self.documents.insert(namespace, v.clone());
-        info!("document loaded");
-        v
+        self.documents.insert(namespace, awareness.clone());
+
+        awareness
       },
       |v| v.clone(),
     )

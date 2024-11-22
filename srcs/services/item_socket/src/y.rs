@@ -1,6 +1,5 @@
 use rmpv::Value;
 use std::sync::Arc;
-use tracing::info;
 use yrs::{
   sync::{Awareness, AwarenessUpdate},
   updates::{decoder::Decode, encoder::Encode},
@@ -90,7 +89,6 @@ pub async fn start_synchronization(socket: SocketRef, awareness: Arc<Awareness>)
     Err(err) => println!("Ack error {:?}", err),
   }
 
-  socket
-    .emit("awareness-update", &awareness.update().unwrap())
-    .unwrap();
+  let data = awareness.update().unwrap().encode_v1();
+  socket.emit("awareness-update", &Value::from(data)).unwrap();
 }
