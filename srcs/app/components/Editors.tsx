@@ -11,7 +11,16 @@ import { withHistory } from 'slate-history';
 import { Editable, Slate, SolidEditor, withSolid } from 'slate-solid';
 import isHotkey from 'slate-solid/utils/is-hotkey.js';
 import { useDecorateRemoteCursors } from 'slate-yjs-solid';
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
+import {
+  FaSolidCheck,
+  FaSolidClipboard,
+  FaSolidExpand,
+  FaSolidFilePdf,
+  FaSolidShareFromSquare,
+  FaSolidUsersSlash,
+  FaSolidXmark,
+} from 'solid-icons/fa';
+import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 
@@ -41,7 +50,13 @@ export function CollaborativeEditor(props: RenderProps) {
 
   const yDoc = new Y.Doc();
   const sharedDoc = yDoc.get('slate', Y.XmlText);
-  const yProvider = new SocketIOProvider(window.origin, 'test-room', yDoc, {});
+  const yProvider = new SocketIOProvider(
+    window.origin,
+    // eslint-disable-next-line solid/reactivity
+    props.item.shared!,
+    yDoc,
+    {},
+  );
 
   yProvider.on(
     'status',
@@ -161,6 +176,11 @@ function SlateEditor(
     });
   };
 
+  onMount(() => {
+    // Prevents the initialValue being replaced by nothing
+    editor.children = props.initialValue;
+  });
+
   return (
     <Slate
       initialValue={props.initialValue}
@@ -181,35 +201,164 @@ function SlateEditor(
         <Toolbar selected={props.selected} />
         <div class="h-1 w-[424px]" />
       </Show>
-      <Editable
-        decorate={props.decorate}
-        onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
-        readOnly={!props.selected()}
-        renderElement={RenderElement}
-        renderLeaf={RenderLeaf}
-        placeholder="Enter some rich text…"
-        spellCheck
-        style={{
-          padding: '4px',
-          'background-color': 'white',
-          'border-radius': '4px',
-        }}
-        onKeyDown={(event: KeyboardEvent) => {
-          for (const hotkey in HOTKEYS) {
-            if (isHotkey(hotkey, event)) {
-              event.preventDefault();
-              const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS];
-              toggleMark(editor, mark);
+      <div class="pointer-events-none relative -z-20 rounded bg-white">
+        <Editable
+          decorate={props.decorate}
+          onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
+          readOnly={!props.selected()}
+          renderElement={RenderElement}
+          renderLeaf={RenderLeaf}
+          placeholder="Enter some rich text…"
+          spellCheck
+          style={{
+            padding: '4px',
+            'background-color': 'white',
+            'border-radius': '4px',
+            'padding-bottom': '12px',
+            'pointer-events': 'auto',
+          }}
+          onKeyDown={(event: KeyboardEvent) => {
+            for (const hotkey in HOTKEYS) {
+              if (isHotkey(hotkey, event)) {
+                event.preventDefault();
+                const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS];
+                toggleMark(editor, mark);
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+        <Footer {...props} />
+      </div>
     </Slate>
   );
 }
 
-export const TextEditor = ({
-  collaborative,
-  ...props
-}: RenderProps & { collaborative: boolean }) =>
-  (collaborative ? CollaborativeEditor : SlateEditor)(props);
+function Footer(props: RenderProps) {
+  const [sharing, setShare] = createSignal<'share' | 'configure' | 'sharing'>(
+    // eslint-disable-next-line solid/reactivity
+    props.item.shared ? 'sharing' : 'share',
+  );
+  const { updateItem } = useIPC();
+
+  const configure = () => setShare('configure');
+  const cancel = async () => {
+    const [item] = await updateItem([
+      {
+        ...props.item,
+        shared: undefined,
+      },
+    ]);
+    // eslint-disable-next-line solid/reactivity
+    props.setItems((prev) => prev.with(props.index, item));
+    setShare('share');
+  };
+
+  const copyToClipboard = async () => {
+    const type = 'text/plain';
+    const blob = new Blob([props.item.shared!], { type });
+    const data = [new ClipboardItem({ [type]: blob })];
+    await navigator.clipboard.write(data);
+  };
+
+  const submit = async (event: SubmitEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+    console.log(formData.entries());
+
+    const [item] = await updateItem([
+      {
+        ...props.item,
+        shared: crypto.randomUUID(),
+      },
+    ]);
+    // eslint-disable-next-line solid/reactivity
+    props.setItems((prev) => prev.with(props.index, item));
+
+    await copyToClipboard();
+    setShare('sharing');
+  };
+
+  let user: { username: string; color: string };
+  onMount(() => {
+    user = localStorage.getItem('user');
+  });
+
+  return (
+    <div class="pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]">
+      <div class="flex flex-row border-r pr-1">
+        <button class="rounded px-1 hover:bg-[#ecedef]" title="Fullscreen">
+          <FaSolidExpand />
+        </button>
+        <button class="rounded px-1 hover:bg-[#ecedef]" title="Export to PDF">
+          <FaSolidFilePdf />
+        </button>
+      </div>
+      <Show when={sharing() === 'share'}>
+        <button
+          class="row-end-auto rounded bg-gray-50 px-1 hover:bg-[#ecedef]"
+          title="Share"
+          onClick={configure}
+        >
+          <FaSolidShareFromSquare />
+        </button>
+      </Show>
+      <Show when={sharing() === 'configure'}>
+        <form class="flex flex-row" onSubmit={submit}>
+          <input
+            type="text"
+            name="username"
+            placeholder="username"
+            class="w-full rounded-l border-0 bg-white p-1 ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
+            value={user?.username ?? 'TEST'}
+          />
+          <input
+            type="color"
+            name="color"
+            title="Pick a color"
+            class="h-5 w-9 cursor-pointer rounded-r border-none p-0 hover:bg-[#ecedef]"
+            value={user?.color ?? 'test'}
+          />
+          <button
+            type="submit"
+            class="rounded px-1 hover:bg-[#ecedef]"
+            title="Share & Copy"
+          >
+            <FaSolidCheck />
+          </button>
+          <button
+            class="rounded px-1 hover:bg-[#ecedef]"
+            title="Cancel"
+            onClick={cancel}
+          >
+            <FaSolidXmark />
+          </button>
+        </form>
+      </Show>
+      <Show when={sharing() === 'sharing'}>
+        <div class="flex flex-row">
+          <button
+            class="rounded px-1 hover:bg-[#ecedef]"
+            title="Stop sharing"
+            onClick={cancel}
+          >
+            <FaSolidUsersSlash />
+          </button>
+          <button
+            type="submit"
+            class="rounded px-1 hover:bg-[#ecedef]"
+            title="Copy"
+            onClick={copyToClipboard}
+          >
+            <FaSolidClipboard />
+          </button>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
+export const TextEditor = (props: RenderProps) => (
+  <Show when={Boolean(props.item.shared)} fallback={<SlateEditor {...props} />}>
+    <CollaborativeEditor {...props} />
+  </Show>
+);

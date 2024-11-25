@@ -9,6 +9,7 @@ pub struct Item {
   pub h: i64,
   pub editor: String,
   pub schema: Option<String>,
+  pub shared: Option<String>,
 }
 
 #[derive(Serialize, PartialEq, Deserialize, Clone, Debug)]

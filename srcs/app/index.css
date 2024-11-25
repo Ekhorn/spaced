@@ -9,6 +9,7 @@
 }
 
 body {
+  font-family: 'IBM Plex Sans', sans-serif;
   background-color: #999999;
   text-rendering: optimizeLegibility;
   image-rendering: optimizeSpeed;
