@@ -18,6 +18,7 @@ export type Item = {
   // | 'vector'
   // | 'video';
   schema?: string;
+  shared?: string;
 };
 
 export type Asset = {

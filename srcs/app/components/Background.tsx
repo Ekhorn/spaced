@@ -1,6 +1,6 @@
 export function Background() {
   return (
-    <svg class="absolute z-0 h-full w-full">
+    <svg class="absolute -z-50 h-full w-full">
       <pattern
         id="background"
         width="13"

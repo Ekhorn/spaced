@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\nINSERT INTO item ( x, y, w, h, editor, schema )\nVALUES ( ?1, ?2, ?3, ?4, ?5, ?6 ) RETURNING *\n      ",
+  "query": "\nINSERT INTO item ( x, y, w, h, editor, schema, shared )\nVALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7 ) RETURNING *\n      ",
   "describe": {
     "columns": [
       {
@@ -37,10 +37,15 @@
         "name": "editor",
         "ordinal": 6,
         "type_info": "Text"
+      },
+      {
+        "name": "shared",
+        "ordinal": 7,
+        "type_info": "Text"
       }
     ],
     "parameters": {
-      "Right": 6
+      "Right": 7
     },
     "nullable": [
       false,
@@ -49,8 +54,9 @@
       false,
       false,
       true,
-      false
+      false,
+      true
     ]
   },
-  "hash": "9176990a9e48c5115797c1c38991cfd228a563faf43dc858e3d0b5a5489358ea"
+  "hash": "e624cce1a27d1d50f5720a720edc32d0347624fbdb7e9a32dd7b216944a535aa"
 }

@@ -131,7 +131,7 @@ export function Render(
       <Match
         when={props.item.editor === 'rich' || props.item.editor === 'markdown'}
       >
-        <TextEditor collaborative={true} {...props} />
+        <TextEditor {...props} />
       </Match>
     </Switch>
   );

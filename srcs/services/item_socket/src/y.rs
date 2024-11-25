@@ -1,5 +1,6 @@
 use rmpv::Value;
 use std::sync::Arc;
+use tracing;
 use yrs::{
   sync::{Awareness, AwarenessUpdate},
   updates::{decoder::Decode, encoder::Encode},
@@ -10,7 +11,8 @@ use socketioxide::extract::{AckSender, Data, SocketRef, State};
 
 use crate::GlobalState;
 
-pub fn init_sync_listeners(socket: SocketRef) {
+#[tracing::instrument(skip_all)]
+pub fn init_sync_listeners(socket: &SocketRef) {
   socket.on(
     "sync-step-1",
     |socket: SocketRef,
@@ -45,7 +47,8 @@ pub fn init_sync_listeners(socket: SocketRef) {
   );
 }
 
-pub fn init_awareness_listeners(socket: SocketRef) {
+#[tracing::instrument(skip_all)]
+pub fn init_awareness_listeners(socket: &SocketRef) {
   socket.on(
     "awareness-update",
     |socket: SocketRef, data: Data<Value>, State(GlobalState { documents })| {
@@ -73,6 +76,7 @@ pub fn init_awareness_listeners(socket: SocketRef) {
 //   })
 // }
 
+#[tracing::instrument(skip_all)]
 pub async fn start_synchronization(socket: SocketRef, awareness: Arc<Awareness>) {
   let data = Value::from(awareness.doc().transact_mut().state_vector().encode_v1());
 

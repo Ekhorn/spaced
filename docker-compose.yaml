@@ -6,23 +6,23 @@ x-distroless-tag: &x-distroless-tag DISTROLESS_TAG=${DISTROLESS_TAG:-nonroot}
 
 services:
   # A persistent database for local development.
-  postgres-dev:
-    image: postgres:17
-    restart: always
-    environment:
-      POSTGRES_DB: spaced
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-    ports: ['5432:5432']
-  rabbitmq:
-    image: rabbitmq
-    restart: always
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: password
-    ports:
-      - 5672:5672
-      - 15672:15672
+  # postgres-dev:
+  #   image: postgres:17
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: spaced
+  #     POSTGRES_USER: admin
+  #     POSTGRES_PASSWORD: password
+  #   ports: ['5432:5432']
+  # rabbitmq:
+  #   image: rabbitmq
+  #   restart: always
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: admin
+  #     RABBITMQ_DEFAULT_PASS: password
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
   ###################################
   ###           OPTIONAL          ###
   ###################################
@@ -37,29 +37,39 @@ services:
     ports:
       - 7777:80
   # Spaced services
-  item_producer:
-    image: spaced/item_producer:${IMAGE_TAG:-latest}
+  item_socket:
+    image: spaced/item_socket:${IMAGE_TAG:-latest}
     restart: always
     profiles: ['services']
-    depends_on: [postgres-dev, rabbitmq]
     environment:
-      - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
-      - AMQP_HOST=rabbitmq
       - HOST=0.0.0.0
     build:
-      dockerfile: srcs/services/item_producer/Dockerfile
+      dockerfile: srcs/services/item_socket/Dockerfile
       args: [*x-distroless-tag]
     ports: ['8080:8080']
-  user_service:
-    image: spaced/user_service:${IMAGE_TAG:-latest}
-    restart: always
-    profiles: ['services']
-    depends_on: [postgres-dev]
-    environment:
-      - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
-      - HOST=0.0.0.0
-      - JWT_SECRET=test
-    build:
-      dockerfile: srcs/services/user_service/Dockerfile
-      args: [*x-distroless-tag]
-    ports: ['8081:8081']
+  # item_producer:
+  #   image: spaced/item_producer:${IMAGE_TAG:-latest}
+  #   restart: always
+  #   profiles: ['services']
+  #   depends_on: [postgres-dev, rabbitmq]
+  #   environment:
+  #     - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
+  #     - AMQP_HOST=rabbitmq
+  #     - HOST=0.0.0.0
+  #   build:
+  #     dockerfile: srcs/services/item_producer/Dockerfile
+  #     args: [*x-distroless-tag]
+  #   ports: ['8080:8080']
+  # user_service:
+  # image: spaced/user_service:${IMAGE_TAG:-latest}
+  # restart: always
+  # profiles: ['services']
+  # depends_on: [postgres-dev]
+  # environment:
+  #   - DATABASE_HOST=postgres://admin:password@postgres-dev/spaced
+  #   - HOST=0.0.0.0
+  #   - JWT_SECRET=test
+  # build:
+  #   dockerfile: srcs/services/user_service/Dockerfile
+  #   args: [*x-distroless-tag]
+  # ports: ['8081:8081']
