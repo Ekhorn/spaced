@@ -32,17 +32,10 @@ services:
     restart: always
     profiles: ['nginx', 'services']
     volumes:
-      - ./certbot/www/:/var/www/certbot/:ro
-      - ./config/nginx.conf:/etc/nginx/nginx-prod.conf
+      - ./config/nginx/dev.conf:/etc/nginx/nginx.conf
       - ./dist:/usr/share/nginx/html
     ports:
-      - 80:80
-      - 443:443
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
+      - 7777:80
   # Spaced services
   item_socket:
     image: spaced/item_socket:${IMAGE_TAG:-latest}
