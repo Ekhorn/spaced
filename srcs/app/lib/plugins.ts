@@ -1,6 +1,6 @@
 import {
+  type Descendant,
   Editor,
-  normalizeNode,
   Point,
   Range,
   Element as SlateElement,
@@ -139,7 +139,10 @@ export const withShortcuts = <T extends Editor>(editor: T) => {
   return editor;
 };
 
-export const withValidNode = <T extends Editor>(editor: T) => {
+export const withValidNode = <T extends Editor>(
+  editor: T,
+  initialValue: Descendant[],
+) => {
   const { normalizeNode } = editor;
 
   editor.normalizeNode = (entry) => {
@@ -149,11 +152,7 @@ export const withValidNode = <T extends Editor>(editor: T) => {
       return normalizeNode(entry);
     }
 
-    Transforms.insertNodes(
-      editor,
-      [{ type: 'paragraph', children: [{ text: '' }] }],
-      { at: [0] },
-    );
+    Transforms.insertNodes(editor, initialValue, { at: [0] });
   };
 
   return editor;

@@ -1,4 +1,4 @@
-import { withCursors, withYjs, YjsEditor } from '@slate-yjs/core';
+import { withCursors, withYHistory, withYjs, YjsEditor } from '@slate-yjs/core';
 import {
   type Range,
   type NodeEntry,
@@ -20,7 +20,7 @@ import {
   FaSolidUsersSlash,
   FaSolidXmark,
 } from 'solid-icons/fa';
-import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 
@@ -44,6 +44,16 @@ const HOTKEYS = {
 };
 
 export function CollaborativeEditor(props: RenderProps) {
+  // eslint-disable-next-line solid/reactivity
+  const { initialValue } = props;
+  // TODO: find better solution
+  // eslint-disable-next-line solid/reactivity
+  const init = 'initial' in props.item;
+  if (init) {
+    // eslint-disable-next-line solid/reactivity
+    delete props.item.initial;
+  }
+
   const [connected, setConnected] = createSignal(false);
   const [sharedType, setSharedType] = createSignal<Y.XmlText>();
   const [provider, setProvider] = createSignal<SocketIOProvider>();
@@ -78,17 +88,21 @@ export function CollaborativeEditor(props: RenderProps) {
   const wrapper = () => {
     const editor = withCursors(
       // eslint-disable-next-line solid/reactivity
-      withYjs(createEditor(), sharedType()),
+      withYHistory(withYjs(createEditor(), sharedType())),
       // eslint-disable-next-line solid/reactivity
       provider()?.awareness,
       {
         // The current user's name and color
         data: {
-          name: 'Chris',
-          color: '#00ff00',
+          name: localStorage.getItem('username') ?? '',
+          color: localStorage.getItem('color') ?? '#fff',
         },
       },
     );
+
+    if (init) {
+      withValidNode(editor, initialValue);
+    }
 
     createEffect(() => {
       if (YjsEditor.connect && sharedType() && provider()) {
@@ -102,6 +116,7 @@ export function CollaborativeEditor(props: RenderProps) {
         {...props}
         editor={editor}
         decorate={useDecorateRemoteCursors() as (entry: NodeEntry) => Range[]}
+        connected={connected()}
       />
     );
   };
@@ -120,12 +135,12 @@ function SlateEditor(
   props: RenderProps & {
     editor?: Editor;
     decorate?: (entry: NodeEntry) => Range[];
+    connected?: boolean;
   },
 ) {
   // eslint-disable-next-line solid/reactivity
   const isMarkdown = props.item.editor === 'markdown';
   const plugins: (<T extends CustomEditor>(editor: T) => T)[] = [
-    withValidNode, // TODO: find solution that doesn't add new lines on save
     withDelBackFix,
     withSolid,
     withHistory,
@@ -176,11 +191,6 @@ function SlateEditor(
     });
   };
 
-  onMount(() => {
-    // Prevents the initialValue being replaced by nothing
-    editor.children = props.initialValue;
-  });
-
   return (
     <Slate
       initialValue={props.initialValue}
@@ -227,13 +237,13 @@ function SlateEditor(
             }
           }}
         />
-        <Footer {...props} />
+        <Footer editor={editor} {...props} />
       </div>
     </Slate>
   );
 }
 
-function Footer(props: RenderProps) {
+function Footer(props: RenderProps & { editor: Editor }) {
   const [sharing, setShare] = createSignal<'share' | 'configure' | 'sharing'>(
     // eslint-disable-next-line solid/reactivity
     props.item.shared ? 'sharing' : 'share',
@@ -263,7 +273,9 @@ function Footer(props: RenderProps) {
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    console.log(formData.entries());
+    for (const [key, value] of formData.entries()) {
+      localStorage.setItem(key, value.toString());
+    }
 
     const [item] = await updateItem([
       {
@@ -272,16 +284,38 @@ function Footer(props: RenderProps) {
       },
     ]);
     // eslint-disable-next-line solid/reactivity
-    props.setItems((prev) => prev.with(props.index, item));
+    props.setItems((prev) =>
+      // @ts-expect-error TODO: find better solution
+      prev.with(props.index, { ...item, initial: true }),
+    );
 
     await copyToClipboard();
     setShare('sharing');
   };
 
-  let user: { username: string; color: string };
-  onMount(() => {
-    user = localStorage.getItem('user');
-  });
+  const handleUsername = (event: KeyboardEvent) => {
+    const input = event.target as HTMLInputElement;
+    localStorage.setItem('username', input.value);
+    if ('sendCursorData' in props.editor) {
+      // @ts-expect-error is function
+      props.editor.sendCursorData({
+        name: input.value,
+        color: localStorage.getItem('color') ?? '',
+      });
+    }
+  };
+
+  const handleColor = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    localStorage.setItem('color', input.value);
+    if ('sendCursorData' in props.editor) {
+      // @ts-expect-error is function
+      props.editor.sendCursorData({
+        name: localStorage.getItem('username') ?? '',
+        color: input.value,
+      });
+    }
+  };
 
   return (
     <div class="pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]">
@@ -302,36 +336,40 @@ function Footer(props: RenderProps) {
           <FaSolidShareFromSquare />
         </button>
       </Show>
-      <Show when={sharing() === 'configure'}>
+      <Show when={sharing() === 'configure' || sharing() === 'sharing'}>
         <form class="flex flex-row" onSubmit={submit}>
           <input
             type="text"
             name="username"
             placeholder="username"
             class="w-full rounded-l border-0 bg-white p-1 ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
-            value={user?.username ?? 'TEST'}
+            value={localStorage.getItem('username') ?? ''}
+            onKeyUp={handleUsername}
           />
           <input
             type="color"
             name="color"
             title="Pick a color"
             class="h-5 w-9 cursor-pointer rounded-r border-none p-0 hover:bg-[#ecedef]"
-            value={user?.color ?? 'test'}
+            value={localStorage.getItem('color') ?? ''}
+            onChange={handleColor}
           />
-          <button
-            type="submit"
-            class="rounded px-1 hover:bg-[#ecedef]"
-            title="Share & Copy"
-          >
-            <FaSolidCheck />
-          </button>
-          <button
-            class="rounded px-1 hover:bg-[#ecedef]"
-            title="Cancel"
-            onClick={cancel}
-          >
-            <FaSolidXmark />
-          </button>
+          <Show when={sharing() === 'configure'}>
+            <button
+              type="submit"
+              class="rounded px-1 hover:bg-[#ecedef]"
+              title="Share & Copy"
+            >
+              <FaSolidCheck />
+            </button>
+            <button
+              class="rounded px-1 hover:bg-[#ecedef]"
+              title="Cancel"
+              onClick={cancel}
+            >
+              <FaSolidXmark />
+            </button>
+          </Show>
         </form>
       </Show>
       <Show when={sharing() === 'sharing'}>

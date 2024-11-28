@@ -65,7 +65,8 @@ export function useRemoteCursorStatesSelector<
   // Create a memoized selector that only updates if the selected state actually changes
   const selectedState = createMemo(() => {
     const newSelection = selector(snapshot());
-    const prevSelection = selectedState.peek?.();
+    // @ts-expect-error ignore
+    const prevSelection = selectedState?.().peek?.() as TSelection;
 
     if (
       isEqual

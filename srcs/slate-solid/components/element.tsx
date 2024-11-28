@@ -8,6 +8,7 @@ import {
   type RenderPlaceholderProps,
 } from './editable.js';
 import { Text } from './text.js';
+import { useReadOnly } from '../hooks/use-read-only.js';
 import { useSlateStatic } from '../hooks/use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { getDirection } from '../utils/direction.js';
@@ -30,7 +31,8 @@ export const Element = (props: {
   const defaultEl = (p: RenderElementProps) => <DefaultElement {...p} />;
 
   const editor = useSlateStatic();
-  const readOnly = false; /*useReadOnly();*/
+  const readOnly = useReadOnly();
+
   const ref = (ref: HTMLElement | null) => {
     const key = SolidEditor.findKey(editor, props.element);
     // Update element-related weak maps with the DOM element ref.

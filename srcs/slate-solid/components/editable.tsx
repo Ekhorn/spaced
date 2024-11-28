@@ -16,7 +16,6 @@ import {
   type JSXElement,
   createSignal,
   splitProps,
-  createMemo,
   onCleanup,
   onMount,
   on,
@@ -27,6 +26,9 @@ import {
   type AndroidInputManager,
   useAndroidInputManager,
 } from '../hooks/android-input-manager.js';
+import { ComposingContext } from '../hooks/use-composing.js';
+import { DecorateContext } from '../hooks/use-decorate.js';
+import { ReadOnlyContext } from '../hooks/use-read-only.js';
 import { useSlate, useSlateWithV } from '../hooks/use-slate.js';
 import { useTrackUserInput } from '../hooks/useTrackUserInput.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
@@ -176,13 +178,13 @@ export function Editable(props: EditableProps) {
   const { onUserInput } = useTrackUserInput();
 
   // Keep track of some state for the event handler logic.
-  const state = createMemo(() => ({
+  const state = {
     isDraggingInternally: false,
     isUpdatingSelection: false,
     // eslint-disable-next-line unicorn/no-null
     latestElement: null as DOMElement | null,
     hasMarkPlaceholder: false,
-  }));
+  };
 
   // The autoFocus TextareaHTMLAttribute doesn't do anything on a div, so it
   // needs to be manually focused.
@@ -224,8 +226,8 @@ export function Editable(props: EditableProps) {
     const androidInputManager = androidInputManagerRef?.();
     if (
       (IS_ANDROID || !SolidEditor.isComposing(editor)) &&
-      (!state().isUpdatingSelection || androidInputManager?.isFlushing()) &&
-      !state().isDraggingInternally
+      (!state.isUpdatingSelection || androidInputManager?.isFlushing()) &&
+      !state.isDraggingInternally
     ) {
       const root = SolidEditor.findDocumentOrShadowRoot(editor);
       const { activeElement } = root;
@@ -233,7 +235,7 @@ export function Editable(props: EditableProps) {
       const domSelection = getSelection(root);
 
       if (activeElement === el) {
-        state().latestElement = activeElement;
+        state.latestElement = activeElement;
         IS_FOCUSED.set(editor, true);
       } else {
         IS_FOCUSED.delete(editor);
@@ -385,7 +387,7 @@ export function Editable(props: EditableProps) {
           });
 
           if (slateRange && Range.equals(slateRange, selection)) {
-            if (!state().hasMarkPlaceholder) {
+            if (!state.hasMarkPlaceholder) {
               return;
             }
 
@@ -413,7 +415,7 @@ export function Editable(props: EditableProps) {
         }
 
         // Otherwise the DOM selection is out of sync, so update it.
-        state().isUpdatingSelection = true;
+        state.isUpdatingSelection = true;
 
         const newDomRange: DOMRange | null =
           selection && SolidEditor.toDOMRange(editor, selection);
@@ -457,7 +459,7 @@ export function Editable(props: EditableProps) {
 
       if (!IS_ANDROID || !ensureSelection) {
         setTimeout(() => {
-          state().isUpdatingSelection = false;
+          state.isUpdatingSelection = false;
         });
         return;
       }
@@ -487,7 +489,7 @@ export function Editable(props: EditableProps) {
             // it doesn't update GBoards spellchecker state. We have to manually trigger a selection change after
             // the animation frame to ensure it displays the correct state.
             ensureDomSelection(true);
-            state().isUpdatingSelection = false;
+            state.isUpdatingSelection = false;
           });
         }
       });
@@ -823,46 +825,47 @@ export function Editable(props: EditableProps) {
   };
 
   createEffect(
-    on(state, (state) => {
-      const window = SolidEditor.getWindow(editor);
+    on(
+      () => state,
+      (state) => {
+        const window = SolidEditor.getWindow(editor);
 
-      // Attach a native DOM event handler for `selectionchange`, because React's
-      // built-in `onSelect` handler doesn't fire for all selection changes. It's
-      // a leaky polyfill that only fires on keypresses or clicks. Instead, we
-      // want to fire for any change to the selection inside the editor.
-      // (2019/11/04) https://github.com/facebook/react/issues/5785
-      window.document.addEventListener(
-        'selectionchange',
-        scheduleOnDOMSelectionChange,
-      );
-
-      // Listen for dragend and drop globally. In Firefox, if a drop handler
-      // initiates an operation that causes the originally dragged element to
-      // unmount, that element will not emit a dragend event. (2024/06/21)
-      const stoppedDragging = () => {
-        state.isDraggingInternally = false;
-      };
-      window.document.addEventListener('dragend', stoppedDragging);
-      window.document.addEventListener('drop', stoppedDragging);
-
-      onCleanup(() => {
-        window.document.removeEventListener(
+        // Attach a native DOM event handler for `selectionchange`, because React's
+        // built-in `onSelect` handler doesn't fire for all selection changes. It's
+        // a leaky polyfill that only fires on keypresses or clicks. Instead, we
+        // want to fire for any change to the selection inside the editor.
+        // (2019/11/04) https://github.com/facebook/react/issues/5785
+        window.document.addEventListener(
           'selectionchange',
           scheduleOnDOMSelectionChange,
         );
-        window.document.removeEventListener('dragend', stoppedDragging);
-        window.document.removeEventListener('drop', stoppedDragging);
-      });
-    }),
+
+        // Listen for dragend and drop globally. In Firefox, if a drop handler
+        // initiates an operation that causes the originally dragged element to
+        // unmount, that element will not emit a dragend event. (2024/06/21)
+        const stoppedDragging = () => {
+          state.isDraggingInternally = false;
+        };
+        window.document.addEventListener('dragend', stoppedDragging);
+        window.document.addEventListener('drop', stoppedDragging);
+
+        onCleanup(() => {
+          window.document.removeEventListener(
+            'selectionchange',
+            scheduleOnDOMSelectionChange,
+          );
+          window.document.removeEventListener('dragend', stoppedDragging);
+          window.document.removeEventListener('drop', stoppedDragging);
+        });
+      },
+    ),
   );
 
   // Update EDITOR_TO_MARK_PLACEHOLDER_MARKS in setTimeout useEffect to ensure we don't set it
   // before we receive the composition end event.
   createEffect(
     on(ctx, () => {
-      const decorations =
-        (props.decorate ?? defaultDecorate)([editor, []]) ?? defaultDecorate;
-
+      const decorations = (props.decorate ?? defaultDecorate)([editor, []]);
       const showPlaceholder =
         props.placeholder &&
         editor.children.length === 1 &&
@@ -890,7 +893,7 @@ export function Editable(props: EditableProps) {
       }
 
       const { marks } = editor;
-      state().hasMarkPlaceholder = false;
+      state.hasMarkPlaceholder = false;
 
       if (editor.selection && Range.isCollapsed(editor.selection) && marks) {
         const { anchor } = editor.selection;
@@ -901,7 +904,7 @@ export function Editable(props: EditableProps) {
         // While marks isn't a 'complete' text, we can still use loose Text.equals
         // here which only compares marks anyway.
         if (!Text.equals(leaf, marks as Text, { loose: true })) {
-          state().hasMarkPlaceholder = true;
+          state.hasMarkPlaceholder = true;
 
           const unset = Object.fromEntries(
             Object.keys(rest).map((mark) => [mark, null]),
@@ -938,740 +941,778 @@ export function Editable(props: EditableProps) {
   );
 
   return (
-    <div
-      role={slate.readOnly ? undefined : 'textbox'}
-      aria-multiline={slate.readOnly ? undefined : true}
-      {...attributes}
-      spellCheck={
-        HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM ? attributes.spellCheck : false
-      }
-      autoCorrect={
-        HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
-          ? attributes.autoCorrect
-          : 'false'
-      }
-      autoCapitalize={
-        HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
-          ? attributes.autoCapitalize
-          : 'false'
-      }
-      data-slate-editor
-      data-slate-node="value"
-      contentEditable={!slate.readOnly}
-      // eslint-disable-next-line solid/reactivity
-      ref={callbackRef}
-      style={{
-        ...(props.disableDefaultStyles
-          ? {}
-          : {
-              // in some cases, a decoration needs access to the range / selection to decorate a text node,
-              // then you will select the whole text node when you select part the of text
-              // this magic zIndex="-1" will fix it
-              'z-index': -1,
-              // Allow positioning relative to the editable element.
-              position: 'relative',
-              // Preserve adjacent whitespace and new lines.
-              'white-space': 'pre-wrap',
-              // Allow words to break if they are too long.
-              'word-wrap': 'break-word',
-              // Make the minimum height that of the placeholder.
-              ...(placeholderHeight()
-                ? { minHeight: placeholderHeight() }
-                : {}),
-            }),
-        // Allow for passed-in styles to override anything.
-        ...props?.style,
-      }}
-      onBeforeInput={(event) => {
-        // COMPAT: Certain browsers don't support the `beforeinput` event, so we
-        // fall back to React's leaky polyfill instead just for it. It
-        // only works for the `insertText` input type.
-        if (
-          !HAS_BEFORE_INPUT_SUPPORT &&
-          !slate.readOnly &&
-          !isEventHandled(event, attributes.onBeforeInput) &&
-          SolidEditor.hasSelectableTarget(editor, event.target)
-        ) {
-          event.preventDefault();
-          if (!SolidEditor.isComposing(editor)) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const text = (event as any).data as string;
-            Editor.insertText(editor, text);
-          }
-        }
-      }}
-      onInput={(event) => {
-        if (isEventHandled(event, attributes.onInput)) {
-          return;
-        }
-
-        if (androidInputManagerRef?.()) {
-          androidInputManagerRef?.().handleInput();
-          return;
-        }
-
-        // Flush native operations, as native events will have propogated
-        // and we can correctly compare DOM text values in components
-        // to stop rendering, so that browser functions like autocorrect
-        // and spellcheck work as expected.
-        for (const op of deferredOperations) {
-          op();
-        }
-        deferredOperations = [];
-      }}
-      onBlur={(event) => {
-        if (
-          slate.readOnly ||
-          state().isUpdatingSelection ||
-          !SolidEditor.hasSelectableTarget(editor, event.target) ||
-          isEventHandled(event, attributes.onBlur)
-        ) {
-          return;
-        }
-
-        // COMPAT: If the current `activeElement` is still the previous
-        // one, this is due to the window being blurred when the tab
-        // itself becomes unfocused, so we want to abort early to allow to
-        // editor to stay focused when the tab becomes focused again.
-        const root = SolidEditor.findDocumentOrShadowRoot(editor);
-        if (state().latestElement === root.activeElement) {
-          return;
-        }
-
-        const { relatedTarget } = event;
-        const el = SolidEditor.toDOMNode(editor, editor);
-
-        // COMPAT: The event should be ignored if the focus is returning
-        // to the editor from an embedded editable element (eg. an <input>
-        // element inside a void node).
-        if (relatedTarget === el) {
-          return;
-        }
-
-        // COMPAT: The event should be ignored if the focus is moving from
-        // the editor to inside a void node's spacer element.
-        if (
-          isDOMElement(relatedTarget) &&
-          // @ts-expect-error missing dataset
-          Object.hasOwn(relatedTarget.dataset, 'slateSpacer')
-        ) {
-          return;
-        }
-
-        // COMPAT: The event should be ignored if the focus is moving to a
-        // non- editable section of an element that isn't a void node (eg.
-        // a list item of the check list example).
-        if (
-          relatedTarget != undefined &&
-          isDOMNode(relatedTarget) &&
-          SolidEditor.hasDOMNode(editor, relatedTarget)
-        ) {
-          const node = SolidEditor.toSlateNode(editor, relatedTarget);
-
-          if (Element.isElement(node) && !editor.isVoid(node)) {
-            return;
-          }
-        }
-
-        // COMPAT: Safari doesn't always remove the selection even if the content-
-        // editable element no longer has focus. Refer to:
-        // https://stackoverflow.com/questions/12353247/force-contenteditable-div-to-stop-accepting-input-after-it-loses-focus-under-web
-        if (IS_WEBKIT) {
-          const domSelection = getSelection(root);
-          domSelection?.removeAllRanges();
-        }
-
-        IS_FOCUSED.delete(editor);
-      }}
-      onClick={(event) => {
-        if (
-          SolidEditor.hasTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onClick) &&
-          isDOMNode(event.target)
-        ) {
-          const node = SolidEditor.toSlateNode(editor, event.target);
-          const path = SolidEditor.findPath(editor, node);
-
-          // At this time, the Slate document may be arbitrarily different,
-          // because onClick handlers can change the document before we get here.
-          // Therefore we must check that this path actually exists,
-          // and that it still refers to the same node.
-          if (
-            !Editor.hasPath(editor, path) ||
-            Node.get(editor, path) !== node
-          ) {
-            return;
-          }
-
-          if (event.detail === TRIPLE_CLICK && path.length > 0) {
-            let blockPath = path;
-            if (!(Element.isElement(node) && Editor.isBlock(editor, node))) {
-              const block = Editor.above(editor, {
-                match: (n) => Element.isElement(n) && Editor.isBlock(editor, n),
-                at: path,
-              });
-
-              blockPath = block?.[1] ?? path.slice(0, 1);
+    // eslint-disable-next-line solid/reactivity
+    <ReadOnlyContext.Provider value={!!props.readOnly}>
+      {/* eslint-disable-next-line solid/reactivity */}
+      <ComposingContext.Provider value={isComposing()}>
+        {/* eslint-disable-next-line solid/reactivity */}
+        <DecorateContext.Provider value={props.decorate ?? defaultDecorate}>
+          <div
+            role={slate.readOnly ? undefined : 'textbox'}
+            aria-multiline={slate.readOnly ? undefined : true}
+            {...attributes}
+            spellCheck={
+              HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+                ? attributes.spellCheck
+                : false
             }
-
-            const range = Editor.range(editor, blockPath);
-            Transforms.select(editor, range);
-            return;
-          }
-
-          if (slate.readOnly) {
-            return;
-          }
-
-          const start = Editor.start(editor, path);
-          const end = Editor.end(editor, path);
-          const startVoid = Editor.void(editor, { at: start });
-          const endVoid = Editor.void(editor, { at: end });
-
-          if (startVoid && endVoid && Path.equals(startVoid[1], endVoid[1])) {
-            const range = Editor.range(editor, start);
-            Transforms.select(editor, range);
-          }
-        }
-      }}
-      onCompositionEnd={(event) => {
-        if (SolidEditor.hasSelectableTarget(editor, event.target)) {
-          if (SolidEditor.isComposing(editor)) {
-            Promise.resolve().then(() => {
-              setIsComposing(false);
-              IS_COMPOSING.set(editor, false);
-            });
-          }
-
-          androidInputManagerRef?.()?.handleCompositionEnd(event);
-
-          if (
-            isEventHandled(event, attributes.onCompositionEnd) ||
-            IS_ANDROID
-          ) {
-            return;
-          }
-
-          // COMPAT: In Chrome, `beforeinput` events for compositions
-          // aren't correct and never fire the "insertFromComposition"
-          // type that we need. So instead, insert whenever a composition
-          // ends since it will already have been committed to the DOM.
-          if (
-            !IS_WEBKIT &&
-            !IS_FIREFOX_LEGACY &&
-            !IS_IOS &&
-            !IS_WECHATBROWSER &&
-            !IS_UC_MOBILE &&
-            event.data
-          ) {
-            const placeholderMarks =
-              EDITOR_TO_PENDING_INSERTION_MARKS.get(editor);
-            EDITOR_TO_PENDING_INSERTION_MARKS.delete(editor);
-
-            // Ensure we insert text with the marks the user was actually seeing
-            if (placeholderMarks !== undefined) {
-              EDITOR_TO_USER_MARKS.set(editor, editor.marks);
-              editor.marks = placeholderMarks;
+            autoCorrect={
+              HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+                ? attributes.autoCorrect
+                : 'false'
             }
-
-            Editor.insertText(editor, event.data);
-
-            const userMarks = EDITOR_TO_USER_MARKS.get(editor);
-            EDITOR_TO_USER_MARKS.delete(editor);
-            if (userMarks !== undefined) {
-              editor.marks = userMarks;
+            autoCapitalize={
+              HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+                ? attributes.autoCapitalize
+                : 'false'
             }
-          }
-        }
-      }}
-      onCompositionUpdate={(event) => {
-        if (
-          SolidEditor.hasSelectableTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onCompositionUpdate) &&
-          !SolidEditor.isComposing(editor)
-        ) {
-          setIsComposing(true);
-          IS_COMPOSING.set(editor, true);
-        }
-      }}
-      onCompositionStart={(event) => {
-        if (SolidEditor.hasSelectableTarget(editor, event.target)) {
-          androidInputManagerRef?.()?.handleCompositionStart(event);
-
-          if (
-            isEventHandled(event, attributes.onCompositionStart) ||
-            IS_ANDROID
-          ) {
-            return;
-          }
-
-          setIsComposing(true);
-
-          const { selection } = editor;
-          if (selection && Range.isExpanded(selection)) {
-            Editor.deleteFragment(editor);
-            return;
-          }
-        }
-      }}
-      onCopy={(event) => {
-        if (
-          SolidEditor.hasSelectableTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onCopy) &&
-          !isDOMEventTargetInput(event)
-        ) {
-          event.preventDefault();
-          SolidEditor.setFragmentData(editor, event.clipboardData!, 'copy');
-        }
-      }}
-      onCut={(event) => {
-        if (
-          !slate.readOnly &&
-          SolidEditor.hasSelectableTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onCut) &&
-          !isDOMEventTargetInput(event)
-        ) {
-          event.preventDefault();
-          SolidEditor.setFragmentData(editor, event.clipboardData!, 'cut');
-          const { selection } = editor;
-
-          if (selection) {
-            if (Range.isExpanded(selection)) {
-              Editor.deleteFragment(editor);
-            } else {
-              const node = Node.parent(editor, selection.anchor.path);
-              if (Editor.isVoid(editor, node as Element)) {
-                Transforms.delete(editor);
-              }
-            }
-          }
-        }
-      }}
-      onDragOver={(event) => {
-        if (
-          SolidEditor.hasTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onDragOver)
-        ) {
-          // Only when the target is void, call `preventDefault` to signal
-          // that drops are allowed. Editable content is droppable by
-          // default, and calling `preventDefault` hides the cursor.
-          const node = SolidEditor.toSlateNode(editor, event.target);
-
-          if (Element.isElement(node) && Editor.isVoid(editor, node)) {
-            event.preventDefault();
-          }
-        }
-      }}
-      onDragStart={(event) => {
-        if (
-          !slate.readOnly &&
-          SolidEditor.hasTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onDragStart)
-        ) {
-          const node = SolidEditor.toSlateNode(editor, event.target);
-          const path = SolidEditor.findPath(editor, node);
-          const voidMatch =
-            (Element.isElement(node) && Editor.isVoid(editor, node)) ||
-            Editor.void(editor, { at: path, voids: true });
-
-          // If starting a drag on a void node, make sure it is selected
-          // so that it shows up in the selection's fragment.
-          if (voidMatch) {
-            const range = Editor.range(editor, path);
-            Transforms.select(editor, range);
-          }
-
-          state().isDraggingInternally = true;
-
-          SolidEditor.setFragmentData(editor, event.dataTransfer!, 'drag');
-        }
-      }}
-      onDrop={(event) => {
-        if (
-          !slate.readOnly &&
-          SolidEditor.hasTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onDrop)
-        ) {
-          event.preventDefault();
-
-          // Keep a reference to the dragged range before updating selection
-          const draggedRange = editor.selection;
-
-          // Find the range where the drop happened
-          const range = SolidEditor.findEventRange(editor, event);
-          const data = event.dataTransfer;
-
-          Transforms.select(editor, range);
-
-          if (
-            state().isDraggingInternally &&
-            draggedRange &&
-            !Range.equals(draggedRange, range) &&
-            !Editor.void(editor, { at: range, voids: true })
-          ) {
-            Transforms.delete(editor, {
-              at: draggedRange,
-            });
-          }
-
-          SolidEditor.insertData(editor, data!);
-
-          // When dragging from another source into the editor, it's possible
-          // that the current editor does not have focus.
-          if (!SolidEditor.isFocused(editor)) {
-            SolidEditor.focus(editor);
-          }
-        }
-      }}
-      onDragEnd={(event) => {
-        if (
-          !slate.readOnly &&
-          state().isDraggingInternally &&
-          attributes.onDragEnd &&
-          SolidEditor.hasTarget(editor, event.target)
-        ) {
-          attributes.onDragEnd(event);
-        }
-      }}
-      onFocus={(event) => {
-        if (
-          !slate.readOnly &&
-          !state().isUpdatingSelection &&
-          // SOLID: runs the event handler before createEffect can set the editor ref, and createRenderEffect runs before refs are set.
-          NODE_TO_ELEMENT.has(editor) &&
-          SolidEditor.hasEditableTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onFocus)
-        ) {
-          const el = SolidEditor.toDOMNode(editor, editor);
-          const root = SolidEditor.findDocumentOrShadowRoot(editor);
-          state().latestElement = root.activeElement;
-
-          // COMPAT: If the editor has nested editable elements, the focus
-          // can go to them. In Firefox, this must be prevented because it
-          // results in issues with keyboard navigation. (2017/03/30)
-          if (IS_FIREFOX && event.target !== el) {
-            el.focus();
-            return;
-          }
-
-          IS_FOCUSED.set(editor, true);
-        }
-      }}
-      onKeyDown={(event) => {
-        if (
-          !slate.readOnly &&
-          SolidEditor.hasEditableTarget(editor, event.target)
-        ) {
-          androidInputManagerRef?.()?.handleKeyDown(event);
-
-          // COMPAT: The composition end event isn't fired reliably in all browsers,
-          // so we sometimes might end up stuck in a composition state even though we
-          // aren't composing any more.
-          if (SolidEditor.isComposing(editor) && event.isComposing === false) {
-            IS_COMPOSING.set(editor, false);
-            setIsComposing(false);
-          }
-
-          if (
-            isEventHandled(event, attributes.onKeyDown) ||
-            SolidEditor.isComposing(editor)
-          ) {
-            return;
-          }
-
-          const { selection } = editor;
-          const element =
-            editor.children[selection === null ? 0 : selection.focus.path[0]];
-          const isRTL = getDirection(Node.string(element)) === 'rtl';
-
-          // COMPAT: Since we prevent the default behavior on
-          // `beforeinput` events, the browser doesn't think there's ever
-          // any history stack to undo or redo, so we have to manage these
-          // hotkeys ourselves. (2019/11/06)
-          if (Hotkeys.isRedo(event)) {
-            event.preventDefault();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const maybeHistoryEditor: any = editor;
-
-            if (typeof maybeHistoryEditor.redo === 'function') {
-              maybeHistoryEditor.redo();
-            }
-
-            return;
-          }
-
-          if (Hotkeys.isUndo(event)) {
-            event.preventDefault();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const maybeHistoryEditor: any = editor;
-
-            if (typeof maybeHistoryEditor.undo === 'function') {
-              maybeHistoryEditor.undo();
-            }
-
-            return;
-          }
-
-          // COMPAT: Certain browsers don't handle the selection updates
-          // properly. In Chrome, the selection isn't properly extended.
-          // And in Firefox, the selection isn't properly collapsed.
-          // (2017/10/17)
-          if (Hotkeys.isMoveLineBackward(event)) {
-            event.preventDefault();
-            Transforms.move(editor, { unit: 'line', reverse: true });
-            return;
-          }
-
-          if (Hotkeys.isMoveLineForward(event)) {
-            event.preventDefault();
-            Transforms.move(editor, { unit: 'line' });
-            return;
-          }
-
-          if (Hotkeys.isExtendLineBackward(event)) {
-            event.preventDefault();
-            Transforms.move(editor, {
-              unit: 'line',
-              edge: 'focus',
-              reverse: true,
-            });
-            return;
-          }
-
-          if (Hotkeys.isExtendLineForward(event)) {
-            event.preventDefault();
-            Transforms.move(editor, { unit: 'line', edge: 'focus' });
-            return;
-          }
-
-          // COMPAT: If a void node is selected, or a zero-width text node
-          // adjacent to an inline is selected, we need to handle these
-          // hotkeys manually because browsers won't be able to skip over
-          // the void node with the zero-width space not being an empty
-          // string.
-          if (Hotkeys.isMoveBackward(event)) {
-            event.preventDefault();
-
-            if (selection && Range.isCollapsed(selection)) {
-              Transforms.move(editor, { reverse: !isRTL });
-            } else {
-              Transforms.collapse(editor, {
-                edge: isRTL ? 'end' : 'start',
-              });
-            }
-
-            return;
-          }
-
-          if (Hotkeys.isMoveForward(event)) {
-            event.preventDefault();
-
-            if (selection && Range.isCollapsed(selection)) {
-              Transforms.move(editor, { reverse: isRTL });
-            } else {
-              Transforms.collapse(editor, {
-                edge: isRTL ? 'start' : 'end',
-              });
-            }
-
-            return;
-          }
-
-          if (Hotkeys.isMoveWordBackward(event)) {
-            event.preventDefault();
-
-            if (selection && Range.isExpanded(selection)) {
-              Transforms.collapse(editor, { edge: 'focus' });
-            }
-
-            Transforms.move(editor, {
-              unit: 'word',
-              reverse: !isRTL,
-            });
-            return;
-          }
-
-          if (Hotkeys.isMoveWordForward(event)) {
-            event.preventDefault();
-
-            if (selection && Range.isExpanded(selection)) {
-              Transforms.collapse(editor, { edge: 'focus' });
-            }
-
-            Transforms.move(editor, {
-              unit: 'word',
-              reverse: isRTL,
-            });
-            return;
-          }
-
-          // COMPAT: Certain browsers don't support the `beforeinput` event, so we
-          // fall back to guessing at the input intention for hotkeys.
-          // COMPAT: In iOS, some of these hotkeys are handled in the
-          // eslint-disable-next-line unicorn/no-negated-condition
-          if (!HAS_BEFORE_INPUT_SUPPORT) {
-            // We don't have a core behavior for these, but they change the
-            // DOM if we don't prevent them, so we have to.
-            if (
-              Hotkeys.isBold(event) ||
-              Hotkeys.isItalic(event) ||
-              Hotkeys.isTransposeCharacter(event)
-            ) {
-              event.preventDefault();
-              return;
-            }
-
-            if (Hotkeys.isSoftBreak(event)) {
-              event.preventDefault();
-              Editor.insertSoftBreak(editor);
-              return;
-            }
-
-            if (Hotkeys.isSplitBlock(event)) {
-              event.preventDefault();
-              Editor.insertBreak(editor);
-              return;
-            }
-
-            if (Hotkeys.isDeleteBackward(event)) {
-              event.preventDefault();
-
-              if (selection && Range.isExpanded(selection)) {
-                Editor.deleteFragment(editor, {
-                  direction: 'backward',
-                });
-              } else {
-                Editor.deleteBackward(editor);
-              }
-
-              return;
-            }
-
-            if (Hotkeys.isDeleteForward(event)) {
-              event.preventDefault();
-
-              if (selection && Range.isExpanded(selection)) {
-                Editor.deleteFragment(editor, {
-                  direction: 'forward',
-                });
-              } else {
-                Editor.deleteForward(editor);
-              }
-
-              return;
-            }
-
-            if (Hotkeys.isDeleteLineBackward(event)) {
-              event.preventDefault();
-
-              if (selection && Range.isExpanded(selection)) {
-                Editor.deleteFragment(editor, {
-                  direction: 'backward',
-                });
-              } else {
-                Editor.deleteBackward(editor, { unit: 'line' });
-              }
-
-              return;
-            }
-
-            if (Hotkeys.isDeleteLineForward(event)) {
-              event.preventDefault();
-
-              if (selection && Range.isExpanded(selection)) {
-                Editor.deleteFragment(editor, {
-                  direction: 'forward',
-                });
-              } else {
-                Editor.deleteForward(editor, { unit: 'line' });
-              }
-
-              return;
-            }
-
-            if (Hotkeys.isDeleteWordBackward(event)) {
-              event.preventDefault();
-
-              if (selection && Range.isExpanded(selection)) {
-                Editor.deleteFragment(editor, {
-                  direction: 'backward',
-                });
-              } else {
-                Editor.deleteBackward(editor, { unit: 'word' });
-              }
-
-              return;
-            }
-
-            if (Hotkeys.isDeleteWordForward(event)) {
-              event.preventDefault();
-
-              if (selection && Range.isExpanded(selection)) {
-                Editor.deleteFragment(editor, {
-                  direction: 'forward',
-                });
-              } else {
-                Editor.deleteForward(editor, { unit: 'word' });
-              }
-
-              return;
-            }
-          } else {
-            // COMPAT: Chrome and Safari support `beforeinput` event but do not fire
-            // an event when deleting backwards in a selected void inline node
-            if (
-              (IS_CHROME || IS_WEBKIT) &&
-              selection &&
-              (Hotkeys.isDeleteBackward(event) ||
-                Hotkeys.isDeleteForward(event)) &&
-              Range.isCollapsed(selection)
-            ) {
-              const currentNode = Node.parent(editor, selection.anchor.path);
-
+            data-slate-editor
+            data-slate-node="value"
+            contentEditable={!slate.readOnly}
+            // eslint-disable-next-line solid/reactivity
+            ref={callbackRef}
+            style={{
+              ...(props.disableDefaultStyles
+                ? {}
+                : {
+                    // in some cases, a decoration needs access to the range / selection to decorate a text node,
+                    // then you will select the whole text node when you select part the of text
+                    // this magic zIndex="-1" will fix it
+                    'z-index': -1,
+                    // Allow positioning relative to the editable element.
+                    position: 'relative',
+                    // Preserve adjacent whitespace and new lines.
+                    'white-space': 'pre-wrap',
+                    // Allow words to break if they are too long.
+                    'word-wrap': 'break-word',
+                    // Make the minimum height that of the placeholder.
+                    ...(placeholderHeight()
+                      ? { minHeight: placeholderHeight() }
+                      : {}),
+                  }),
+              // Allow for passed-in styles to override anything.
+              ...props?.style,
+            }}
+            onBeforeInput={(event) => {
+              // COMPAT: Certain browsers don't support the `beforeinput` event, so we
+              // fall back to React's leaky polyfill instead just for it. It
+              // only works for the `insertText` input type.
               if (
-                Element.isElement(currentNode) &&
-                Editor.isVoid(editor, currentNode) &&
-                (Editor.isInline(editor, currentNode) ||
-                  Editor.isBlock(editor, currentNode))
+                !HAS_BEFORE_INPUT_SUPPORT &&
+                !slate.readOnly &&
+                !isEventHandled(event, attributes.onBeforeInput) &&
+                SolidEditor.hasSelectableTarget(editor, event.target)
               ) {
                 event.preventDefault();
-                Editor.deleteBackward(editor, { unit: 'block' });
-
+                if (!SolidEditor.isComposing(editor)) {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const text = (event as any).data as string;
+                  Editor.insertText(editor, text);
+                }
+              }
+            }}
+            onInput={(event) => {
+              if (isEventHandled(event, attributes.onInput)) {
                 return;
               }
-            }
-          }
-        }
-      }}
-      onPaste={(event) => {
-        if (
-          !slate.readOnly &&
-          SolidEditor.hasEditableTarget(editor, event.target) &&
-          !isEventHandled(event, attributes.onPaste) && // COMPAT: Certain browsers don't support the `beforeinput` event, so we
-          // fall back to React's `onPaste` here instead.
-          // COMPAT: Firefox, Chrome and Safari don't emit `beforeinput` events
-          // when "paste without formatting" is used, so fallback. (2020/02/20)
-          // COMPAT: Safari InputEvents generated by pasting won't include
-          // application/x-slate-fragment items, so use the
-          // ClipboardEvent here. (2023/03/15)
-          (!HAS_BEFORE_INPUT_SUPPORT ||
-            isPlainTextOnlyPaste(event) ||
-            IS_WEBKIT)
-        ) {
-          event.preventDefault();
-          SolidEditor.insertData(editor, event.clipboardData!);
-        }
-      }}
-    >
-      <Children
-        decorations={(props.decorate && props.decorate([editor, []])) || []}
-        node={editor}
-        renderElement={props.renderElement}
-        renderPlaceholder={props.renderPlaceholder!}
-        renderLeaf={props.renderLeaf}
-        selection={editor.selection}
-      />
-    </div>
+
+              if (androidInputManagerRef?.()) {
+                androidInputManagerRef?.().handleInput();
+                return;
+              }
+
+              // Flush native operations, as native events will have propogated
+              // and we can correctly compare DOM text values in components
+              // to stop rendering, so that browser functions like autocorrect
+              // and spellcheck work as expected.
+              for (const op of deferredOperations) {
+                op();
+              }
+              deferredOperations = [];
+            }}
+            onBlur={(event) => {
+              if (
+                slate.readOnly ||
+                state.isUpdatingSelection ||
+                !SolidEditor.hasSelectableTarget(editor, event.target) ||
+                isEventHandled(event, attributes.onBlur)
+              ) {
+                return;
+              }
+
+              // COMPAT: If the current `activeElement` is still the previous
+              // one, this is due to the window being blurred when the tab
+              // itself becomes unfocused, so we want to abort early to allow to
+              // editor to stay focused when the tab becomes focused again.
+              const root = SolidEditor.findDocumentOrShadowRoot(editor);
+              if (state.latestElement === root.activeElement) {
+                return;
+              }
+
+              const { relatedTarget } = event;
+              const el = SolidEditor.toDOMNode(editor, editor);
+
+              // COMPAT: The event should be ignored if the focus is returning
+              // to the editor from an embedded editable element (eg. an <input>
+              // element inside a void node).
+              if (relatedTarget === el) {
+                return;
+              }
+
+              // COMPAT: The event should be ignored if the focus is moving from
+              // the editor to inside a void node's spacer element.
+              if (
+                isDOMElement(relatedTarget) &&
+                // @ts-expect-error missing dataset
+                Object.hasOwn(relatedTarget.dataset, 'slateSpacer')
+              ) {
+                return;
+              }
+
+              // COMPAT: The event should be ignored if the focus is moving to a
+              // non- editable section of an element that isn't a void node (eg.
+              // a list item of the check list example).
+              if (
+                relatedTarget != undefined &&
+                isDOMNode(relatedTarget) &&
+                SolidEditor.hasDOMNode(editor, relatedTarget)
+              ) {
+                const node = SolidEditor.toSlateNode(editor, relatedTarget);
+
+                if (Element.isElement(node) && !editor.isVoid(node)) {
+                  return;
+                }
+              }
+
+              // COMPAT: Safari doesn't always remove the selection even if the content-
+              // editable element no longer has focus. Refer to:
+              // https://stackoverflow.com/questions/12353247/force-contenteditable-div-to-stop-accepting-input-after-it-loses-focus-under-web
+              if (IS_WEBKIT) {
+                const domSelection = getSelection(root);
+                domSelection?.removeAllRanges();
+              }
+
+              IS_FOCUSED.delete(editor);
+            }}
+            onClick={(event) => {
+              if (
+                SolidEditor.hasTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onClick) &&
+                isDOMNode(event.target)
+              ) {
+                const node = SolidEditor.toSlateNode(editor, event.target);
+                const path = SolidEditor.findPath(editor, node);
+
+                // At this time, the Slate document may be arbitrarily different,
+                // because onClick handlers can change the document before we get here.
+                // Therefore we must check that this path actually exists,
+                // and that it still refers to the same node.
+                if (
+                  !Editor.hasPath(editor, path) ||
+                  Node.get(editor, path) !== node
+                ) {
+                  return;
+                }
+
+                if (event.detail === TRIPLE_CLICK && path.length > 0) {
+                  let blockPath = path;
+                  if (
+                    !(Element.isElement(node) && Editor.isBlock(editor, node))
+                  ) {
+                    const block = Editor.above(editor, {
+                      match: (n) =>
+                        Element.isElement(n) && Editor.isBlock(editor, n),
+                      at: path,
+                    });
+
+                    blockPath = block?.[1] ?? path.slice(0, 1);
+                  }
+
+                  const range = Editor.range(editor, blockPath);
+                  Transforms.select(editor, range);
+                  return;
+                }
+
+                if (slate.readOnly) {
+                  return;
+                }
+
+                const start = Editor.start(editor, path);
+                const end = Editor.end(editor, path);
+                const startVoid = Editor.void(editor, { at: start });
+                const endVoid = Editor.void(editor, { at: end });
+
+                if (
+                  startVoid &&
+                  endVoid &&
+                  Path.equals(startVoid[1], endVoid[1])
+                ) {
+                  const range = Editor.range(editor, start);
+                  Transforms.select(editor, range);
+                }
+              }
+            }}
+            onCompositionEnd={(event) => {
+              if (SolidEditor.hasSelectableTarget(editor, event.target)) {
+                if (SolidEditor.isComposing(editor)) {
+                  Promise.resolve().then(() => {
+                    setIsComposing(false);
+                    IS_COMPOSING.set(editor, false);
+                  });
+                }
+
+                androidInputManagerRef?.()?.handleCompositionEnd(event);
+
+                if (
+                  isEventHandled(event, attributes.onCompositionEnd) ||
+                  IS_ANDROID
+                ) {
+                  return;
+                }
+
+                // COMPAT: In Chrome, `beforeinput` events for compositions
+                // aren't correct and never fire the "insertFromComposition"
+                // type that we need. So instead, insert whenever a composition
+                // ends since it will already have been committed to the DOM.
+                if (
+                  !IS_WEBKIT &&
+                  !IS_FIREFOX_LEGACY &&
+                  !IS_IOS &&
+                  !IS_WECHATBROWSER &&
+                  !IS_UC_MOBILE &&
+                  event.data
+                ) {
+                  const placeholderMarks =
+                    EDITOR_TO_PENDING_INSERTION_MARKS.get(editor);
+                  EDITOR_TO_PENDING_INSERTION_MARKS.delete(editor);
+
+                  // Ensure we insert text with the marks the user was actually seeing
+                  if (placeholderMarks !== undefined) {
+                    EDITOR_TO_USER_MARKS.set(editor, editor.marks);
+                    editor.marks = placeholderMarks;
+                  }
+
+                  Editor.insertText(editor, event.data);
+
+                  const userMarks = EDITOR_TO_USER_MARKS.get(editor);
+                  EDITOR_TO_USER_MARKS.delete(editor);
+                  if (userMarks !== undefined) {
+                    editor.marks = userMarks;
+                  }
+                }
+              }
+            }}
+            onCompositionUpdate={(event) => {
+              if (
+                SolidEditor.hasSelectableTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onCompositionUpdate) &&
+                !SolidEditor.isComposing(editor)
+              ) {
+                setIsComposing(true);
+                IS_COMPOSING.set(editor, true);
+              }
+            }}
+            onCompositionStart={(event) => {
+              if (SolidEditor.hasSelectableTarget(editor, event.target)) {
+                androidInputManagerRef?.()?.handleCompositionStart(event);
+
+                if (
+                  isEventHandled(event, attributes.onCompositionStart) ||
+                  IS_ANDROID
+                ) {
+                  return;
+                }
+
+                setIsComposing(true);
+
+                const { selection } = editor;
+                if (selection && Range.isExpanded(selection)) {
+                  Editor.deleteFragment(editor);
+                  return;
+                }
+              }
+            }}
+            onCopy={(event) => {
+              if (
+                SolidEditor.hasSelectableTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onCopy) &&
+                !isDOMEventTargetInput(event)
+              ) {
+                event.preventDefault();
+                SolidEditor.setFragmentData(
+                  editor,
+                  event.clipboardData!,
+                  'copy',
+                );
+              }
+            }}
+            onCut={(event) => {
+              if (
+                !slate.readOnly &&
+                SolidEditor.hasSelectableTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onCut) &&
+                !isDOMEventTargetInput(event)
+              ) {
+                event.preventDefault();
+                SolidEditor.setFragmentData(
+                  editor,
+                  event.clipboardData!,
+                  'cut',
+                );
+                const { selection } = editor;
+
+                if (selection) {
+                  if (Range.isExpanded(selection)) {
+                    Editor.deleteFragment(editor);
+                  } else {
+                    const node = Node.parent(editor, selection.anchor.path);
+                    if (Editor.isVoid(editor, node as Element)) {
+                      Transforms.delete(editor);
+                    }
+                  }
+                }
+              }
+            }}
+            onDragOver={(event) => {
+              if (
+                SolidEditor.hasTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onDragOver)
+              ) {
+                // Only when the target is void, call `preventDefault` to signal
+                // that drops are allowed. Editable content is droppable by
+                // default, and calling `preventDefault` hides the cursor.
+                const node = SolidEditor.toSlateNode(editor, event.target);
+
+                if (Element.isElement(node) && Editor.isVoid(editor, node)) {
+                  event.preventDefault();
+                }
+              }
+            }}
+            onDragStart={(event) => {
+              if (
+                !slate.readOnly &&
+                SolidEditor.hasTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onDragStart)
+              ) {
+                const node = SolidEditor.toSlateNode(editor, event.target);
+                const path = SolidEditor.findPath(editor, node);
+                const voidMatch =
+                  (Element.isElement(node) && Editor.isVoid(editor, node)) ||
+                  Editor.void(editor, { at: path, voids: true });
+
+                // If starting a drag on a void node, make sure it is selected
+                // so that it shows up in the selection's fragment.
+                if (voidMatch) {
+                  const range = Editor.range(editor, path);
+                  Transforms.select(editor, range);
+                }
+
+                state.isDraggingInternally = true;
+
+                SolidEditor.setFragmentData(
+                  editor,
+                  event.dataTransfer!,
+                  'drag',
+                );
+              }
+            }}
+            onDrop={(event) => {
+              if (
+                !slate.readOnly &&
+                SolidEditor.hasTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onDrop)
+              ) {
+                event.preventDefault();
+
+                // Keep a reference to the dragged range before updating selection
+                const draggedRange = editor.selection;
+
+                // Find the range where the drop happened
+                const range = SolidEditor.findEventRange(editor, event);
+                const data = event.dataTransfer;
+
+                Transforms.select(editor, range);
+
+                if (
+                  state.isDraggingInternally &&
+                  draggedRange &&
+                  !Range.equals(draggedRange, range) &&
+                  !Editor.void(editor, { at: range, voids: true })
+                ) {
+                  Transforms.delete(editor, {
+                    at: draggedRange,
+                  });
+                }
+
+                SolidEditor.insertData(editor, data!);
+
+                // When dragging from another source into the editor, it's possible
+                // that the current editor does not have focus.
+                if (!SolidEditor.isFocused(editor)) {
+                  SolidEditor.focus(editor);
+                }
+              }
+            }}
+            onDragEnd={(event) => {
+              if (
+                !slate.readOnly &&
+                state.isDraggingInternally &&
+                attributes.onDragEnd &&
+                SolidEditor.hasTarget(editor, event.target)
+              ) {
+                attributes.onDragEnd(event);
+              }
+            }}
+            onFocus={(event) => {
+              if (
+                !slate.readOnly &&
+                !state.isUpdatingSelection &&
+                // SOLID: runs the event handler before createEffect can set the editor ref, and createRenderEffect runs before refs are set.
+                NODE_TO_ELEMENT.has(editor) &&
+                SolidEditor.hasEditableTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onFocus)
+              ) {
+                const el = SolidEditor.toDOMNode(editor, editor);
+                const root = SolidEditor.findDocumentOrShadowRoot(editor);
+                state.latestElement = root.activeElement;
+
+                // COMPAT: If the editor has nested editable elements, the focus
+                // can go to them. In Firefox, this must be prevented because it
+                // results in issues with keyboard navigation. (2017/03/30)
+                if (IS_FIREFOX && event.target !== el) {
+                  el.focus();
+                  return;
+                }
+
+                IS_FOCUSED.set(editor, true);
+              }
+            }}
+            onKeyDown={(event) => {
+              if (
+                !slate.readOnly &&
+                SolidEditor.hasEditableTarget(editor, event.target)
+              ) {
+                androidInputManagerRef?.()?.handleKeyDown(event);
+
+                // COMPAT: The composition end event isn't fired reliably in all browsers,
+                // so we sometimes might end up stuck in a composition state even though we
+                // aren't composing any more.
+                if (
+                  SolidEditor.isComposing(editor) &&
+                  event.isComposing === false
+                ) {
+                  IS_COMPOSING.set(editor, false);
+                  setIsComposing(false);
+                }
+
+                if (
+                  isEventHandled(event, attributes.onKeyDown) ||
+                  SolidEditor.isComposing(editor)
+                ) {
+                  return;
+                }
+
+                const { selection } = editor;
+                const element =
+                  editor.children[
+                    selection === null ? 0 : selection.focus.path[0]
+                  ];
+                const isRTL = getDirection(Node.string(element)) === 'rtl';
+
+                // COMPAT: Since we prevent the default behavior on
+                // `beforeinput` events, the browser doesn't think there's ever
+                // any history stack to undo or redo, so we have to manage these
+                // hotkeys ourselves. (2019/11/06)
+                if (Hotkeys.isRedo(event)) {
+                  event.preventDefault();
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const maybeHistoryEditor: any = editor;
+
+                  if (typeof maybeHistoryEditor.redo === 'function') {
+                    maybeHistoryEditor.redo();
+                  }
+
+                  return;
+                }
+
+                if (Hotkeys.isUndo(event)) {
+                  event.preventDefault();
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const maybeHistoryEditor: any = editor;
+
+                  if (typeof maybeHistoryEditor.undo === 'function') {
+                    maybeHistoryEditor.undo();
+                  }
+
+                  return;
+                }
+
+                // COMPAT: Certain browsers don't handle the selection updates
+                // properly. In Chrome, the selection isn't properly extended.
+                // And in Firefox, the selection isn't properly collapsed.
+                // (2017/10/17)
+                if (Hotkeys.isMoveLineBackward(event)) {
+                  event.preventDefault();
+                  Transforms.move(editor, { unit: 'line', reverse: true });
+                  return;
+                }
+
+                if (Hotkeys.isMoveLineForward(event)) {
+                  event.preventDefault();
+                  Transforms.move(editor, { unit: 'line' });
+                  return;
+                }
+
+                if (Hotkeys.isExtendLineBackward(event)) {
+                  event.preventDefault();
+                  Transforms.move(editor, {
+                    unit: 'line',
+                    edge: 'focus',
+                    reverse: true,
+                  });
+                  return;
+                }
+
+                if (Hotkeys.isExtendLineForward(event)) {
+                  event.preventDefault();
+                  Transforms.move(editor, { unit: 'line', edge: 'focus' });
+                  return;
+                }
+
+                // COMPAT: If a void node is selected, or a zero-width text node
+                // adjacent to an inline is selected, we need to handle these
+                // hotkeys manually because browsers won't be able to skip over
+                // the void node with the zero-width space not being an empty
+                // string.
+                if (Hotkeys.isMoveBackward(event)) {
+                  event.preventDefault();
+
+                  if (selection && Range.isCollapsed(selection)) {
+                    Transforms.move(editor, { reverse: !isRTL });
+                  } else {
+                    Transforms.collapse(editor, {
+                      edge: isRTL ? 'end' : 'start',
+                    });
+                  }
+
+                  return;
+                }
+
+                if (Hotkeys.isMoveForward(event)) {
+                  event.preventDefault();
+
+                  if (selection && Range.isCollapsed(selection)) {
+                    Transforms.move(editor, { reverse: isRTL });
+                  } else {
+                    Transforms.collapse(editor, {
+                      edge: isRTL ? 'start' : 'end',
+                    });
+                  }
+
+                  return;
+                }
+
+                if (Hotkeys.isMoveWordBackward(event)) {
+                  event.preventDefault();
+
+                  if (selection && Range.isExpanded(selection)) {
+                    Transforms.collapse(editor, { edge: 'focus' });
+                  }
+
+                  Transforms.move(editor, {
+                    unit: 'word',
+                    reverse: !isRTL,
+                  });
+                  return;
+                }
+
+                if (Hotkeys.isMoveWordForward(event)) {
+                  event.preventDefault();
+
+                  if (selection && Range.isExpanded(selection)) {
+                    Transforms.collapse(editor, { edge: 'focus' });
+                  }
+
+                  Transforms.move(editor, {
+                    unit: 'word',
+                    reverse: isRTL,
+                  });
+                  return;
+                }
+
+                // COMPAT: Certain browsers don't support the `beforeinput` event, so we
+                // fall back to guessing at the input intention for hotkeys.
+                // COMPAT: In iOS, some of these hotkeys are handled in the
+                // eslint-disable-next-line unicorn/no-negated-condition
+                if (!HAS_BEFORE_INPUT_SUPPORT) {
+                  // We don't have a core behavior for these, but they change the
+                  // DOM if we don't prevent them, so we have to.
+                  if (
+                    Hotkeys.isBold(event) ||
+                    Hotkeys.isItalic(event) ||
+                    Hotkeys.isTransposeCharacter(event)
+                  ) {
+                    event.preventDefault();
+                    return;
+                  }
+
+                  if (Hotkeys.isSoftBreak(event)) {
+                    event.preventDefault();
+                    Editor.insertSoftBreak(editor);
+                    return;
+                  }
+
+                  if (Hotkeys.isSplitBlock(event)) {
+                    event.preventDefault();
+                    Editor.insertBreak(editor);
+                    return;
+                  }
+
+                  if (Hotkeys.isDeleteBackward(event)) {
+                    event.preventDefault();
+
+                    if (selection && Range.isExpanded(selection)) {
+                      Editor.deleteFragment(editor, {
+                        direction: 'backward',
+                      });
+                    } else {
+                      Editor.deleteBackward(editor);
+                    }
+
+                    return;
+                  }
+
+                  if (Hotkeys.isDeleteForward(event)) {
+                    event.preventDefault();
+
+                    if (selection && Range.isExpanded(selection)) {
+                      Editor.deleteFragment(editor, {
+                        direction: 'forward',
+                      });
+                    } else {
+                      Editor.deleteForward(editor);
+                    }
+
+                    return;
+                  }
+
+                  if (Hotkeys.isDeleteLineBackward(event)) {
+                    event.preventDefault();
+
+                    if (selection && Range.isExpanded(selection)) {
+                      Editor.deleteFragment(editor, {
+                        direction: 'backward',
+                      });
+                    } else {
+                      Editor.deleteBackward(editor, { unit: 'line' });
+                    }
+
+                    return;
+                  }
+
+                  if (Hotkeys.isDeleteLineForward(event)) {
+                    event.preventDefault();
+
+                    if (selection && Range.isExpanded(selection)) {
+                      Editor.deleteFragment(editor, {
+                        direction: 'forward',
+                      });
+                    } else {
+                      Editor.deleteForward(editor, { unit: 'line' });
+                    }
+
+                    return;
+                  }
+
+                  if (Hotkeys.isDeleteWordBackward(event)) {
+                    event.preventDefault();
+
+                    if (selection && Range.isExpanded(selection)) {
+                      Editor.deleteFragment(editor, {
+                        direction: 'backward',
+                      });
+                    } else {
+                      Editor.deleteBackward(editor, { unit: 'word' });
+                    }
+
+                    return;
+                  }
+
+                  if (Hotkeys.isDeleteWordForward(event)) {
+                    event.preventDefault();
+
+                    if (selection && Range.isExpanded(selection)) {
+                      Editor.deleteFragment(editor, {
+                        direction: 'forward',
+                      });
+                    } else {
+                      Editor.deleteForward(editor, { unit: 'word' });
+                    }
+
+                    return;
+                  }
+                } else {
+                  // COMPAT: Chrome and Safari support `beforeinput` event but do not fire
+                  // an event when deleting backwards in a selected void inline node
+                  if (
+                    (IS_CHROME || IS_WEBKIT) &&
+                    selection &&
+                    (Hotkeys.isDeleteBackward(event) ||
+                      Hotkeys.isDeleteForward(event)) &&
+                    Range.isCollapsed(selection)
+                  ) {
+                    const currentNode = Node.parent(
+                      editor,
+                      selection.anchor.path,
+                    );
+
+                    if (
+                      Element.isElement(currentNode) &&
+                      Editor.isVoid(editor, currentNode) &&
+                      (Editor.isInline(editor, currentNode) ||
+                        Editor.isBlock(editor, currentNode))
+                    ) {
+                      event.preventDefault();
+                      Editor.deleteBackward(editor, { unit: 'block' });
+
+                      return;
+                    }
+                  }
+                }
+              }
+            }}
+            onPaste={(event) => {
+              if (
+                !slate.readOnly &&
+                SolidEditor.hasEditableTarget(editor, event.target) &&
+                !isEventHandled(event, attributes.onPaste) && // COMPAT: Certain browsers don't support the `beforeinput` event, so we
+                // fall back to React's `onPaste` here instead.
+                // COMPAT: Firefox, Chrome and Safari don't emit `beforeinput` events
+                // when "paste without formatting" is used, so fallback. (2020/02/20)
+                // COMPAT: Safari InputEvents generated by pasting won't include
+                // application/x-slate-fragment items, so use the
+                // ClipboardEvent here. (2023/03/15)
+                (!HAS_BEFORE_INPUT_SUPPORT ||
+                  isPlainTextOnlyPaste(event) ||
+                  IS_WEBKIT)
+              ) {
+                event.preventDefault();
+                SolidEditor.insertData(editor, event.clipboardData!);
+              }
+            }}
+          >
+            <Children
+              decorations={(props.decorate ?? defaultDecorate)([editor, []])}
+              node={editor}
+              renderElement={props.renderElement}
+              renderPlaceholder={props.renderPlaceholder!}
+              renderLeaf={props.renderLeaf}
+              selection={editor.selection}
+            />
+          </div>
+        </DecorateContext.Provider>
+      </ComposingContext.Provider>
+    </ReadOnlyContext.Provider>
   );
 }
 

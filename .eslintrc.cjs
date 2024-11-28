@@ -15,6 +15,7 @@ module.exports = {
     // Typescript
     'tsconfig.tsbuildinfo',
     'srcs/slate-solid/lib',
+    'srcs/slate-yjs-solid/lib',
 
     // Rust
     'srcs/tauri',

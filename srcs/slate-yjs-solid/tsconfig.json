@@ -3,8 +3,14 @@
   "exclude": ["./lib"],
   "compilerOptions": {
     "rootDir": ".",
+    "outDir": "./lib",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite/client", "@testing-library/jest-dom"]
-  }
+    "types": ["vite/client"]
+  },
+  "references": [{ "path": "../slate-solid/tsconfig.build.json" }]
 }
