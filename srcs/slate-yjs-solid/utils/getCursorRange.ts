@@ -34,7 +34,7 @@ export function getCursorRange<
         editor.sharedRoot,
         editor,
         cursorState.relativeSelection,
-      );
+      ) as BaseRange | null;
 
       cursorStates.set(cursorState, range);
     } catch {

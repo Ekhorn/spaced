@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-null */
 import { type CursorState } from '@slate-yjs/core';
 import { type BaseRange, type NodeMatch, type Text } from 'slate';
-import { createEffect, createMemo, createSignal, onMount } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 
 import { useRemoteCursorEditor } from './useRemoteCursorEditor.js';
 import { useRemoteCursorStates } from './useRemoteCursorStates.js';
@@ -62,6 +62,7 @@ export function useRemoteCursorOverlayPositions<
   const refreshOnResize =
     'refreshOnResize' in opts ? (opts.refreshOnResize ?? true) : true;
 
+  // @ts-expect-error ingore
   useOnResize(refreshOnResize ? containerRef : undefined, () => {
     overlayPositionCache = new WeakMap();
     requestRerender(refreshOnResize !== 'debounced');
@@ -117,6 +118,7 @@ export function useRemoteCursorOverlayPositions<
   const overlayData = createMemo<CursorOverlayData<TCursorData>[]>(() =>
     Object.entries(cursorStates()).map(([clientId, state]) => {
       const range = state.relativeSelection && getCursorRange(editor, state);
+      // @ts-expect-error ingore
       const overlayPosition = overlayPositions[clientId];
 
       return {

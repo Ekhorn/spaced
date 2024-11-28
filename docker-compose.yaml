@@ -36,6 +36,16 @@ services:
       - ./dist:/usr/share/nginx/html
     ports:
       - 7777:80
+      - 8888:81
+  nginx_exporter:
+    restart: always
+    profiles: ['nginx', 'services']
+    image: nginx/nginx-prometheus-exporter:1.3.0
+    ports:
+      - 9113:9113
+    command: --nginx.scrape-uri=http://nginx:8888/stub_status
+    depends_on:
+      - nginx
   # Spaced services
   item_socket:
     image: spaced/item_socket:${IMAGE_TAG:-latest}
@@ -43,10 +53,46 @@ services:
     profiles: ['services']
     environment:
       - HOST=0.0.0.0
+      - PORT=8081
     build:
       dockerfile: srcs/services/item_socket/Dockerfile
       args: [*x-distroless-tag]
-    ports: ['8080:8080']
+    ports: ['8081:8081']
+  # Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    restart: always
+    profiles: ['services']
+    privileged: true
+    ports:
+      - '8080:8080'
+    devices:
+      - '/dev/kmsg'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/podman:/var/run/podman
+      - /sys:/sys:ro
+      # - '/var/lib/containers:/var/lib/containers:ro' # Root containers
+      - ~/.local/share/containers:/var/lib/containers:ro
+      - /dev/disk/:/dev/disk:ro
+    command: >
+      --podman="unix:///var/run/podman/podman.sock"
+      --docker="unix://"
+      --housekeeping_interval=10s
+      --docker_only=true
+    depends_on:
+      - item_socket
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - cadvisor
+
   # item_producer:
   #   image: spaced/item_producer:${IMAGE_TAG:-latest}
   #   restart: always

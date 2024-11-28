@@ -104,8 +104,11 @@ export function RenderLeaf(props: RenderLeafProps) {
 
     for (const cursor of getRemoteCursorsOnLeaf<CursorData, Text>(props.leaf)) {
       if (cursor.data) {
+        const alpha = Math.round(0.5 * 255)
+          .toString(16)
+          .toUpperCase();
         children = (
-          <span style={{ 'background-color': cursor.data.color }}>
+          <span style={{ 'background-color': cursor.data.color + alpha }}>
             {children}
           </span>
         );

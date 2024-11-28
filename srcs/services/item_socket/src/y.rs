@@ -22,8 +22,8 @@ pub fn init_sync_listeners(socket: &SocketRef) {
       let binary = value.as_slice().unwrap();
       let state_vector = StateVector::decode_v1(binary).unwrap();
 
-      let namespace = socket.ns().replace("/yjs|", "");
-      let awareness = documents.get(&namespace).unwrap();
+      let room = socket.ns().replace("/yjs|", "");
+      let awareness = documents.get(&room).unwrap();
       let data = Value::from(
         awareness
           .doc()
@@ -40,8 +40,8 @@ pub fn init_sync_listeners(socket: &SocketRef) {
       let binary = data.as_slice().unwrap();
       let update = Update::decode_v1(binary).unwrap();
 
-      let namespace = socket.ns().replace("/yjs|", "");
-      let awareness = documents.get(&namespace).unwrap();
+      let room = socket.ns().replace("/yjs|", "");
+      let awareness = documents.get(&room).unwrap();
       awareness.doc().transact_mut().apply_update(update).unwrap();
     },
   );
@@ -55,8 +55,8 @@ pub fn init_awareness_listeners(socket: &SocketRef) {
       let binary = data.as_slice().unwrap();
       let update = AwarenessUpdate::decode_v1(binary).unwrap();
 
-      let namespace = socket.ns().replace("/yjs|", "");
-      let awareness = documents.get(&namespace).unwrap();
+      let room = socket.ns().replace("/yjs|", "");
+      let awareness = documents.get(&room).unwrap();
       awareness.apply_update(update).unwrap();
     },
   );

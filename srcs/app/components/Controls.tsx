@@ -158,8 +158,6 @@ export function Controls() {
       scalar(),
     );
 
-    console.log(shared);
-
     try {
       const item = await createItem(
         {
