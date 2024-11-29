@@ -365,6 +365,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
             <button
               class="rounded px-1 hover:bg-[#ecedef]"
               title="Cancel"
+              type="button"
               onClick={cancel}
             >
               <FaSolidXmark />

@@ -30,7 +30,7 @@ services:
   nginx:
     image: nginx
     restart: always
-    profiles: ['nginx', 'services']
+    profiles: ['e2e', 'nginx', 'services']
     volumes:
       - ./config/nginx/dev.conf:/etc/nginx/nginx.conf
       - ./dist:/usr/share/nginx/html
@@ -50,7 +50,7 @@ services:
   item_socket:
     image: spaced/item_socket:${IMAGE_TAG:-latest}
     restart: always
-    profiles: ['services']
+    profiles: ['e2e', 'services']
     environment:
       - HOST=0.0.0.0
       - PORT=8081
