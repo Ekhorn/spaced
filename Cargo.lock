@@ -2149,7 +2149,6 @@ dependencies = [
  "bytes",
  "clap",
  "dashmap 6.1.0",
- "futures",
  "futures-util",
  "rmpv",
  "serde",
@@ -2160,7 +2159,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "utils",
- "uuid",
  "yrs",
 ]
 
