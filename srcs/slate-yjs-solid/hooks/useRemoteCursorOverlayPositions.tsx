@@ -70,8 +70,6 @@ export function useRemoteCursorOverlayPositions<
 
   // Update selection rects after paint
   createEffect(() => {
-    console.log('DSOIFJOIDSJFI', containerRef);
-
     // We have a container ref but the ref is null => container
     // isn't mounted to we can't calculate the selection rects.
     if (!containerRef) {

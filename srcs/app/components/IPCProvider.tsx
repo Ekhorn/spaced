@@ -82,7 +82,6 @@ async function getNearbyItems() {
     case 'cloud': {
       // if (localStorage.getItem('access_token')) {
       const res = await socket.emitWithAck('item:get_nearby');
-      console.log(res);
       return Array.isArray(res) ? res : [res];
       // }
       break;

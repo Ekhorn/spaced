@@ -9,8 +9,6 @@ export function useUnsetCursorPositionOnBlur() {
   const editor = useRemoteCursorEditor();
   const isSlateFocused = useFocused();
 
-  console.log(isSlateFocused);
-
   const sendCursorPosition = (isFocused?: boolean) => {
     if (isFocused && editor.selection) {
       CursorEditor.sendCursorPosition(editor, editor.selection);
