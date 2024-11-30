@@ -56,7 +56,7 @@ test.describe('Item', () => {
 
   test.beforeEach(async ({ page }) => {
     width = 424;
-    height = 36;
+    height = 72;
     [x, y] = await page.evaluate(
       ([width]) => {
         return [(window.innerWidth - width) / 2, window.innerHeight / 2];
@@ -109,7 +109,7 @@ test.describe('Item', () => {
     }));
     expect(newSize).toStrictEqual({
       w: width - 71,
-      h: height - 6,
+      h: height - 12,
       x: x - 72,
       y: y - 60,
     });
@@ -331,19 +331,19 @@ test.describe('Markdown item', () => {
 });
 
 test.describe('Item collaboration', () => {
-  test.beforeEach(async ({ context, page }) => {
-    await context.grantPermissions(['clipboard-write', 'clipboard-read']);
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
   });
 
-  test('should collaborate', async ({ browser, page: page1 }) => {
+  test('should collaborate', async ({ browser, browserName, page: page1 }) => {
     await page1.getByTitle('Create Item').click();
 
     const editor1 = page1.locator('[data-slate-editor]');
 
     await editor1.dblclick();
-    await editor1.pressSequentially('Collaborating...');
+    // TODO: this should rely on a debounce not a delay
+    await editor1.pressSequentially('Collaborating...', { delay: 100 });
     await expect(editor1).toContainText('Collaborating...');
 
     await page1.getByTitle('Share').click();
@@ -362,16 +362,21 @@ test.describe('Item collaboration', () => {
 
     await page1.click("button[type='submit']");
 
-    const code = await page1.evaluate(
-      async () => await window.navigator.clipboard.readText(),
-    );
-    expect(code).toBeTruthy();
-
     const context2 = await browser.newContext();
     const page2 = await context2.newPage();
     await page2.goto('/');
 
-    await page2.getByPlaceholder('Enter code').fill(code);
+    /* https://github.com/microsoft/playwright/issues/13037
+     * navigator.clipboard.readText() doesn't work in webkit, and granting permission doesn't help.
+     * const code = await page1.evaluate(
+     *   async () => await window.navigator.clipboard.readText(),
+     * );
+     */
+    test.fixme(
+      browserName === 'webkit',
+      "test using shortcuts doesn't work either",
+    );
+    await page2.getByPlaceholder('Enter code').press('Control+V');
     await page2.getByPlaceholder('Enter code').press('Enter');
 
     const user2 = 'User 2';
@@ -393,7 +398,7 @@ test.describe('Item collaboration', () => {
     await editor2.dblclick();
     await editor2.click();
     await toEndOfLine(editor1, 0);
-    await editor2.pressSequentially(', yes we are!');
+    await editor2.pressSequentially(', yes we are!', { delay: 100 });
 
     const text = await editor1.textContent();
     // TODO: handle invalid cursors remove normalize string remove BOM unicode chars etc.
@@ -406,7 +411,7 @@ test.describe('Item collaboration', () => {
     await editor1.dblclick();
     await toEndOfLine(editor1, 0);
     await editor1.press('Enter');
-    await editor1.pressSequentially(':)');
+    await editor1.pressSequentially(':)', { delay: 100 });
 
     // TODO: create test fixture checking multiline editor content
     await expect(editor1.locator(`p`)).toContainText([
@@ -442,7 +447,7 @@ test.describe('Item collaboration', () => {
     const editor = page.locator('[data-slate-editor]');
 
     await editor.dblclick();
-    await editor.pressSequentially('Collaborating...');
+    await editor.pressSequentially('Collaborating...', { delay: 100 });
     await expect(editor).toContainText('Collaborating...');
 
     await page.getByTitle('Share').click();
