@@ -85,3 +85,9 @@ _The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definit
 ## Contributing
 
 Please read the [contributing guidelines](CONTRIBUTING.md).
+
+## License
+
+The project is licensed under a [MIT license](LICENSE).
+
+Some workspace members (or files) contain their own MIT License copies, as they are derivative works (packages).
