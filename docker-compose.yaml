@@ -84,6 +84,8 @@ services:
       - item_socket
   prometheus:
     image: prom/prometheus
+    restart: always
+    profiles: ['services']
     ports:
       - 9090:9090
     command:
