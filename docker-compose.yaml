@@ -6,26 +6,25 @@ x-distroless-tag: &x-distroless-tag DISTROLESS_TAG=${DISTROLESS_TAG:-nonroot}
 
 services:
   # A persistent database for local development.
-  # postgres-dev:
-  #   image: postgres:17
-  #   restart: always
-  #   environment:
-  #     POSTGRES_DB: spaced
-  #     POSTGRES_USER: admin
-  #     POSTGRES_PASSWORD: password
-  #   ports: ['5432:5432']
-  # rabbitmq:
-  #   image: rabbitmq
-  #   restart: always
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: admin
-  #     RABBITMQ_DEFAULT_PASS: password
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  ###################################
-  ###           OPTIONAL          ###
-  ###################################
+  postgres-dev:
+    image: postgres:17
+    restart: always
+    profiles: ['test']
+    environment:
+      POSTGRES_DB: spaced
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    ports: ['5432:5432']
+  rabbitmq:
+    image: rabbitmq
+    restart: always
+    profiles: ['test']
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - 5672:5672
+      - 15672:15672
   # Reverse-proxy for when running spaced services
   nginx:
     image: nginx

@@ -127,6 +127,7 @@ mod tests {
   };
   use tokio::sync::mpsc;
 
+  #[ignore]
   #[sqlx::test(migrations = "../migrations")]
   async fn test_create_item(db_pool: PgPool) {
     let amqp_connection = Connection::open(&OpenConnectionArguments::new(
@@ -168,7 +169,7 @@ mod tests {
       .emit_with_ack(
         "item:create",
         json!({
-          "id": 0, "x": 5, "y": 5, "w": 5, "h": 5, "name": "test", "schema": "test"
+          "id": 0, "x": 5, "y": 5, "w": 5, "h": 5, "name": "test", "schema": "0", "assets": [0]
         }),
         Duration::from_secs(1),
         move |message: Payload, _| {
@@ -186,7 +187,7 @@ mod tests {
     assert_eq!(
       message,
       json!([{
-        "id": 1, "x": 5, "y": 5, "w": 5, "h": 5, "name": "test", "schema": "test"
+        "id": 1, "x": 5, "y": 5, "w": 5, "h": 5, "name": "test", "schema": "0", "assets": [0]
       }])
       .into()
     );
