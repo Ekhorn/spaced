@@ -7,3 +7,7 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: [nginx_exporter:9113]
+  - job_name: item_socket
+    scrape_interval: 5s
+    static_configs:
+      - targets: [item_socket:8081]
