@@ -59,3 +59,25 @@ pub fn init_logging() {
     .with_env_filter(env_filter)
     .init();
 }
+
+use tokio::{
+  signal::unix::{signal, SignalKind},
+  task,
+};
+
+pub fn shutdown_task() -> tokio::task::JoinHandle<()> {
+  task::spawn(async {
+    let mut term_signal =
+      signal(SignalKind::terminate()).expect("Failed to create SIGTERM listener");
+    let mut int_signal = signal(SignalKind::interrupt()).expect("Failed to create SIGINT listener");
+
+    tokio::select! {
+      _ = term_signal.recv() => {
+        print!("Received SIGTERM");
+      }
+      _ = int_signal.recv() => {
+        print!("Received SIGINT (CTRL+C)");
+      }
+    }
+  })
+}

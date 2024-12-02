@@ -11,6 +11,7 @@ name = "utils"
 crate-type = ["lib"]
 
 [dependencies]
+tokio.workspace = true
 axum = { workspace = true, features = ["macros"], optional = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }

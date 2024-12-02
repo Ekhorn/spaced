@@ -10,6 +10,7 @@ use socketioxide::{
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tracing::info;
+use utils::shutdown_task;
 use yrs::sync::Awareness;
 
 mod document;
@@ -35,7 +36,14 @@ async fn main() -> anyhow::Result<()> {
   let listener = TcpListener::bind(address).await?;
   let app = app().await?;
 
-  axum::serve(listener, app).await?;
+  let server = axum::serve(listener, app);
+
+  tokio::select! {
+    _ = shutdown_task() => {
+      println!(", shutting down...");
+    }
+    _ = server => {},
+  }
 
   Ok(())
 }
