@@ -48,11 +48,11 @@ pub struct GlobalState {
 }
 
 impl GlobalState {
-  fn init_document(&self, namespace: String, room: String, socket: SocketIo) -> Arc<Awareness> {
-    self.documents.get(&room).map_or_else(
+  fn init_document(&self, namespace: String, doc_ns: String, socket: SocketIo) -> Arc<Awareness> {
+    self.documents.get(&doc_ns).map_or_else(
       || {
         let awareness = document::create(namespace, socket);
-        self.documents.insert(room, awareness.clone());
+        self.documents.insert(doc_ns, awareness.clone());
         awareness
       },
       |v| v.clone(),
@@ -68,13 +68,13 @@ async fn app() -> anyhow::Result<Router> {
   let io_clone = io.clone();
 
   io.dyn_ns(
-    "/yjs|{room}",
+    "/yjs|{doc_ns}",
     |socket: SocketRef, state: State<GlobalState>| async move {
       let namespace = socket.ns();
-      let room = namespace.replace("/yjs|", "");
+      let doc_ns = namespace.replace("/yjs|", "");
 
-      info!("Session ID {} connected to {}", socket.id, &namespace);
-      let awareness = state.init_document(namespace.to_string(), room, io_clone);
+      info!("{} connected to {}", socket.id, doc_ns);
+      let awareness = state.init_document(namespace.to_string(), doc_ns, io_clone);
 
       y::init_sync_listeners(&socket);
       y::init_awareness_listeners(&socket);
