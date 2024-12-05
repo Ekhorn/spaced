@@ -82,7 +82,81 @@ Consider [Artillery + Playwright](https://www.artillery.io/docs/reference/engine
 
 Since document edits use CRDTS (Conflict-free replicated data types) combined with SocketIO that share binary data, using Playwright would be simpler compared to writing out specific requests manually.
 
+
+---
+
+understanding Artillery metrics
+
+FCP = [First Contentful Paint](https://web.dev/articles/fcp)
+TTFB = [Time To First Byte](https://web.dev/articles/ttfb)
+LCP = [Largest Contentful Paint](https://web.dev/articles/lcp)
+FID = [First Input Delay](https://web.dev/articles/fid)
+
+
+Web Vitals
+
+LCP (Largest Contentful Paint)
+CLS (Cumulative Layout Shift)
+INP (Interaction to Next Paint)
+TTFB (Time To First Byte)
+FCP (First Contentful Paint)
+FID (First Input Delay)
+
+---
+
+tests
+
+1. max single document connections
+2. max document count
+3. ...
+
+phases
+
+1. initial
+2. 10min sustained expect load
+3. stress test
+
+steps
+
+1. open page
+2.
+
+
 ##### 2.2.2. How are the bottlenecks holding back the maxium threshold?
+
+How does a node implementation compare to the rust implementation?
+
+How do the different VPS instances hold up?
+
+1vCPU 1Gb RAM
+
+vs
+
+2vCPU 2Gb RAM
+
+How do different parts of the system add latencies?
+
+How does memory increase with and without metrics?
+
+How do default image install compare in resource usage, to nixos installs?
+
 ##### 2.2.3. How can Spaced be optimized to increase the maximum threshold?
+
+The rust implementation as seen already improves performance significantly compared to Node as no garbage collection is involved.
+
+Document garbage collection.
+
+  // TODO: consider diff string for perf
+  // TODO: compare HashMap to DashMap
+
+MSGPack vs normal binary? vs Json
+
+
+Limiting clients to debounce requests.
+
+
+- Dive into websocket upgrades?
+- Memory vs CPU bottleneck handling
+
 
 ### 3. Conclusion

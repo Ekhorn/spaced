@@ -1,0 +1,61 @@
+config:
+  ensure:
+    maxErrorRate: 1
+    max: 500
+  variables:
+    code: 253405a2-9a49-4106-b92f-231a91a59edc
+  environments:
+    dev:
+      target: http://localhost:1420
+      engines:
+        playwright:
+          launchOptions:
+            headless: false
+    ci:
+      target: http://localhost:7777
+      phases:
+        # Create ramp up to 10 VUs per second
+        - name: initial
+          arrivalRate: 1
+          rampTo: 10
+          maxVusers: 10
+          duration: 10
+        # Creates 10 VUs every second
+        - name: sustained
+          arrivalRate: 1
+          duration: 30
+        - pause: 10
+        # Creates 1 VU every second
+        - name: stress
+          arrivalRate: 5
+          rampTo: 50
+          maxVusers: 50
+          duration: 30
+    prod:
+      target: https://spaced.fun
+      phases:
+        # Create ramp up to 10 VUs per second
+        - name: initial
+          arrivalRate: 1
+          rampTo: 10
+          maxVusers: 10
+          duration: 10
+        # Creates 10 VUs every second
+        - name: sustained
+          arrivalRate: 1
+          duration: 30
+        - pause: 10
+        # Creates 1 VU every second
+        - name: stress
+          arrivalRate: 5
+          rampTo: 30
+          maxVusers: 30
+          duration: 30
+  processor: test.mjs
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+scenarios:
+  - engine: playwright
+    testFunction: single_document_updates
