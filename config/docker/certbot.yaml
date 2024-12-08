@@ -1,0 +1,23 @@
+services:
+  certbot:
+    image: certbot/dns-ionos
+    profiles: [certbot]
+    build:
+      dockerfile: ../certbot/Dockerfile
+    cap_drop: [ALL]
+    volumes:
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
+    command: |
+      certonly
+        --authenticator dns-ionos
+        --dns-ionos-propagation-seconds 60
+        --dns-ionos-credentials /etc/letsencrypt/.secrets/credentials.ini
+        --non-interactive
+        --agree-tos
+        --email ${email:-}
+        --no-self-upgrade
+        --keep-until-expiring
+        --expand
+        --server https://acme-v02.api.letsencrypt.org/directory
+        -d ${domain:-} -d '*.${domain:-}'

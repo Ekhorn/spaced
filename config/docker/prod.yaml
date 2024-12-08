@@ -1,11 +1,15 @@
-version: '3.8'
+include:
+  - certbot.yaml
+
+x-vars:
+  - &docker-sock --docker=unix:///var/run/user/${UID:-1000}/docker.sock
 
 services:
-  # Reverse-proxy for when running spaced services
+  # Reverse-proxy for Spaced services
   nginx:
     image: nginx
+    profiles: [nginx, services]
     restart: always
-    profiles: ['nginx', 'services']
     volumes:
       - ../nginx/prod.conf:/etc/nginx/nginx.conf
       - ../../dist:/usr/share/nginx/html
@@ -13,33 +17,51 @@ services:
     ports:
       - 80:80
       - 443:443
-  certbot:
-    image: certbot/dns-ionos
-    profiles: ['certbot']
-    build:
-      dockerfile: ../certbot/Dockerfile
-    cap_drop: ['ALL']
-    volumes:
-      - /var/lib/letsencrypt:/var/lib/letsencrypt
-      - /etc/letsencrypt:/etc/letsencrypt
-    command: |
-      certonly
-        --authenticator dns-ionos
-        --dns-ionos-propagation-seconds 60
-        --dns-ionos-credentials /etc/letsencrypt/.secrets/credentials.ini
-        --non-interactive
-        --agree-tos
-        --email ${email:-}
-        --no-self-upgrade
-        --keep-until-expiring
-        --expand
-        --server https://acme-v02.api.letsencrypt.org/directory
-        -d ${domain:-} -d '*.${domain:-}'
   # Spaced services
   item_socket:
+    container_name: item_socket
     image: spaced/item_socket:${IMAGE_TAG:-latest}
     restart: always
-    profiles: ['services']
+    profiles: [services]
     environment:
       - HOST=0.0.0.0
-    ports: ['8080:8080']
+    ports: [8081:8081]
+  # Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    profiles: [services]
+    restart: always
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
+      # - /var/lib/docker/:/var/lib/docker:ro # Docker Root
+      - ~/.local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      - ~/.local/share/containers:/var/lib/containers:ro # Podman Rootless
+      - /dev/disk/:/dev/disk:ro
+    command:
+      - *docker-sock
+      - --docker_only=true
+    ports:
+      - 8080:8080
+    depends_on:
+      - item_sockets
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    profiles: [services]
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - cadvisor
