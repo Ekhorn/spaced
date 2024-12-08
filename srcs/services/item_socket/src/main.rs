@@ -24,7 +24,7 @@ mod y;
 struct Args {
   #[arg(long, env, default_value_t = String::from("localhost"))]
   host: String,
-  #[arg(long, env, default_value_t = 8080)]
+  #[arg(long, env, default_value_t = 8081)]
   port: u16,
 }
 
