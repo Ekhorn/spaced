@@ -4,12 +4,13 @@
   "workspaces": [
     "srcs/app",
     "srcs/slate-solid",
+    "srcs/slate-yjs-solid",
     "srcs/types",
     "srcs/e2e"
   ],
   "scripts": {
     "bin": "target/release/spaced",
-    "build": "vite build --emptyOutDir",
+    "build": "npx --workspace=slate-solid tsc -b && vite build --emptyOutDir",
     "clippy": "cargo clippy --all-features --all-targets",
     "clippy:fix": "cargo clippy --all-features --all-targets --fix",
     "codegen": "npm --workspace e2e run codegen",

@@ -24,12 +24,6 @@ Install dependencies for web-frontend.
 npm ci
 ```
 
-Build JavaScript libraries used in web-frontend. Only required initially or when changes are made to packages **referenced** in [srcs/app/tsconfig.json](srcs/app/tsconfig.json).
-
-```sh
-npx --workspaces tsc -b
-```
-
 The project requires at least a PostgreSQL database to be run and uses RabbitMQ as message broker. Both can be started using docker compose.
 
 ```sh
@@ -91,3 +85,9 @@ _The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definit
 ## Contributing
 
 Please read the [contributing guidelines](CONTRIBUTING.md).
+
+## License
+
+The project is licensed under a [MIT license](LICENSE).
+
+Some workspace members (or files) contain their own MIT License copies, as they are derivative works (packages).

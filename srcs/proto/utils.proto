@@ -2,8 +2,8 @@ syntax = "proto3";
 package utils;
 
 message BoundingBox {
-  int32 xmin = 1;
-  int32 ymin = 2;
-  int32 xmax = 3;
-  int32 ymax = 4;
+  int64 xmin = 1;
+  int64 ymin = 2;
+  int64 xmax = 3;
+  int64 ymax = 4;
 }

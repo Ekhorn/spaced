@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      SELECT *\n      FROM item\n      WHERE x BETWEEN $1 AND $3\n        AND y BETWEEN $2 AND $4;\n      ",
+  "query": "\nINSERT INTO item ( x, y, w, h, schema )\nVALUES ( $1, $2, $3, $4, $5 ) RETURNING *\n      ",
   "describe": {
     "columns": [
       {
@@ -30,11 +30,6 @@
       },
       {
         "ordinal": 5,
-        "name": "name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 6,
         "name": "schema",
         "type_info": "Text"
       }
@@ -44,7 +39,8 @@
         "Int4",
         "Int4",
         "Int4",
-        "Int4"
+        "Int4",
+        "Text"
       ]
     },
     "nullable": [
@@ -53,9 +49,8 @@
       false,
       false,
       false,
-      true,
       true
     ]
   },
-  "hash": "0bffc94bee8db5bbb43948022924b27e6a34b223862a9ccd53667c597e46cde9"
+  "hash": "0aab9703a675fba9273281402b20393ef2ea9d8edcb4c7af77556d17d464f8f4"
 }

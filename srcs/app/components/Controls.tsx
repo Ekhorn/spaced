@@ -12,6 +12,46 @@ import { isTauri } from '../lib/const.js';
 import { type Storage, type Editors } from '../lib/types.js';
 import { Vec2D, relativeToAbsolute } from '../lib/vector.js';
 
+interface CreateItemProps {
+  createBaseItem: (props: {
+    editor: Editors;
+    shared?: string;
+  }) => Promise<void>;
+}
+
+const handlePaste = (event: ClipboardEvent) => event.stopPropagation();
+
+export function Search(props: CreateItemProps) {
+  const { items } = useState();
+  const handleChange = async (event: Event) => {
+    const el = event.target as HTMLInputElement;
+    if (
+      Boolean(el.value) &&
+      items().some(({ shared }) => shared === el.value)
+    ) {
+      return;
+    }
+    await props
+      .createBaseItem({
+        editor: 'rich',
+        shared: el.value,
+      })
+      .finally(() => {
+        el.value = '';
+      });
+  };
+
+  return (
+    <input
+      type="text"
+      placeholder="Enter code"
+      class="absolute z-50 m-2 w-[412px] rounded border-0 bg-white p-1 text-lg ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
+      onChange={handleChange}
+      onPaste={handlePaste}
+    />
+  );
+}
+
 export function StorageSelector() {
   const { connect, getNearbyItems } = useIPC();
   const { setItems } = useState();
@@ -62,20 +102,15 @@ export function StorageSelector() {
         <option disabled={!isTauri} value="local">
           Local
         </option>
-        <option disabled value="cloud">
-          Cloud
-        </option>
+        <option value="cloud">Cloud</option>
       </select>
     </div>
   );
 }
 
-interface CreateBtnProps {
-  createBaseItem: (editor: Editors) => Promise<void>;
-}
-
-export function RichTextButton(props: CreateBtnProps) {
-  const handleClick = async () => await props.createBaseItem('rich');
+export function RichTextButton(props: CreateItemProps) {
+  const handleClick = async () =>
+    await props.createBaseItem({ editor: 'rich' });
 
   return (
     <button onClick={handleClick} class="control-btn" title="Create Item">
@@ -84,8 +119,9 @@ export function RichTextButton(props: CreateBtnProps) {
   );
 }
 
-export function MarkdownButton(props: CreateBtnProps) {
-  const handleClick = async () => await props.createBaseItem('markdown');
+export function MarkdownButton(props: CreateItemProps) {
+  const handleClick = async () =>
+    await props.createBaseItem({ editor: 'markdown' });
 
   return (
     <button onClick={handleClick} class="control-btn" title="Create Markdown">
@@ -112,7 +148,10 @@ export function Controls() {
   const { setItems } = useState();
   const { createItem } = useIPC();
 
-  const createBaseItem = async (editor: Editors) => {
+  const createBaseItem: CreateItemProps['createBaseItem'] = async ({
+    editor,
+    shared,
+  }) => {
     const { x, y } = relativeToAbsolute(
       new Vec2D((window.innerWidth - width) / 2, -(window.innerHeight / 2)),
       absoluteViewportPosition(),
@@ -133,6 +172,7 @@ export function Controls() {
               children: [{ text: '' }],
             },
           ] as Descendant[]),
+          shared,
         },
         [],
       );
@@ -144,16 +184,19 @@ export function Controls() {
     }
   };
 
-  const createBtnProps = { createBaseItem };
+  const createItemProps = { createBaseItem };
 
   return (
-    <div class="absolute right-1 top-1 flex flex-col gap-1 overflow-visible">
-      <Show when={!isTauri}>
-        <LogOutButton />
-      </Show>
-      <StorageSelector />
-      <RichTextButton {...createBtnProps} />
-      <MarkdownButton {...createBtnProps} />
-    </div>
+    <>
+      <Search {...createItemProps} />
+      <div class="absolute right-1 top-1 flex flex-col gap-1 overflow-visible">
+        <Show when={!isTauri}>
+          <LogOutButton />
+        </Show>
+        <StorageSelector />
+        <RichTextButton {...createItemProps} />
+        <MarkdownButton {...createItemProps} />
+      </div>
+    </>
   );
 }

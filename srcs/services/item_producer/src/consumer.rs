@@ -13,7 +13,7 @@ use socketioxide::SocketIo;
 use tokio::sync::Notify;
 use tracing::info;
 
-use crate::handlers::{item::ItemResponse, Item};
+use crate::{handlers::item::ItemResponse, item::Item};
 
 struct ItemConsumer {
   socket: SocketIo,
@@ -47,7 +47,6 @@ impl AsyncConsumer for ItemConsumer {
           y: item.y,
           w: item.w,
           h: item.h,
-          name: item.name,
           schema: item.schema,
         })
         .unwrap(),

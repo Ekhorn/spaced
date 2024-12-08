@@ -9,5 +9,8 @@
     "jsxImportSource": "solid-js",
     "types": ["vite/client"]
   },
-  "references": [{ "path": "../slate-solid/tsconfig.build.json" }]
+  "references": [
+    { "path": "../slate-solid/tsconfig.build.json" },
+    { "path": "../slate-yjs-solid/tsconfig.json" }
+  ]
 }

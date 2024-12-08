@@ -1,4 +1,5 @@
 import {
+  type Descendant,
   Editor,
   Point,
   Range,
@@ -133,6 +134,25 @@ export const withShortcuts = <T extends Editor>(editor: T) => {
     }
 
     insertText(text);
+  };
+
+  return editor;
+};
+
+export const withValidNode = <T extends Editor>(
+  editor: T,
+  initialValue: Descendant[],
+) => {
+  const { normalizeNode } = editor;
+
+  editor.normalizeNode = (entry) => {
+    const [node] = entry;
+
+    if (!Editor.isEditor(node) || node.children.length > 0) {
+      return normalizeNode(entry);
+    }
+
+    Transforms.insertNodes(editor, initialValue, { at: [0] });
   };
 
   return editor;

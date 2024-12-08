@@ -16,10 +16,10 @@ import {
 } from 'solid-js';
 
 import { SlateSelectorContext, useSelectorContext } from './selector.js';
+import { FocusedContext } from '../hooks/use-focused.js';
 import { EditorContext } from '../hooks/use-slate-static.js';
 import { type SlateContextValue, SlateContext } from '../hooks/use-slate.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
-import { FocusedContext } from '../utils/focus.js';
 import { EDITOR_TO_ON_CHANGE } from '../utils/weakmaps.js';
 
 export function Slate(props: {

@@ -50,11 +50,11 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
       return false;
     }
     case 'cloud': {
-      if (localStorage.getItem('access_token')) {
-        localStorage.setItem('storage', 'cloud');
-        socket.connect();
-        return true;
-      }
+      // if (localStorage.getItem('access_token')) {
+      localStorage.setItem('storage', 'cloud');
+      socket.connect();
+      return true;
+      // }
       return false;
     }
     default: {
@@ -80,9 +80,10 @@ async function getNearbyItems() {
       break;
     }
     case 'cloud': {
-      if (localStorage.getItem('access_token')) {
-        return await socket.emitWithAck('item:get_nearby');
-      }
+      // if (localStorage.getItem('access_token')) {
+      const res = await socket.emitWithAck('item:get_nearby');
+      return Array.isArray(res) ? res : [res];
+      // }
       break;
     }
     default: {
@@ -167,9 +168,9 @@ async function createItem(item: Item, assets: number[][]) {
       break;
     }
     case 'cloud': {
-      if (localStorage.getItem('access_token')) {
-        return await socket.emitWithAck('item:create', item);
-      }
+      // if (localStorage.getItem('access_token')) {
+      return await socket.emitWithAck('item:create', { ...item, assets });
+      // }
       break;
     }
     default: {
