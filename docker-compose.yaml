@@ -1,8 +1,9 @@
-version: '3.8'
-
-# Available tags: latest, nonroot, debug, debug-nonroot
-# For more, see https://github.com/GoogleContainerTools/distroless#how-do-i-use-distroless-images
-x-distroless-tag: &x-distroless-tag DISTROLESS_TAG=${DISTROLESS_TAG:-nonroot}
+x-vars:
+  # Available tags: latest, nonroot, debug, debug-nonroot
+  # For more, see https://github.com/GoogleContainerTools/distroless#how-do-i-use-distroless-images
+  - &distroless-tag DISTROLESS_TAG=${DISTROLESS_TAG:-nonroot}
+  - &docker-sock --docker=unix:///var/run/user/${UID:-1000}/docker.sock
+  - &podman-sock --podman=unix:///var/run/user/${UID:-1000}/podman/podman.sock
 
 services:
   # A persistent database for local development.
@@ -55,7 +56,7 @@ services:
       - PORT=8081
     build:
       dockerfile: srcs/services/item_socket/Dockerfile
-      args: [*x-distroless-tag]
+      args: [*distroless-tag]
     ports: ['8081:8081']
   # Metrics
   cadvisor:
@@ -69,16 +70,18 @@ services:
       - '/dev/kmsg'
     volumes:
       - /:/rootfs:ro
-      - /var/run/podman:/var/run/podman
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
-      # - '/var/lib/containers:/var/lib/containers:ro' # Root containers
-      - ~/.local/share/containers:/var/lib/containers:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
+      # - /var/lib/docker/:/var/lib/docker:ro # Docker Root
+      - ~/.local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      - ~/.local/share/containers:/var/lib/containers:ro # Podman Rootless
       - /dev/disk/:/dev/disk:ro
-    command: >
-      --podman="unix:///var/run/podman/podman.sock"
-      --docker="unix://"
-      --housekeeping_interval=10s
-      --docker_only=true
+    command:
+      - *docker-sock
+      - *podman-sock
+      - --docker_only=true
     depends_on:
       - item_socket
   prometheus:
