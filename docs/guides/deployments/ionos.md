@@ -1,10 +1,25 @@
-# Spaced on IONOS VPS
+# Spaced on IONOS VPS <!-- omit in toc -->
 
-### Setup up a VPS
+### Contents <!-- omit in toc -->
+
+<div class="toc">
+  <style>
+    .toc > ul { padding-left: 1em; }
+    .toc > * * ul { padding-left: 1em; }
+    .toc > * > li { list-style-type: none; }
+    .toc > * * > li { list-style-type: none; }
+  </style>
+
+- [1. Setup up a VPS](#1-setup-up-a-vps)
+  - [1.1. Adding a domain](#11-adding-a-domain)
+- [Configuring SSL/TLS renewal](#configuring-ssltls-renewal)
+</div>
+
+### 1. Setup up a VPS
 
 You may choose to use the pre-defined NixOS VPS configuration (at ...) or manually configure the OS.
 
-#### Adding a domain
+#### 1.1. Adding a domain
 
 You can add a domain in IONOS that points to your VPS. If you wish to do so include the IP address of your VPS in the DNS A records.
 
