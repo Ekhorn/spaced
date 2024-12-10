@@ -7,7 +7,17 @@ cleanup() {
 
 trap 'cleanup' EXIT
 
-echo "Running services..."
-cargo run -p item_producer &
-cargo run -p user_service &
+echo "Starting services..."
+if [ "$#" -gt 0 ]; then
+  args=("$@")
+else
+  args=($(ls srcs/services))
+fi
+
+for arg in "${args[@]}"; do
+  if [ "$arg" == "migrations" ]; then continue
+  fi
+  cargo run -p $arg || true &
+done
+
 wait

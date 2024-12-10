@@ -4,17 +4,22 @@
 
 In order to run Spaced in development the following must be installed.
 
-- [Rust](https://www.rust-lang.org/learn/get-started)
-- [sqlx-cli](https://github.com/launchbadge/sqlx/blob/HEAD/sqlx-cli/README.md#install)
 - [NodeJS 18](https://nodejs.org/)
-- [Docker](https://docker.com/)
-- [Docker Compose](https://docs.docker.com/compose)
-- [Docker Buildx](https://github.com/docker/buildx)
+- [Rust](https://www.rust-lang.org/learn/get-started)
 - [Tauri](https://tauri.app/v1/guides/getting-started/prerequisites)
-<!-- - Protoc -->
+- [sqlx-cli](https://github.com/launchbadge/sqlx/blob/HEAD/sqlx-cli/README.md#install)
 
 If you're using Nix, you can run `nix-shell`, or configure [`direnv`](https://nixos.wiki/wiki/Development_environment_with_nix-shell#direnv) to install
-the required Tauri dependencies.
+the required Tauri dependencies (and Playwright browsers).
+
+You can choose either **Docker** or **Podman**. _Docker is used in the pipeline and deployments as it provides Swarm support with the `docker stack` command._
+
+| Docker                                            | Podman                                                         |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| [Docker => v20.10](https://docker.com/)           | [Podman](https://podman.io)                                    |
+| [Docker Compose](https://docs.docker.com/compose) | [Podman Compose](https://github.com/containers/podman-compose) |
+
+<!-- - Protoc -->
 
 ## Getting started
 
@@ -24,22 +29,20 @@ Install dependencies for web-frontend.
 npm ci
 ```
 
-The project requires at least a PostgreSQL database to be run and uses RabbitMQ as message broker. Both can be started using docker compose.
+Prepare the database with migrations.
 
 ```sh
-docker compose up -d
+npm run sqlx:prepare -- --tauri
+# Or for all databases at the same time with:
+# npm run sqlx:prepare
 ```
 
-Prepare the databases with migrations.
+The services can be started with the following commands.
 
 ```sh
-npm run sqlx:prepare
-```
-
-The services can be started with the following script.
-
-```sh
-npm run services
+cargo run -i item_socket
+# cargo run -i item_producer # Not used atm
+# cargo run -i user_service  # Not used atm
 ```
 
 The web-frontend can be started with the following script.
@@ -54,6 +57,13 @@ The web-frontend can also be displayed from a desktop application with the follo
 npm run tauri dev
 ```
 
+<!--
+The project requires at least a PostgreSQL database to be run and uses RabbitMQ as message broker. Both can be started using docker compose.
+
+```sh
+docker compose up -d
+``` -->
+
 ## Building
 
 The web-frontend can be built using the following script.
@@ -65,22 +75,22 @@ npm run build
 The docker images for each service can be built using the following command.
 
 ```sh
-docker buildx bake
+docker compose --profile services build
+# Or also directly started with:
+# docker compose --profile services up -d --build
 ```
 
 Use the following environment variable to change the image tag.
 
 ```sh
-IMAGE_TAG=1.0 docker buildx bake # result = spaced/<service_name>:1.0
+IMAGE_TAG=1.0 docker compose --profile services build
 ```
 
-Use the following environment variable to change the distroless image tag. The default is `nonroot` to debug with a shell use `debug` or `debug-nonroot`.
+Use the following environment variable to change the distroless image tag. The default is `nonroot`, to debug with a shell use `debug` or `debug-nonroot`.
 
 ```sh
-DISTROLESS_TAG=debug docker buildx bake
+DISTROLESS_TAG=debug docker compose --profile services build
 ```
-
-_The [docker-compose.yaml](./docker-compose.yaml) file is used as [build definition](https://docs.docker.com/engine/reference/commandline/buildx_bake/#file). `docker buildx bake` ignores profiles and builds the services anyway._
 
 ## Contributing
 
