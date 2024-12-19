@@ -32,7 +32,7 @@ The guide describes how to configure your VPS manually.
 
 **Why?**
 
-Manually configuring your VPS as opposed to using [Nix](nix.md) might be the **only option if your system resources are limited** (to less than 1GB RAM), or the **prefered** option if you rather not depend on third-party tooling.
+Manually configuring your VPS as opposed to using [Nix](nix.md) might be the **only option if your system resources are limited** (minimum 962MiB RAM), or the **prefered** option if you rather not depend on third-party tooling.
 
 **Why not?**
 

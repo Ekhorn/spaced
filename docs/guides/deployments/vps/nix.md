@@ -43,7 +43,7 @@ When it comes to using Nix there are pro's and cons.
 
 **NixOS** allows you to **maintain a reproducible system configuration** across your hosts, and it's therefore **simpler** to maintain when you have **multiple machines**.
 
-**However** using Nix comes at a cost of potentially **extra storage space**, and **sometimes** being a little **extra tideous**. The installation process also requires at least 1 GB of RAM.
+**However** using Nix comes at a cost of potentially **extra storage space**, and **sometimes** being a little **extra tideous**. The installation process also requires at least 962MiB of RAM.
 
 <div style="page-break-after: always;"></div>
 

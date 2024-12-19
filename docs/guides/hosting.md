@@ -56,11 +56,13 @@ The following list has been tested.
 
 > Note: Some providers may offer a baseline you can surpass. When that happens extra costs are added to the monthly bill.
 
-| Provider           | Zone             | Cost (/month)                              | Specs                                                                                                                                                     |
-| ------------------ | ---------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [IONOS(de)][ionos] | Germany (Berlin) | €1 for 1 year plan _([see][ionos])_        | [VPS Linux XS](https://www.ionos.com/servers/vps) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps)) |
-| [IONOS(de)][ionos] | Germany (Berlin) | €4 (or €3 w/ 2 year plan) _([see][ionos])_ | [VPS Linux S](https://www.ionos.com/servers/vps) <br> 2 vCPU <br> 2 GB RAM <br> 80 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))  |
-| ...                |                  |                                            |                                                                                                                                                           |
+| Provider                                                      | Zone             | Cost (/month)                               | Specs                                                                                                                                                                                           |
+| ------------------------------------------------------------- | ---------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [AWS (EC2)](https://eu-central-1.console.aws.amazon.com/ec2/) | eu-central-1b    | < €1 (depends) / free tier\* _([see][aws])_ | [t2.micro](https://aws.amazon.com/ec2/instance-types/) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Low to Moderate](https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html#gp_network) |
+| [IONOS(de)][ionos]                                            | Germany (Berlin) | €1 for 1 year plan _([see][ionos])_         | [VPS Linux XS](https://www.ionos.com/servers/vps) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                       |
+| [IONOS(de)][ionos]                                            | Germany (Berlin) | €4 (or €3 w/ 2 year plan) _([see][ionos])_  | [VPS Linux S](https://www.ionos.com/servers/vps) <br> 2 vCPU <br> 2 GB RAM <br> 80 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                        |
+| ...                                                           |                  |                                             |                                                                                                                                                                                                 |
+> **AWS (EC2)**: See the [AWS Free Tier limits](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-eligibility.html).
 
 <!-- **<100 concurrent users** -->
 
@@ -82,15 +84,19 @@ The following list has been tested.
 
 When you know what provider you want to go with, the next steps to deploy Spaced are described below.
 
+> **AWS**: [Amazon EC2](https://aws.amazon.com/ec2/) is **recommended** over [Amazon Lightsail](https://aws.amazon.com/lightsail/). While Amazon Lightsail is advertised as VPS product it's considerably more expsensive (at the time of writing) compared to EC2. If you would like to use Lightsail instead you can follow the general instructions.
+
 ### 2.1. VPS deployment
 
 Each provider has it's own ways to create a VPS.
+
+> **Hetzner**: In the cloud console, a default project is created, it can be renamed to e.g. Spaced. Or you can create a new project entirely.
 
 The general steps involved for setting up a VPS are as follows:
 
 #### 2.1.1. Zone (data center location)
 
-The data center location is important to reduce latency for your users. The **recommended** zone would be the one **nearest to most users** minimizing the **mean latency** across your user base. To learn more about various latency numbers you can check out the following AWS latency chart https://latency.bluegoat.net/.
+The data center location is important to reduce latency for your users. The **recommended** zone would be the one **nearest to most users** minimizing the **mean latency** across your user base. To learn more about various latency numbers you can check out the following AWS latency chart <https://latency.bluegoat.net/>.
 
 #### 2.1.2. OS Image (Linux)
 
@@ -103,13 +109,15 @@ The **recommended** image may vary depending on the providers' offerings. A good
 | Storage  | 1.6 GiB   | 2.5 GiB   |
 -->
 
+> **AWS (EC2)**: The default image is the Amazon Linux which is recommended as it has free plan support and is designed to be lightweight.
+
 #### 2.1.3. Instance Type
 
 The **recommended minimum** here is based on tests conducted in [1.1. Tested VPS providers](#11-tested-vps-providers). Using "shared servers" is recommended here, while that usually means everything runs on a virtual machine it will cut on costs. Dedicated servers are usually not needed unless performance is of up most importance.
 
 | Use                                 | CPU    | RAM   | Storage |
 | ----------------------------------- | ------ | ----- | ------- |
-| Personal <!-- (up-to XXX users) --> | 1 vCPU | 1 GiB | 10 GB   |
+| Personal <!-- (up-to XXX users) --> | 1 vCPU | 1 GiB | 8 GB    |
 | ...                                 |
 
 <!-- TODO: add concurrent user counts based on load tests -->
@@ -128,6 +136,8 @@ The networking on each provider can differ quite significantly. Some recommendat
 #### 2.1.5. SSH Key Pair
 
 The provider may require you to configure an SSH key pair beforehand, and others may pre-define a password to get access to your VPS.
+
+> **AWS (EC2)**: The key pair must instead be generated and downloaded from the console during configuration which you can then use by adding the path to the identity file with `-i /path/to/<my-identity>.pem`.
 
 If you do not have an SSH key pair on your (unix) host system you can generate a pair using the following command. _You may specify a passphrase to encrypt the private key, make sure to keep it somewhere safe as you'll need it everytime you're accessing the VPS._
 
@@ -148,6 +158,8 @@ Lastly, configure it for the cloud provider.
 > **IONOS**: You can rename your VPS server to be called `spaced` for clarity.
 
 #### 2.1.7. Configuring the VPS
+
+> Note: Nix requires at least 962MiB of RAM (tested on AWS EC2 [t2.micro](https://aws.amazon.com/ec2/instance-types/)). Running `free -h` on [IONOS(de) VPS Linux XS](https://www.ionos.de/server/vps) (with 1GB RAM) only actually shows 873MiB RAM, and ran out of memory during kernel swapping.
 
 When the VPS is ready, configure it either [manually](deployments/vps/manual.md) or through [Nix](deployments/vps/nix.md).
 
@@ -171,5 +183,6 @@ Configuring Cloudflare can be done by adding ... then pointing it to your server
 **Metrics** -->
 
 [a_record]: https://www.cloudflare.com/learning/dns/dns-records/dns-a-record/
+[aws]: https://aws.amazon.com/free
 [ttl]: https://www.ionos.com/digitalguide/server/configuration/understanding-and-configuring-dns-ttl
 [ionos]: https://www.ionos.de/server/vps#tarife
