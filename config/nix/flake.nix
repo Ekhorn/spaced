@@ -7,6 +7,16 @@
 
   outputs = { nixpkgs, disko, ... }:
   {
+    nixosConfigurations.hetzner-x86_64 = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        disko.nixosModules.disko
+        { disko.devices.disk.main.device = "/dev/sda"; }
+        ./configuration.nix
+        ./hardware-configuration.nix
+      ];
+    };
+
     nixosConfigurations.aws-x86_64 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [

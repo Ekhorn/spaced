@@ -56,13 +56,16 @@ The following list has been tested.
 
 > Note: Some providers may offer a baseline you can surpass. When that happens extra costs are added to the monthly bill.
 
-| Provider                                                      | Zone             | Cost (/month)                               | Specs                                                                                                                                                                                           |
-| ------------------------------------------------------------- | ---------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [AWS (EC2)](https://eu-central-1.console.aws.amazon.com/ec2/) | eu-central-1b    | < €1 (depends) / free tier\* _([see][aws])_ | [t2.micro](https://aws.amazon.com/ec2/instance-types/) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Low to Moderate](https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html#gp_network) |
-| [IONOS(de)][ionos]                                            | Germany (Berlin) | €1 for 1 year plan _([see][ionos])_         | [VPS Linux XS](https://www.ionos.com/servers/vps) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                       |
-| [IONOS(de)][ionos]                                            | Germany (Berlin) | €4 (or €3 w/ 2 year plan) _([see][ionos])_  | [VPS Linux S](https://www.ionos.com/servers/vps) <br> 2 vCPU <br> 2 GB RAM <br> 80 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                        |
-| ...                                                           |                  |                                             |                                                                                                                                                                                                 |
+| Provider                                                      | Zone                | Cost (/month)                               | Specs                                                                                                                                                                                           |
+| ------------------------------------------------------------- | ------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [AWS (EC2)](https://eu-central-1.console.aws.amazon.com/ec2/) | eu-central-1b       | < €1 (depends) / free tier\* _([see][aws])_ | [t2.micro](https://aws.amazon.com/ec2/instance-types/) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Low to Moderate](https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html#gp_network) |
+| [Hetzner][hetzner]                                            | Germany (Nuremberg) | € 3.79\* _([see][hetzner])_                 | [CX22][hetzner] <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Up to 20 TB][hetzner]                                                                                                            |
+| [IONOS(de)][ionos]                                            | Germany (Berlin)    | €1 for 1 year plan _([see][ionos])_         | [VPS Linux XS](https://www.ionos.com/servers/vps) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                       |
+| [IONOS(de)][ionos]                                            | Germany (Berlin)    | €4 (or €3 w/ 2 year plan) _([see][ionos])_  | [VPS Linux S](https://www.ionos.com/servers/vps) <br> 2 vCPU <br> 2 GB RAM <br> 80 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                        |
+| ...                                                           |                     |                                             |                                                                                                                                                                                                 |
 > **AWS (EC2)**: See the [AWS Free Tier limits](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-eligibility.html).
+>
+> **Hetzner**: The network traffic is up to 20TB a month. Every TB afterwards costs €1.00 in the EU and US, and €7.40 in Singapore. The network bandwith is currently unknown.
 
 <!-- **<100 concurrent users** -->
 
@@ -97,6 +100,8 @@ The general steps involved for setting up a VPS are as follows:
 #### 2.1.1. Zone (data center location)
 
 The data center location is important to reduce latency for your users. The **recommended** zone would be the one **nearest to most users** minimizing the **mean latency** across your user base. To learn more about various latency numbers you can check out the following AWS latency chart <https://latency.bluegoat.net/>.
+
+> **Hetzner**: At the time of writing some locations may not support all plans available.
 
 #### 2.1.2. OS Image (Linux)
 
@@ -155,6 +160,8 @@ Lastly, configure it for the cloud provider.
 
 #### 2.1.6. Other considerations
 
+> **Hetzner**: The following are **not required**: Volumes, Backups, Placement groups, Labels and Cloud Config. You can name your VPS server to be called `spaced`.
+>
 > **IONOS**: You can rename your VPS server to be called `spaced` for clarity.
 
 #### 2.1.7. Configuring the VPS
@@ -184,5 +191,6 @@ Configuring Cloudflare can be done by adding ... then pointing it to your server
 
 [a_record]: https://www.cloudflare.com/learning/dns/dns-records/dns-a-record/
 [aws]: https://aws.amazon.com/free
+[hetzner]: https://www.hetzner.com/cloud/
 [ttl]: https://www.ionos.com/digitalguide/server/configuration/understanding-and-configuring-dns-ttl
 [ionos]: https://www.ionos.de/server/vps#tarife
