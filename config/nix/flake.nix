@@ -39,7 +39,7 @@
       ];
     };
 
-    nixosConfigurations.hetzner-x86_64 = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.hetzner = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         disko.nixosModules.disko
@@ -49,7 +49,7 @@
       ];
     };
 
-    nixosConfigurations.aws-x86_64 = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.aws = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         disko.nixosModules.disko
