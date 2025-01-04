@@ -7,6 +7,28 @@
 
   outputs = { nixpkgs, disko, ... }:
   {
+      nixosConfigurations.digitalocean = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        disko.nixosModules.disko
+        {
+          # do not use DHCP, as DigitalOcean provisions IPs using cloud-init
+          networking.useDHCP = nixpkgs.lib.mkForce false;
+
+          services.cloud-init = {
+            enable = true;
+            network.enable = true;
+
+            # not strictly needed, just for good measure
+            datasource_list = [ "DigitalOcean" ];
+            datasource.DigitalOcean = { };
+          };
+        }
+        ./configuration.nix
+        ./hardware-configuration.nix
+      ];
+    };
+
     nixosConfigurations.hetzner-x86_64 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
