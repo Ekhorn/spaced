@@ -56,14 +56,15 @@ The following list has been tested.
 
 > Note: Some providers may offer a baseline you can surpass. When that happens extra costs are added to the monthly bill.
 
-| Provider                                                      | Zone                    | Cost (/month)                               | Specs                                                                                                                                                                                           |
-| ------------------------------------------------------------- | ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [AWS (EC2)](https://eu-central-1.console.aws.amazon.com/ec2/) | eu-central-1b           | < €1 (depends) / free tier\* _([see][aws])_ | [t2.micro](https://aws.amazon.com/ec2/instance-types/) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Low to Moderate](https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html#gp_network) |
-| [DigitalOcean][digitalocean]                                  | Netherlands (Amsterdam) | $6 or less _([see][digitalocean])_          | [Basic][digitalocean] <br> 1 vCPU <br> 1 GB RAM <br> 25 GB SSD <br> Up to 1 TiB                                                                                                                 |
-| [Hetzner][hetzner]                                            | Germany (Nuremberg)     | € 3.79\* _([see][hetzner])_                 | [CX22][hetzner] <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Up to 20 TB][hetzner]                                                                                                            |
-| [IONOS(de)][ionos]                                            | Germany (Berlin)        | €1 for 1 year plan _([see][ionos])_         | [VPS Linux XS](https://www.ionos.com/servers/vps) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                       |
-| [IONOS(de)][ionos]                                            | Germany (Berlin)        | €4 (or €3 w/ 2 year plan) _([see][ionos])_  | [VPS Linux S](https://www.ionos.com/servers/vps) <br> 2 vCPU <br> 2 GB RAM <br> 80 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                        |
-| ...                                                           |                         |                                             |                                                                                                                                                                                                 |
+| Provider                                                      | Zone                         | Cost (/month)                               | Specs                                                                                                                                                                                           |
+| ------------------------------------------------------------- | ---------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [AWS (EC2)](https://eu-central-1.console.aws.amazon.com/ec2/) | eu-central-1b                | < €1 (depends) / free tier\* _([see][aws])_ | [t2.micro](https://aws.amazon.com/ec2/instance-types/) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Low to Moderate](https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html#gp_network) |
+| [DigitalOcean][digitalocean]                                  | Netherlands (Amsterdam)      | $6 or less _([see][digitalocean])_          | [Basic][digitalocean] <br> 1 vCPU <br> 1 GB RAM <br> 25 GB SSD <br> Up to 1 TiB                                                                                                                 |
+| [Google Cloud][google_cloud]                                  | europe-west4-b (Netherlands) | $7.83 _([see][google_cloud])_               | [e2-custom-micro-1280][google_cloud] <br> 0.25 vCPU <br> 1.25 GB RAM <br> 10 GB <br> 1 Gbps                                                                                                     |
+| [Hetzner][hetzner]                                            | Germany (Nuremberg)          | € 3.79\* _([see][hetzner])_                 | [CX22][hetzner] <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> [Up to 20 TB][hetzner]                                                                                                            |
+| [IONOS(de)][ionos]                                            | Germany (Berlin)             | €1 for 1 year plan _([see][ionos])_         | [VPS Linux XS](https://www.ionos.com/servers/vps) <br> 1 vCPU <br> 1 GB RAM <br> 10 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                       |
+| [IONOS(de)][ionos]                                            | Germany (Berlin)             | €4 (or €3 w/ 2 year plan) _([see][ionos])_  | [VPS Linux S](https://www.ionos.com/servers/vps) <br> 2 vCPU <br> 2 GB RAM <br> 80 GB SSD <br> 1 Gbit/s ([Unlimited](https://www.ionos.com/servers/vps))                                        |
+| ...                                                           |                              |                                             |                                                                                                                                                                                                 |
 
 > **AWS (EC2)**: See the [AWS Free Tier limits](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-eligibility.html).
 >
@@ -121,10 +122,14 @@ The **recommended** image may vary depending on the providers' offerings. A good
 -->
 
 > **AWS (EC2)**: The default image is the Amazon Linux which is recommended as it has free plan support and is designed to be lightweight.
+>
+> **Google Cloud**: To configure NixOS the easiest way would be to upload a custom ISO image, such as the "Minimal Image" from <https://nixos.org/.download/>, since passwordless login is disabled by default. You could also circumvent this by using browser console SSH option, and setting a password using `sudo passwd`, then temporarily enabling `PasswordAuthentication` and `PermitRootLogin` by editing `sudo nano /etc/ssh/sshd_config` and then running `sudo systemctl reload ssh` allowing you to continue with [Nix](./deployments/vps/nix.md).
 
 #### 2.1.3. Instance Type
 
 The **recommended minimum** here is based on tests conducted in [1.1. Tested VPS providers](#11-tested-vps-providers). Using "shared servers" is recommended here, while that usually means everything runs on a virtual machine it will cut on costs. Dedicated servers are usually not needed unless performance is of up most importance.
+
+> **Google Cloud**: Using a custom E2 machine type with 0.25 (shared) vCPUs, and 1.25 GB RAM NixOS OS can be installed when following [nix](./deployments/vps/nix.md). You may be able to get away with less memory when configuring manually, allowing you to use e.g. e2-micro with 0.25-2 (shared) vCPUs and 1 GB RAM.
 
 | Use                                 | CPU    | RAM   | Storage |
 | ----------------------------------- | ------ | ----- | ------- |
@@ -140,8 +145,10 @@ The networking on each provider can differ quite significantly. Some recommendat
 
 - 22 for SSH access
 - 80 for HTTP traffic
-- 443 for HTTPS traffic.
+- 443 for HTTPS traffic
 
+> **Google Cloud**: The default firewall has ports 80 and 443 disabled. To enable go to "Networking > Firewall", and enable HTTP/s traffic.
+>
 > **IONOS(de)**: The default firewall rules are set to ports 22, 80, 443, 8443, and 8447. Ports 8443 and 8447 don't need to be exposed can be disabled.
 
 #### 2.1.5. SSH Key Pair
@@ -149,6 +156,10 @@ The networking on each provider can differ quite significantly. Some recommendat
 The provider may require you to configure an SSH key pair beforehand, and others may pre-define a password to get access to your VPS.
 
 > **AWS (EC2)**: The key pair must instead be generated and downloaded from the console during configuration which you can then use by adding the path to the identity file with `-i /path/to/<my-identity>.pem`.
+>
+> **Google Cloud**: Public key pairs can be added before and after the instance is created.
+> <br>- Before: Security > Manage Access > Add manually generated SSH keys
+> <br>- After: Settings > Metadata > SSH Keys
 
 If you do not have an SSH key pair on your (unix) host system you can generate a pair using the following command. _You may specify a passphrase to encrypt the private key, make sure to keep it somewhere safe as you'll need it everytime you're accessing the VPS._
 
@@ -168,13 +179,15 @@ Lastly, configure it for the cloud provider.
 
 > **DigitalOcean**: The following are **not required**: Volumes and Backups. You can give the droplet a "project name". Additionally you may enable improved metrics monitoring and alerting as it's free.
 >
+> **Google Cloud**: There are tons more options, but recommended is leaving things on the default.
+>
 > **Hetzner**: The following are **not required**: Volumes, Backups, Placement groups, Labels and Cloud Config. You can name your VPS server to be called `spaced`.
 >
 > **IONOS**: You can rename your VPS server to be called `spaced` for clarity.
 
 #### 2.1.7. Configuring the VPS
 
-> Note: Nix requires at least 962MiB of RAM (tested on AWS EC2 [t2.micro](https://aws.amazon.com/ec2/instance-types/)). Running `free -h` on [IONOS(de) VPS Linux XS](https://www.ionos.de/server/vps) (with 1GB RAM) only actually shows 873MiB RAM, and ran out of memory during kernel swapping.
+> Note: Nix requires at least 696Mi available RAM (tested on Google Cloud E2 custom). Running `free -h` on [IONOS(de) VPS Linux XS](https://www.ionos.de/server/vps) (with 1GB RAM) only actually shows 556Mi available RAM, and ran out of memory during kernel swapping.
 
 When the VPS is ready, configure it either [manually](deployments/vps/manual.md) or through [Nix](deployments/vps/nix.md).
 
@@ -200,6 +213,7 @@ Configuring Cloudflare can be done by adding ... then pointing it to your server
 [a_record]: https://www.cloudflare.com/learning/dns/dns-records/dns-a-record/
 [aws]: https://aws.amazon.com/free
 [digitalocean]: https://cloud.digitalocean.com/droplets/new?region=ams3&size=s-1vcpu-1gb&distro=debian&distroImage=debian-12-x64
+[google_cloud]: https://console.cloud.google.com/compute/instancesAdd
 [hetzner]: https://www.hetzner.com/cloud/
 [ttl]: https://www.ionos.com/digitalguide/server/configuration/understanding-and-configuring-dns-ttl
 [ionos]: https://www.ionos.de/server/vps#tarife
