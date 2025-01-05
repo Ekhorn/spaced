@@ -2,7 +2,7 @@
 
 The guide describes how to deploy Spaced using Docker Swarm in production.
 
-### Contents <!-- omit in toc -->
+## Contents <!-- omit in toc -->
 
 <div class="toc">
   <style>
@@ -17,7 +17,7 @@ The guide describes how to deploy Spaced using Docker Swarm in production.
 
 </div>
 
-### 1. Docker Context
+## 1. Docker Context
 
 Once Docker is installed it's useful to configure a docker context, so you can easily switch to your VPS to update the deployment.
 
@@ -37,10 +37,10 @@ To list all contexts use the following command. You should see the context being
 docker context ls
 ```
 
-### 2. Deploying
+## 2. Deploying
 
 Then simply run docker stack, to start the containers.
 
 ```sh
-docker stack --profile services config/docker/prod.yaml
+docker stack config/docker/stack-traefik.yaml
 ```

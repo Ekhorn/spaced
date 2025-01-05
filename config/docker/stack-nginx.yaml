@@ -1,49 +1,51 @@
-include:
-  - certbot.yaml
-
 x-vars:
   - &docker-sock --docker=unix:///var/run/user/${UID:-1000}/docker.sock
+
+configs:
+  frontend: { external: true }
+  nginx: { external: true }
+  # letsencrypt: { external: true }
+  prometheus: { external: true }
 
 services:
   # Reverse-proxy for Spaced services
   nginx:
     image: nginx
-    profiles: [nginx, services]
     restart: always
+    configs:
+      - source: nginx
+        target: /etc/nginx/nginx.conf
+      - source: frontend
+        target: /usr/share/nginx/html
     volumes:
-      - ../nginx/prod.conf:/etc/nginx/nginx.conf
-      - ../../dist:/usr/share/nginx/html
+      - dist:/usr/share/nginx/html
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - 80:80
       - 443:443
   # Spaced services
   item_socket:
-    container_name: item_socket
     image: spaced/item_socket:${IMAGE_TAG:-latest}
     restart: always
-    profiles: [services]
     environment:
       - HOST=0.0.0.0
     ports: [8081:8081]
   # Metrics
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: cadvisor
-    profiles: [services]
     restart: always
     privileged: true
     devices:
-      - /dev/kmsg
+      - /dev/kmsg # Root only
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
       # - /var/lib/docker/:/var/lib/docker:ro # Docker Root
-      - ~/.local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
       # - /var/lib/containers:/var/lib/containers:ro # Podman Root
-      - ~/.local/share/containers:/var/lib/containers:ro # Podman Rootless
+      - share/containers:/var/lib/containers:ro # Podman Rootless
       - /dev/disk/:/dev/disk:ro
     command:
       - *docker-sock
@@ -51,12 +53,10 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - item_sockets
+      - item_socket
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
     restart: always
-    profiles: [services]
     ports:
       - 9090:9090
     command:

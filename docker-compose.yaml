@@ -29,30 +29,42 @@ services:
       - 5672:5672
       - 15672:15672
   # Reverse-proxy for Spaced services
-  nginx:
-    image: nginx
-    container_name: nginx
-    profiles: [e2e, nginx, services]
+  traefik:
+    image: traefik:v3.2
+    labels:
+      - traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.services.dashboard.loadbalancer.server.port=8080
+    container_name: traefik
+    profiles: [services]
     restart: always
     volumes:
-      - ./config/nginx/dev.conf:/etc/nginx/nginx.conf
-      - ./dist:/usr/share/nginx/html
+      - /var/run/user/${UID:-1000}/docker.sock:/var/run/docker.sock
+    command:
+      - --api.insecure=true
+      - --metrics.prometheus=true
+      - --providers.docker
     ports:
       - 7777:80
-      - 8888:81
-  nginx_exporter:
-    image: nginx/nginx-prometheus-exporter:1.3.0
-    container_name: nginx_exporter
-    profiles: [nginx, services]
+  # Static file server
+  nginx:
+    image: nginx:alpine
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nginx.rule=Host(`localhost`)
+    container_name: nginx
+    profiles: [services]
     restart: always
-    ports:
-      - 9113:9113
-    command: --nginx.scrape-uri=http://nginx:8888/stub_status
-    depends_on:
-      - nginx
+    volumes:
+      - ./config/nginx/static.conf:/etc/nginx/nginx.conf
+      - ./dist:/usr/share/nginx/html
   # Spaced services
   item_socket:
     image: spaced/item_socket:${IMAGE_TAG:-latest}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.item_socket.rule=PathPrefix(`/socket.io`)
+      - traefik.http.services.item_socket.loadBalancer.sticky.cookie.name=server_id
+      - traefik.http.services.item_socket.loadBalancer.sticky.cookie.httpOnly=true
     container_name: item_socket
     profiles: [e2e, services]
     restart: always

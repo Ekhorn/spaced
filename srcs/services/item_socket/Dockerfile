@@ -12,6 +12,11 @@ RUN cargo build -p item_socket --release
 
 # TODO: use static and copy dynamically linked libraries or build with static linking
 FROM gcr.io/distroless/cc-debian12:$DISTROLESS_TAG
-WORKDIR /home/nonroot
 COPY --from=build --chown=nonroot:nonroot --chmod=544 /app/target/release/item_socket /usr/bin
+
+WORKDIR /home/nonroot
 ENTRYPOINT ["item_socket"]
+
+LABEL org.opencontainers.image.title="Spaced Item Socket"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.source=https://github.com/Ekhorn/spaced.git
