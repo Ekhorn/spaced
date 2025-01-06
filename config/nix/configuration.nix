@@ -35,12 +35,7 @@ in
     };
   };
 
-  virtualisation = {
-    docker.rootless = {
-      enable = true;
-      setSocketVariable = true;
-    };
-  };
+  virtualisation.docker.enable = true;
 
   environment.systemPackages = map lib.lowPrio [];
 
@@ -48,7 +43,7 @@ in
     spaced = {
       isNormalUser = true;
       openssh.authorizedKeys.keys = keys;
-      extraGroups = [ "wheel" ];
+      extraGroups = [ "wheel" "docker" ];
     };
     root.openssh.authorizedKeys.keys = keys;
   };
