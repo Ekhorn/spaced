@@ -12,12 +12,12 @@ export default defineConfig(async () => ({
     strictPort: true,
     proxy: {
       '/socket.io': {
-        target: 'ws://localhost:8080',
+        target: 'ws://localhost:8081',
         ws: true,
       },
-      '/api/user': {
-        target: 'http://localhost:8081',
-      },
+      // '/api/user': {
+      //   target: 'http://localhost:8082',
+      // },
     },
   },
   // to make use of `TAURI_DEBUG` and other env variables
