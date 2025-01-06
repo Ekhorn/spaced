@@ -153,6 +153,12 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
       - uses: docker/login-action@v3
         with:
           registry: ${{ env.GITHUB_REGISTRY }}
@@ -166,6 +172,10 @@ jobs:
         with:
           files: config/docker/compose-prod.yaml
           push: true
+          load: true
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
 
   ##################################################
   # Deploy Stage                                 ###
@@ -176,14 +186,17 @@ jobs:
     timeout-minutes: 20
     environment:
       name: review
-      url: review.spaced.fun
+      url: https://review.spaced.fun
     if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
     permissions:
       pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - run: echo "PR_NUMBER=$(gh pr view --json number -q .number)" >>${GITHUB_ENV}
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
           name: review-${{ env.PR_NUMBER }}
@@ -199,11 +212,12 @@ jobs:
     timeout-minutes: 20
     environment:
       name: staging
-      url: staging.spaced.fun
+      url: https://staging.spaced.fun
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
       - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "DNS_ENV_NAME=IONOS_API_KEY" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
           name: staging
@@ -224,7 +238,7 @@ jobs:
   #       subdomain: [aws, do, gc, hetzner, ionos]
   #   environment:
   #     name: review
-  #     url: review.spaced.fun
+  #     url: https://review.spaced.fun
   #   if: ${{ github.type == branch && github.ref_name != main }}
   #   steps:
   #     - uses: actions/checkout@v2
@@ -243,7 +257,7 @@ jobs:
   #   concurrency: production
   #   environment:
   #     name: production
-  #     url: spaced.fun
+  #     url: https://spaced.fun
   #   steps:
   #     - uses: actions/checkout@v2
   #     - run: |
@@ -259,22 +273,22 @@ jobs:
   # ##################################################
   # # End-To-End Test Stage                        ###
   # ##################################################
-  # e2e:
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 20
-  #   if: ${{ needs.review.result == success || needs.staging.result == success }}
-  #   steps:
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 18
-  #     - run: npx playwright install --with-deps
-  #     - run: npm run e2e
-  #     - uses: actions/upload-artifact@v4
-  #       if: always()
-  #       with:
-  #         name: playwright-report
-  #         path: srcs/e2e/playwright-report/
-  #         retention-days: 30
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ needs.review.result == 'success' || needs.staging.result == 'success' }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npx playwright install --with-deps
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: srcs/e2e/playwright-report/
+          retention-days: 30
 
   # ##################################################
   # # Performance Stage                            ###

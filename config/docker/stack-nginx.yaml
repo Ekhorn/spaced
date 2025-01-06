@@ -38,7 +38,7 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
       - /var/lib/docker/:/var/lib/docker:ro # Docker Root
       # - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
-      - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
       # - share/containers:/var/lib/containers:ro # Podman Rootless
       - /dev/disk/:/dev/disk:ro
     command:
@@ -55,6 +55,6 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
-      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - /home/spaced/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
     depends_on:
       - cadvisor

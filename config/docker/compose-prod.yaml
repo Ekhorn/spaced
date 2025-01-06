@@ -10,20 +10,23 @@ x-vars:
 services:
   # Reverse-proxy for Spaced services
   nginx:
-    image: nginx
+    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/nginx:${COMMIT_SHA:-latest}
+    container_name: nginx
     profiles: [nginx, services]
     restart: always
     volumes:
       - ../nginx/prod.conf:/etc/nginx/nginx.conf
       - ../../dist:/usr/share/nginx/html
       - /etc/letsencrypt:/etc/letsencrypt
+    build:
+      dockerfile: config/nginx/Dockerfile
     ports:
       - 80:80
       - 443:443
   # Spaced services
   item_socket:
-    container_name: item_socket
     image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/item_socket:${COMMIT_SHA:-latest}
+    container_name: item_socket
     restart: always
     profiles: [services]
     environment:
