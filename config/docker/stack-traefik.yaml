@@ -12,13 +12,10 @@ services:
     labels:
       - traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)
       - traefik.http.services.dashboard.loadbalancer.server.port=8080
-    container_name: traefik
     deploy:
       placement:
         constraints:
           - node.role == manager
-    profiles: [services]
-    restart: always
     volumes:
       - /var/run/user/${UID:-1000}/docker.sock:/var/run/docker.sock
     command:
@@ -37,35 +34,27 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.nginx.rule=Host(`localhost`)
-    container_name: nginx
-    profiles: [services]
-    restart: always
     volumes:
       - ./config/nginx/static.conf:/etc/nginx/nginx.conf
       - ./dist:/usr/share/nginx/html
   # Spaced services
   item_socket:
     image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/item_socket:${COMMIT_SHA:-latest}
-    restart: always
     environment:
       - HOST=0.0.0.0
     ports: [8081:8081]
   # Metrics
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    restart: always
-    privileged: true
-    devices:
-      - /dev/kmsg # Root only
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
-      # - /var/lib/docker/:/var/lib/docker:ro # Docker Root
-      - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
-      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
-      - share/containers:/var/lib/containers:ro # Podman Rootless
+      - /var/lib/docker/:/var/lib/docker:ro # Docker Root
+      # - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      # - share/containers:/var/lib/containers:ro # Podman Rootless
       - /dev/disk/:/dev/disk:ro
     command:
       - *docker-sock
@@ -76,7 +65,6 @@ services:
       - item_socket
   prometheus:
     image: prom/prometheus
-    restart: always
     ports:
       - 9090:9090
     command:

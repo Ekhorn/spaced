@@ -11,7 +11,6 @@ services:
   # Reverse-proxy for Spaced services
   nginx:
     image: nginx
-    restart: always
     configs:
       - source: nginx
         target: /etc/nginx/nginx.conf
@@ -25,27 +24,22 @@ services:
       - 443:443
   # Spaced services
   item_socket:
-    image: spaced/item_socket:${IMAGE_TAG:-latest}
-    restart: always
+    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/item_socket:${COMMIT_SHA:-latest}
     environment:
       - HOST=0.0.0.0
     ports: [8081:8081]
   # Metrics
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    restart: always
-    privileged: true
-    devices:
-      - /dev/kmsg # Root only
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
-      # - /var/lib/docker/:/var/lib/docker:ro # Docker Root
-      - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
-      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
-      - share/containers:/var/lib/containers:ro # Podman Rootless
+      - /var/lib/docker/:/var/lib/docker:ro # Docker Root
+      # - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      # - share/containers:/var/lib/containers:ro # Podman Rootless
       - /dev/disk/:/dev/disk:ro
     command:
       - *docker-sock
@@ -56,7 +50,6 @@ services:
       - item_socket
   prometheus:
     image: prom/prometheus
-    restart: always
     ports:
       - 9090:9090
     command:
