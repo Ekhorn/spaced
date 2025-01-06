@@ -2,7 +2,7 @@
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
-nix.lock
+flake.lock
 
 # Rust
 src/tauri
