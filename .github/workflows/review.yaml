@@ -79,6 +79,20 @@ jobs:
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: .env
 
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: provision_review
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: echo "PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)" >> $GITHUB_ENV
+      - run: npx @lhci/cli@0.14 autorun --config config/lighthouserc.cjs
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
   e2e:
     needs: provision_review
     uses: ./.github/workflows/e2e.yaml
