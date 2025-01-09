@@ -2,6 +2,10 @@ configs:
   prometheus:
     file: ../prometheus/swarm.yaml
 
+networks:
+  traefik-net:
+    external: true
+
 secrets:
   # Put your DNS provider credentials inside a file
   # and add them one-by-one using `cat secret | docker secret create MY_SECRET_API_KEY -`
@@ -28,10 +32,11 @@ services:
   # Reverse-proxy for Spaced services
   traefik:
     image: traefik:v3.2
+    networks: [traefik-net]
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.dashboard.rule=Host(`review.spaced.fun`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+        - traefik.http.routers.dashboard.rule=(Host(`review.spaced.fun`) || Host(`staging.spaced.fun`)) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
         - traefik.http.routers.dashboard.service=api@internal
         - traefik.http.routers.dashboard.middlewares=auth
         - traefik.http.services.dashboard.loadbalancer.server.port=8080
@@ -40,7 +45,7 @@ services:
         constraints:
           - node.role == manager
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /home/spaced/:/etc/traefik/acme/
       # - /home/spaced/:/logs
     secrets:
@@ -61,6 +66,9 @@ services:
       - --entrypoints.websecure.http.tls.certResolver=ionos
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.http.tls.domains[0].main=staging.spaced.fun
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.review.spaced.fun
+      # - --certificatesresolvers.ionos.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.ionos.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
       - --certificatesResolvers.ionos.acme.dnschallenge.provider=ionos
       - --certificatesResolvers.ionos.acme.email=${LETSENCRYPT_EMAIL}
@@ -68,33 +76,14 @@ services:
     ports:
       - 80:80
       - 443:443
-  # Static file server
-  nginx:
-    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/nginx:${COMMIT_SHA:-latest}
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.nginx.rule=Host(`review.spaced.fun`) && PathPrefix(`/`)
-        - traefik.http.services.nginx.loadbalancer.server.port=80
-  # Spaced services
-  item_socket:
-    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/item_socket:${COMMIT_SHA:-latest}
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.item_socket.rule=Host(`review.spaced.fun`) && PathPrefix(`/socket.io`)
-        - traefik.http.services.item_socket.loadbalancer.server.port=8081
-        - traefik.http.services.item_socket.loadBalancer.sticky.cookie.name=server_id
-        - traefik.http.services.item_socket.loadBalancer.sticky.cookie.httpOnly=true
-    environment:
-      - HOST=0.0.0.0
   # Metrics
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
+    networks: [traefik-net]
     deploy:
       labels:
         - traefik.enable=false
-        - traefik.http.routers.cadvisor.rule=Host(`review.spaced.fun`) && PathPrefix(`/cadvisor`)
+        - traefik.http.routers.cadvisor.rule=(Host(`review.spaced.fun`) || Host(`staging.spaced.fun`)) && PathPrefix(`/cadvisor`)
         - traefik.http.services.cadvisor.loadbalancer.server.port=8080
     volumes:
       - /:/rootfs:ro
@@ -108,14 +97,13 @@ services:
       - /dev/disk/:/dev/disk:ro
     command:
       - --docker_only=true
-    depends_on:
-      - item_socket
   prometheus:
     image: prom/prometheus
+    networks: [traefik-net]
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.prometheus.rule=Host(`review.spaced.fun`) && PathPrefix(`/prometheus`)
+        - traefik.http.routers.prometheus.rule=(Host(`review.spaced.fun`) || Host(`staging.spaced.fun`)) && PathPrefix(`/prometheus`)
         - traefik.http.services.prometheus.loadbalancer.server.port=9090
     secrets:
       - PROM_PASSWORD

@@ -188,19 +188,46 @@ jobs:
       name: review
       url: https://review.spaced.fun
     if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
-    permissions:
-      pull-requests: read
     steps:
       - uses: actions/checkout@v4
-      - run: echo "PR_NUMBER=$(gh pr view --json number -q .number)" >>${GITHUB_ENV}
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - run: |
+          PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          SUBDOMAIN=$PR_NUMBER.review
+          echo "SUBDOMAIN=$SUBDOMAIN" >> .env
+      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - run: echo "STACK_NAME=review-${{ env.PR_NUMBER }}" >> .env
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          name: review-${{ env.PR_NUMBER }}
+          file: config/docker/services-stack.yaml
+          host: review.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+
+  provision_review:
+    runs-on: ubuntu-latest
+    needs: review
+    timeout-minutes: 20
+    environment:
+      name: review
+      url: https://review.spaced.fun
+    if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          SUBDOMAIN=$PR_NUMBER.review
+          echo "SUBDOMAIN=$SUBDOMAIN" >> .env
       - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
       - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
-          name: review-${{ env.PR_NUMBER }}
-          file: config/docker/stack-traefik.yaml
+          name: root
+          file: config/docker/root-stack.yaml
           host: review.spaced.fun
           user: spaced
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
