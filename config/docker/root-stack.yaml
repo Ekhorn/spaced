@@ -68,8 +68,8 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.http.tls.domains[0].main=staging.spaced.fun
       - --entrypoints.websecure.http.tls.domains[0].sans=*.review.spaced.fun
-      # - --certificatesresolvers.ionos.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
-      - --certificatesresolvers.ionos.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.ionos.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+      # - --certificatesresolvers.ionos.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
       - --certificatesResolvers.ionos.acme.dnschallenge.provider=ionos
       - --certificatesResolvers.ionos.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesResolvers.ionos.acme.storage=/etc/traefik/acme/acme.json
