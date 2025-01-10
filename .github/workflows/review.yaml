@@ -26,6 +26,32 @@ jobs:
       registry: ghcr.io
       username: ${{ github.actor }}
 
+  docker_scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: publish
+    if: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/scout-action@v1
+        with:
+          command: quickview,cves,recommendations,sbom #,environment,compare
+          dockerhub-user: ekhorn
+          dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image: ghcr.io/ekhorn/spaced/item_socket:${{ github.sha }}
+          # ghcr.io/ekhorn/spaced/nginx:${{ github.sha }}
+          to: ghcr.io/ekhorn/spaced/item_socket:latest
+          registry-user: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          write-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }} # to be able to write the comment
+
   review:
     runs-on: ubuntu-latest
     needs: publish
