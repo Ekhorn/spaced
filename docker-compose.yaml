@@ -39,7 +39,7 @@ services:
   nginx_exporter:
     restart: always
     profiles: ['nginx', 'services']
-    image: nginx/nginx-prometheus-exporter:1.3.0
+    image: nginx/nginx-prometheus-exporter:1.4.1
     ports:
       - 9113:9113
     command: --nginx.scrape-uri=http://nginx:8888/stub_status
