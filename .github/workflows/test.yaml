@@ -1,0 +1,54 @@
+name: test
+on: workflow_call
+
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  SQLX_OFFLINE: true
+
+jobs:
+  vitest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm ci
+      - run: npx --workspaces tsc -b
+      - run: npm test
+
+  test_rust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: spaced
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+      rabbitmq:
+        image: rabbitmq
+        env:
+          RABBITMQ_DEFAULT_USER: admin
+          RABBITMQ_DEFAULT_PASS: password
+        ports:
+          - 5672:5672
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0 libayatana-appindicator3-dev protobuf-compiler
+          rustup set auto-self-update disable
+          rustup toolchain install stable --profile minimal --component clippy
+          mkdir dist
+      - run: cargo test
+        env:
+          DATABASE_URL: postgres://admin:password@localhost:5432/spaced
+          SQLX_OFFLINE: true
