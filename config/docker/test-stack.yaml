@@ -1,0 +1,111 @@
+configs:
+  prometheus:
+    file: ../prometheus/swarm.yaml
+
+secrets:
+  # Then run `docker secret create PROM_PASSSWORD web.yaml`
+  # https://prometheus.io/docs/guides/basic-auth/
+  # Create a `web.yaml` file with a hashed password (use `htpasswd -nB admin`) inside like this:
+  # basic_auth_users:
+  #   admin: $2b$12$hNf2lSsxfm0.i4a.1kVpSOVyBCfIB51VRjgBUyv6kdnyTlgWj81Ay
+  #
+  # Then run `docker secret create PROM_PASSSWORD web.yaml`
+  PROM_PASSWORD:
+    external: true
+  # https://doc.traefik.io/traefik/middlewares/http/basicauth/#usersfile
+  # Create a `users` file with a hashed password (use `htpasswd -nB admin`) inside like this:
+  # admin:$2b$12$hNf2lSsxfm0.i4a.1kVpSOVyBCfIB51VRjgBUyv6kdnyTlgWj81Ay
+  #
+  # Then run `docker secret create TRAEFIK_USERS users`
+  TRAEFIK_USERS:
+    external: true
+
+services:
+  # Reverse-proxy for Spaced services
+  traefik:
+    image: traefik:v3.2
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.dashboard.rule=Host(`${SUBDOMAIN}.spaced.fun`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+        - traefik.http.routers.dashboard.service=api@internal
+        - traefik.http.routers.dashboard.middlewares=auth
+        - traefik.http.services.dashboard.loadbalancer.server.port=8080
+        - traefik.http.middlewares.auth.basicauth.usersfile=/run/secrets/TRAEFIK_USERS
+      placement:
+        constraints:
+          - node.role == manager
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # - /home/spaced/:/logs
+    secrets:
+      - TRAEFIK_USERS
+    command:
+      # - --log.level=DEBUG
+      # - --log.filePath=/logs/traefik.log
+      # - --api.insecure=true
+      - --api.dashboard=true
+      - --metrics.prometheus=true
+      - --providers.swarm=true
+      - --providers.swarm.exposedByDefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - 80:80
+  # Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    deploy:
+      labels:
+        - traefik.enable=false
+        - traefik.http.routers.cadvisor.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/cadvisor`)
+        - traefik.http.services.cadvisor.loadbalancer.server.port=8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
+      - /var/lib/docker/:/var/lib/docker:ro # Docker Root
+      # - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      # - share/containers:/var/lib/containers:ro # Podman Rootless
+      - /dev/disk/:/dev/disk:ro
+    command:
+      - --docker_only=true
+  prometheus:
+    image: prom/prometheus
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.prometheus.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/prometheus`)
+        - traefik.http.services.prometheus.loadbalancer.server.port=9090
+    secrets:
+      - PROM_PASSWORD
+    configs:
+      - source: prometheus
+        target: /etc/prometheus/swarm.yml
+    command:
+      - --config.file=/etc/prometheus/swarm.yml
+      - --web.config.file=/run/secrets/PROM_PASSWORD
+      - --web.external-url=/prometheus/
+    depends_on:
+      - cadvisor
+  # Static file server
+  nginx:
+    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/nginx:${COMMIT_SHA:-latest}
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.item_socket-nginx.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/`)
+        - traefik.http.services.nginx.loadbalancer.server.port=80
+  # Spaced services
+  item_socket:
+    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/item_socket:${COMMIT_SHA:-latest}
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.item_socket-item_socket.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/socket.io`)
+        - traefik.http.services.item_socket.loadbalancer.server.port=8081
+        - traefik.http.services.item_socket.loadBalancer.sticky.cookie.name=server_id
+        - traefik.http.services.item_socket.loadBalancer.sticky.cookie.httpOnly=true
+    environment:
+      - HOST=0.0.0.0
