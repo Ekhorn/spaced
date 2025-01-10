@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const { CI } = process.env;
+const { CI, PR_NUMBER } = process.env;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -20,7 +20,11 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: CI ? 'https://review.spaced.fun' : 'http://localhost:1420',
+    baseURL: CI
+      ? PR_NUMBER
+        ? `https://${PR_NUMBER}.review.spaced.fun`
+        : `https://staging.spaced.fun`
+      : 'http://localhost:1420',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     video: 'on',

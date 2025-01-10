@@ -398,30 +398,30 @@ test.describe('Item collaboration', () => {
     await editor2.dblclick();
     await editor2.click();
     await toEndOfLine(editor1, 0);
-    await editor2.pressSequentially(', yes we are!', { delay: 100 });
+    await editor2.pressSequentially(', yes we are!  ', { delay: 100 });
 
     const text = await editor1.textContent();
     // TODO: handle invalid cursors remove normalize string remove BOM unicode chars etc.
     expect(text?.replace('\uFEFF', '')).toBe(
-      `Collaborating..., yes we are${user2}!`,
+      `Collaborating..., yes we are!${user2} `,
     );
     // TODO: fix cursor position to be in the correct location
-    await expect(editor2).toContainText(`Collaborating..., yes we are!`);
+    await expect(editor2).toContainText(`Collaborating..., yes we are!  `);
 
     await editor1.dblclick();
     await toEndOfLine(editor1, 0);
     await editor1.press('Enter');
-    await editor1.pressSequentially(':)', { delay: 100 });
+    await editor1.pressSequentially(':)  ', { delay: 100 });
 
     // TODO: create test fixture checking multiline editor content
     await expect(editor1.locator(`p`)).toContainText([
-      `Collaborating..., yes we are!${user2}`,
-      `:)`,
+      `Collaborating..., yes we are!  ${user2}`,
+      `:)  `,
     ]);
     // TODO: fix cursor position to be in the correct location
     for (const [i, expected] of [
-      `Collaborating..., yes we are!`,
-      `:${user1})`,
+      `Collaborating..., yes we are!  `,
+      `:)${user1} `,
     ].entries()) {
       const text = await editor2.locator(`p`).nth(i).textContent();
       expect(text?.replace('\uFEFF', '')).toBe(expected);
@@ -430,8 +430,8 @@ test.describe('Item collaboration', () => {
     await test.step('disconnect editor', async () => {
       await page1.getByTitle('Stop Sharing').click();
       await expect(editor1.locator(`p`)).toContainText([
-        `Collaborating..., yes we are!`,
-        `:)`,
+        `Collaborating..., yes we are! `,
+        `:)  `,
       ]);
       // TODO: FIX
       // await expect(editor2.locator(`p`)).toContainText([
