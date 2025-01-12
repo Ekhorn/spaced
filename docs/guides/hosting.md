@@ -31,6 +31,7 @@ Spaced is specifically designed to be self-hostable on as many hosting providers
   - [2.2. Kubernetes deployments](#22-kubernetes-deployments)
   - [2.3. Additional requirements](#23-additional-requirements)
     - [2.3.1 Adding a Domain Name](#231-adding-a-domain-name)
+    - [2.3.2 Add HTTPS with free certificate auto renewal](#232-add-https-with-free-certificate-auto-renewal)
 
 </div>
 
@@ -199,10 +200,16 @@ When the VPS is ready, configure it either [manually](deployments/vps/manual.md)
 
 Configuring a domain name can be done when you've bought a domain. The registrar you bought the domain from should provide you with a DNS records table in which you can add a new DNS A record with your VPS or clusters' IP address<sup>[[1]][ttl]</sup>. You can configure the TTL value to be shorter if you want the DNS records to propagate faster for testing, however make sure to change it back to the default to reduce server traffic<sup>[[2]][ttl]</sup>.
 
-<!--
-**HTTPS and SSL/TLS Certificates**
+#### 2.3.2 Add HTTPS with free certificate auto renewal
 
-Depending upon your domain registrar you may need to configure
+Supporting for HTTPS traffic is vital to securely send data encrypted to and from the server hosting Spaced. Setting this up can be done easily for free using [Traefik's out-of-the-box ACME support](https://doc.traefik.io/traefik/https/acme/). Each provider will require some form of proof that the server hosting the application to be secured (in this case Spaced) is indeed authorized. This is usually done through a set of secrets that allow access to the providers' API which your server, and in this case Traefik can proof itself via a [challenge type](https://letsencrypt.org/docs/challenge-types/). The secrets needed depend on the provider, see the following list to see if yours supports this feature: https://doc.traefik.io/traefik/https/acme/#providers.
+
+To enable HTTPS go to the deployment method that applies to you, see:
+
+- [Spaced on Docker Swarm](./deployments/swarm.md)
+- ~~[Spaced on Kubernetes](./deployments/kubernetes.md)~~ (Coming soon)
+
+<!--
 
 **Cloudflare**
 
