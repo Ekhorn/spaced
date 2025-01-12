@@ -8,13 +8,14 @@ The guide describes how to configure your VPS manually.
 
 ## Contents <!-- omit in toc -->
 
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
 <div class="toc">
-  <style>
-    .toc > ul { padding-left: 1em; }
-    .toc > * * ul { padding-left: 1em; }
-    .toc > * > li { list-style-type: none; }
-    .toc > * * > li { list-style-type: none; }
-  </style>
 
 - [1. Why manually (and why not)](#1-why-manually-and-why-not)
 - [2. VPS Configuration](#2-vps-configuration)

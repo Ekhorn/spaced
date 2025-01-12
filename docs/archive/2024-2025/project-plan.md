@@ -38,13 +38,14 @@
 
 ### Contents <!-- omit in toc -->
 
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
 <div class="toc">
-  <style>
-    .toc > ul { padding-left: 1em; }
-    .toc > * * ul { padding-left: 1em; }
-    .toc > * > li { list-style-type: none; }
-    .toc > * * > li { list-style-type: none; }
-  </style>
 
 - [1. Project assignment](#1-project-assignment)
   - [1.1. Context](#11-context)

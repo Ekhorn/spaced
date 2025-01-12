@@ -4,13 +4,14 @@ The guide describes how to deploy Spaced using Docker Swarm in production.
 
 ## Contents <!-- omit in toc -->
 
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
 <div class="toc">
-  <style>
-    .toc > ul { padding-left: 1em; }
-    .toc > * * ul { padding-left: 1em; }
-    .toc > * > li { list-style-type: none; }
-    .toc > * * > li { list-style-type: none; }
-  </style>
 
 - [1. Why Docker Swarm](#1-why-docker-swarm)
 - [2. Setup](#2-setup)

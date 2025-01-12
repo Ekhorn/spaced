@@ -8,13 +8,14 @@ Spaced is specifically designed to be self-hostable on as many hosting providers
 
 ## Contents <!-- omit in toc -->
 
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
 <div class="toc">
-  <style>
-    .toc > ul { padding-left: 1em; }
-    .toc > * * ul { padding-left: 1em; }
-    .toc > * > li { list-style-type: none; }
-    .toc > * * > li { list-style-type: none; }
-  </style>
 
 - [1. Choosing hosting options](#1-choosing-hosting-options)
   - [1.1. Tested VPS providers](#11-tested-vps-providers)

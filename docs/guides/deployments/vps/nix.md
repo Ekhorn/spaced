@@ -12,13 +12,14 @@ The guide describes how to configure your VPS using NixOS. Nix will allow you to
 
 ## Contents <!-- omit in toc -->
 
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
 <div class="toc">
-  <style>
-    .toc > ul { padding-left: 1em; }
-    .toc > * * ul { padding-left: 1em; }
-    .toc > * > li { list-style-type: none; }
-    .toc > * * > li { list-style-type: none; }
-  </style>
 
 - [1. Why Nix (and why not)](#1-why-nix-and-why-not)
 - [2. Nix Configuration](#2-nix-configuration)
