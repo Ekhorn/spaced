@@ -34,6 +34,7 @@ jobs:
           files: config/docker/compose-prod.yaml
           push: true
           load: true
+          source: .
           set: |
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
