@@ -59,7 +59,7 @@ services:
       - ./dist:/usr/share/nginx/html
   # Spaced services
   item_socket:
-    image: spaced/item_socket:${IMAGE_TAG:-latest}
+    image: ${REGISTRY:-ghcr.io}/ekhorn/spaced/item_socket:${IMAGE_TAG:-latest}
     labels:
       - traefik.enable=true
       - traefik.http.routers.item_socket.rule=PathPrefix(`/socket.io`)
@@ -135,8 +135,8 @@ services:
     ports:
       - 9090:9090
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
+      - --config.file=/etc/prometheus/dev.yml
     volumes:
-      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus/dev.yaml:/etc/prometheus/dev.yml:ro
     depends_on:
       - cadvisor
