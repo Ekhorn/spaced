@@ -1,0 +1,179 @@
+name: review
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  format:
+    uses: ./.github/workflows/fmt.yaml
+
+  lint:
+    uses: ./.github/workflows/lint.yaml
+
+  build:
+    uses: ./.github/workflows/build.yaml
+
+  test:
+    uses: ./.github/workflows/test.yaml
+
+  publish:
+    uses: ./.github/workflows/publish.yaml
+    permissions:
+      packages: write
+    secrets: inherit
+    with:
+      registry: ghcr.io
+      username: ${{ github.actor }}
+
+  docker_scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: publish
+    if: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/scout-action@v1
+        with:
+          command: quickview,cves,recommendations,sbom #,environment,compare
+          dockerhub-user: ekhorn
+          dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image: ghcr.io/ekhorn/spaced/item_socket:${{ github.sha }}
+          # ghcr.io/ekhorn/spaced/nginx:${{ github.sha }}
+          to: ghcr.io/ekhorn/spaced/item_socket:latest
+          registry-user: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          write-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }} # to be able to write the comment
+
+  review:
+    runs-on: ubuntu-latest
+    needs: publish
+    timeout-minutes: 20
+    environment:
+      name: review
+      url: https://review.spaced.fun
+    if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          SUBDOMAIN=$PR_NUMBER.review
+          echo "SUBDOMAIN=$SUBDOMAIN" >> .env
+      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - run: echo "STACK_NAME=review-${{ env.PR_NUMBER }}" >> .env
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          name: review-${{ env.PR_NUMBER }}
+          file: config/docker/services-stack.yaml
+          host: review.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+
+  provision_review:
+    runs-on: ubuntu-latest
+    needs: review
+    timeout-minutes: 20
+    environment:
+      name: review
+      url: https://review.spaced.fun
+    if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          SUBDOMAIN=$PR_NUMBER.review
+          echo "SUBDOMAIN=$SUBDOMAIN" >> .env
+      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          name: root
+          file: config/docker/root-stack.yaml
+          host: review.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: provision_review
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: echo "PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)" >> $GITHUB_ENV
+      - run: npx @lhci/cli@0.14 autorun --config config/lighthouserc.cjs
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+  e2e:
+    needs: provision_review
+    uses: ./.github/workflows/e2e.yaml
+
+  test_servers:
+    runs-on: ubuntu-latest
+    needs: publish
+    timeout-minutes: 20
+    concurrency:
+      group: ${{ matrix.subdomain }}
+    strategy:
+      matrix:
+        subdomain: [aws, do, hetzner]
+        # gc, ionos
+    environment:
+      name: test/${{ matrix.subdomain }}
+    if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "SUBDOMAIN=${{ matrix.subdomain }}" >> .env
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          name: ${{ matrix.subdomain }}
+          file: config/docker/test-stack.yaml
+          host: ${{ matrix.subdomain }}.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+
+  # load_test:
+  #   runs-on: self-hosted
+  #   needs: test_servers
+  #   timeout-minutes: 20
+  #   concurrency:
+  #     group: ${{ matrix.subdomain }}
+  #   strategy:
+  #     matrix:
+  #       subdomain: [aws, do, hetzner]
+  #       # gc, ionos
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: artilleryio/action-cli@v1
+  #       with:
+  #         command: run config/load/socket-io.yml ${{ matrix.subdomain }}.spaced.fun
+  #     # - run: ssh spaced@${{ matrix.subdomain }}.spaced.fun
+
+  # cleanup:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 20
+  #   if: github.event_name == pull_request && github.event.action == closed
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: |
+  #         PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
+  #         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+  #         SUBDOMAIN=$PR_NUMBER.review
+  #         echo "SUBDOMAIN=$SUBDOMAIN" >> .env

@@ -1,0 +1,55 @@
+name: publish
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        type: string
+      username:
+        type: string
+
+jobs:
+  build_docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ inputs.username }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/bake-action@v5
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          COMMIT_SHA: ${{ github.sha }}
+        with:
+          files: config/docker/compose-prod.yaml
+          push: true
+          load: true
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
+
+      # - uses: docker/metadata-action@v5
+      #   id: meta
+      #   with:
+      #     images: |
+      #       name=ghcr.io/ekhorn/spaced/item_socket:${{ github.sha }}
+      #       name=ghcr.io/ekhorn/spaced/nginx:${{ github.sha }}
+      #     labels: |
+      #       org.opencontainers.image.title="Spaced Item Socket"
+      #       org.opencontainers.image.licenses=MIT
+      #       org.opencontainers.image.source=https://github.com/Ekhorn/spaced.git
+      #     #   org.opencontainers.image.revision=${{ github.sha }}
+      #     tags: |
+      #       type=sha
+      #     # type=edge,branch=$repo.default_branch
+      #     # type=semver,pattern=v{{version}}

@@ -10,7 +10,7 @@ pub fn create(namespace: String, socket: SocketIo) -> Arc<Awareness> {
   let socket_clone = socket.clone();
 
   let awareness = Arc::new(Awareness::default());
-  info!("Document {} created", awareness.doc().guid());
+  info!("{} created", awareness.doc().guid());
 
   awareness
     .doc()

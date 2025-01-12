@@ -1,24 +1,10 @@
-version: '3.8'
-
 services:
-  # Reverse-proxy for when running spaced services
-  nginx:
-    image: nginx
-    restart: always
-    profiles: ['nginx', 'services']
-    volumes:
-      - ../nginx/prod.conf:/etc/nginx/nginx.conf
-      - ../../dist:/usr/share/nginx/html
-      - /etc/letsencrypt:/etc/letsencrypt
-    ports:
-      - 80:80
-      - 443:443
   certbot:
     image: certbot/dns-ionos
-    profiles: ['certbot']
+    profiles: [certbot]
     build:
       dockerfile: ../certbot/Dockerfile
-    cap_drop: ['ALL']
+    cap_drop: [ALL]
     volumes:
       - /var/lib/letsencrypt:/var/lib/letsencrypt
       - /etc/letsencrypt:/etc/letsencrypt
@@ -35,11 +21,3 @@ services:
         --expand
         --server https://acme-v02.api.letsencrypt.org/directory
         -d ${domain:-} -d '*.${domain:-}'
-  # Spaced services
-  item_socket:
-    image: spaced/item_socket:${IMAGE_TAG:-latest}
-    restart: always
-    profiles: ['services']
-    environment:
-      - HOST=0.0.0.0
-    ports: ['8080:8080']

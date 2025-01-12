@@ -1,0 +1,96 @@
+name: staging
+
+on:
+  schedule:
+    # https://crontab.guru/#0_1_*_*_*
+    - cron: '0 1 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  format:
+    uses: ./.github/workflows/fmt.yaml
+
+  lint:
+    uses: ./.github/workflows/lint.yaml
+
+  build:
+    uses: ./.github/workflows/build.yaml
+
+  test:
+    uses: ./.github/workflows/test.yaml
+
+  publish:
+    uses: ./.github/workflows/publish.yaml
+    permissions:
+      packages: write
+    secrets: inherit
+    with:
+      registry: ghcr.io
+      username: ${{ github.actor }}
+
+  ##################################################
+  # Deploy Stage                                 ###
+  ##################################################
+  staging:
+    runs-on: ubuntu-latest
+    needs: publish
+    timeout-minutes: 20
+    environment:
+      name: staging
+      url: https://staging.spaced.fun
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "SUBDOMAIN=staging" >> .env
+      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          name: staging
+          file: config/docker/services-stack.yaml
+          host: staging.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+
+  provision_staging:
+    runs-on: ubuntu-latest
+    needs: staging
+    timeout-minutes: 20
+    environment:
+      name: staging
+      url: https://staging.spaced.fun
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "SUBDOMAIN=staging" >> .env
+      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          name: root
+          file: config/docker/root-stack.yaml
+          host: staging.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: provision_staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: echo "PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)" >> $GITHUB_ENV
+      - run: npx @lhci/cli@0.14 autorun --config config/lighthouserc.cjs
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+  e2e:
+    needs: provision_staging
+    uses: ./.github/workflows/e2e.yaml

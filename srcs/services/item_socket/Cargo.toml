@@ -31,3 +31,4 @@ utils = { path = "../../utils", features = ["logging"] }
 yrs = { version = "*", features = ["sync"] }
 rmpv = { version = "1.3.0", features = ["with-serde"] }
 dashmap = "6.1.0"
+prometheus-client = "0.22.3"

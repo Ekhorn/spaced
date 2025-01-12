@@ -1,0 +1,27 @@
+name: release
+
+on:
+  push:
+    tags: [main]
+
+jobs:
+  production:
+    if: false # TODO: implement production deployments
+    runs-on: ubuntu-latest
+    needs: build_docker
+    timeout-minutes: 20
+    concurrency: production
+    environment:
+      name: production
+      url: https://spaced.fun
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+      - uses: cssnr/stack-deploy-action@v1
+        with:
+          file: docker-stack.yaml
+          host: ...
+          user: deploy
+          ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          env_file: ./envfile

@@ -38,21 +38,24 @@
 
 ### Contents <!-- omit in toc -->
 
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
 <div class="toc">
- <style>
-	.toc > * > li { list-style-type: none; content: none; }
-	.toc > * > a { margin-left: 12px; }
- </style>
 
 - [1. Project assignment](#1-project-assignment)
-	<br><li></li>[1.1. Context](#11-context)
-	<br> [1.2. Goals](#12-goals)
-	<br> [1.3. Scope and preconditions](#13-scope-and-preconditions)
-	<br> [1.4. Strategy](#14-strategy)
-	<br> [1.5. Research questions](#15-research-questions)
-	<br> [1.6. End Products](#16-end-products)
+  - [1.1. Context](#11-context)
+  - [1.2. Goals](#12-goals)
+  - [1.3. Scope and preconditions](#13-scope-and-preconditions)
+  - [1.4. Strategy](#14-strategy)
+  - [1.5. Research questions](#15-research-questions)
+  - [1.6. End Products](#16-end-products)
 - [2. Planning](#2-planning)
-- [3. Risks](#4-risks)
+- [3. Risks](#3-risks)
 
 </div>
 
@@ -73,7 +76,7 @@ The reason I want to build a knowledge base application is first and fore most f
 
 I want Spaced to be as fun as possible. To do so an important requirement to make something fun, especially when working with anything graphical is it needing to be fast, one might say blazingly fast. Another is simplicity and ease of use. I aim to provide as many features as possible with the least amount of complexity adhering to [KISS](https://www.interaction-design.org/literature/topics/keep-it-simple-stupid) (Keep It Simple Stupid!). Google Docs is actually what inspires a lot of my ideas and decisions about Spaced, because the web app works incredibility well and feels a lot simpler compared to Word.
 
-Additionally lots of applications are proprietary. It's more common for software libraries to be open-source whereas end user applications, especially popular ones are almost never fully open-source. So Spaced being open-source is one of it's selling points. I'm aiming to document how Spaced works and how it's developed for transparency. 
+Additionally lots of applications are proprietary. It's more common for software libraries to be open-source whereas end user applications, especially popular ones are almost never fully open-source. So Spaced being open-source is one of it's selling points. I'm aiming to document how Spaced works and how it's developed for transparency.
 
 Lastly, privacy and security are important as well, specifically adhering to the GDPR, and going over common security vulnerabilities for people to be confident in Spaced.
 
@@ -108,16 +111,16 @@ Spaced is currently a blank page with dots in a grid, a button to create a text 
 
 The overarching goal of Spaced is to be a highly customizable, performant, open-source, knowledge base application, with ease of use, transparency, security and privacy in mind.
 
-The **goals** for this assignment are **focused** on implementing **editing-**, **creating-** and **exporting documents** in **collaboration** as best as possible. This should keep the assignment **vertically integrated**. 
+The **goals** for this assignment are **focused** on implementing **editing-**, **creating-** and **exporting documents** in **collaboration** as best as possible. This should keep the assignment **vertically integrated**.
 
 1. **What**: Build the UI needed to edit, create, export documents in collaboration.
   <br>**Why**: These are essential to sharing and maintaining knowledge.
-	<br>**How**: Using [Slate.js](https://www.slatejs.org/examples/richtext) one can create a rich text editor, similar to what you might expect from Google Docs including [collaboration support](https://docs.slatejs.org/walkthroughs/07-enabling-collaborative-editing). Slate.js is relatively simple, and very extendable to allow documenting to be quick and fun, which will allow Spaced to come up with new and exciting ways to edit documents. 
+	<br>**How**: Using [Slate.js](https://www.slatejs.org/examples/richtext) one can create a rich text editor, similar to what you might expect from Google Docs including [collaboration support](https://docs.slatejs.org/walkthroughs/07-enabling-collaborative-editing). Slate.js is relatively simple, and very extendable to allow documenting to be quick and fun, which will allow Spaced to come up with new and exciting ways to edit documents.
 1. **What**: Finish the back-end services required to collaborate on these documents.
 	<br>**Why**: So data can be shared between multiple users in real-time.
-	<br>**How**: Unifying the document data into one schema that can easily be processed on the server. Then making the servers save and broadcast this data to the right end user. 
+	<br>**How**: Unifying the document data into one schema that can easily be processed on the server. Then making the servers save and broadcast this data to the right end user.
 2. **What**: Deploy the application to mulitple VPS (virtual private server) hosting providers, test and optimize vertical scalability of the system.
-	<br>**Why**: To explore which are the cheapest VPS hosting providers, and ensure Spaced is cheap to host. 
+	<br>**Why**: To explore which are the cheapest VPS hosting providers, and ensure Spaced is cheap to host.
 	<br>**How**: Load test Spaced using tools like Artillery.io to gather insights on bottlenecks in the system. Then find faster alternative solutions, or algorithms to be benchmarked.
 3. **What**: Deploy the application on different hosting providers that support managed Kubernetes cluster, and test the horizontal scalability.
 	<br>**Why**: So larger businesses can be confident in Spaced to scale without faults.

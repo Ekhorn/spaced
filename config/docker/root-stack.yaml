@@ -1,0 +1,117 @@
+configs:
+  prometheus:
+    file: ../prometheus/swarm.yaml
+
+networks:
+  traefik-net:
+    external: true
+
+secrets:
+  # Put your DNS provider credentials inside a file
+  # and add them one-by-one using `cat secret | docker secret create MY_SECRET_API_KEY -`
+  IONOS_API_KEY:
+    external: true
+  # https://doc.traefik.io/traefik/middlewares/http/basicauth/#usersfile
+  # Create a `users` file with a hashed password (use `htpasswd -nB admin`) inside like this:
+  # admin:$2b$12$hNf2lSsxfm0.i4a.1kVpSOVyBCfIB51VRjgBUyv6kdnyTlgWj81Ay
+  #
+  # Then run `docker secret create TRAEFIK_USERS users`
+  TRAEFIK_USERS:
+    external: true
+  # https://prometheus.io/docs/guides/basic-auth/
+  # Create a `web.yaml` file with a hashed password (use `htpasswd -nB admin`) inside like this:
+  # basic_auth_users:
+  #   admin: $2b$12$hNf2lSsxfm0.i4a.1kVpSOVyBCfIB51VRjgBUyv6kdnyTlgWj81Ay
+  #
+  # Then run `docker secret create PROM_PASSWORD web.yaml`
+  PROM_PASSWORD:
+    external: true
+
+services:
+  # Reverse-proxy for Spaced services
+  traefik:
+    image: traefik:v3.2
+    networks: [traefik-net]
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.dashboard.rule=(Host(`review.spaced.fun`) || Host(`staging.spaced.fun`)) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+        - traefik.http.routers.dashboard.service=api@internal
+        - traefik.http.routers.dashboard.middlewares=auth
+        - traefik.http.services.dashboard.loadbalancer.server.port=8080
+        - traefik.http.middlewares.auth.basicauth.usersfile=/run/secrets/TRAEFIK_USERS
+      placement:
+        constraints:
+          - node.role == manager
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/spaced/:/etc/traefik/acme/
+      # - /home/spaced/:/logs
+    secrets:
+      - IONOS_API_KEY
+      - TRAEFIK_USERS
+    environment:
+      - IONOS_API_KEY_FILE=/run/secrets/IONOS_API_KEY
+    command:
+      - --log.level=DEBUG
+      # - --log.filePath=/logs/traefik.log
+      # - --api.insecure=true
+      - --api.dashboard=true
+      - --metrics.prometheus=true
+      - --providers.swarm=true
+      - --providers.swarm.exposedByDefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls.certResolver=ionos
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.http.tls.domains[0].main=staging.spaced.fun
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.review.spaced.fun
+      - --certificatesresolvers.ionos.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+      # - --certificatesresolvers.ionos.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesResolvers.ionos.acme.dnschallenge.provider=ionos
+      - --certificatesResolvers.ionos.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesResolvers.ionos.acme.storage=/etc/traefik/acme/acme.json
+    ports:
+      - 80:80
+      - 443:443
+  # Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    networks: [traefik-net]
+    deploy:
+      labels:
+        - traefik.enable=false
+        - traefik.http.routers.cadvisor.rule=(Host(`review.spaced.fun`) || Host(`staging.spaced.fun`)) && PathPrefix(`/cadvisor`)
+        - traefik.http.services.cadvisor.loadbalancer.server.port=8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
+      - /var/lib/docker/:/var/lib/docker:ro # Docker Root
+      # - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
+      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
+      # - share/containers:/var/lib/containers:ro # Podman Rootless
+      - /dev/disk/:/dev/disk:ro
+    command:
+      - --docker_only=true
+  prometheus:
+    image: prom/prometheus
+    networks: [traefik-net]
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.prometheus.rule=(Host(`review.spaced.fun`) || Host(`staging.spaced.fun`)) && PathPrefix(`/prometheus`)
+        - traefik.http.services.prometheus.loadbalancer.server.port=9090
+    secrets:
+      - PROM_PASSWORD
+    configs:
+      - source: prometheus
+        target: /etc/prometheus/swarm.yml
+    command:
+      - --config.file=/etc/prometheus/swarm.yml
+      - --web.config.file=/run/secrets/PROM_PASSWORD
+      - --web.external-url=/prometheus/
+    depends_on:
+      - cadvisor

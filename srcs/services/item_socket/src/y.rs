@@ -1,5 +1,5 @@
 use rmpv::Value;
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use tracing;
 use yrs::{
   sync::{Awareness, AwarenessUpdate},
@@ -7,9 +7,12 @@ use yrs::{
   ReadTxn, StateVector, Transact, Update,
 };
 
-use socketioxide::extract::{AckSender, Data, SocketRef, State};
+use socketioxide::{
+  extract::{AckSender, Data, SocketRef, State},
+  socket::DisconnectReason,
+};
 
-use crate::GlobalState;
+use crate::{MetricsState, SocketState};
 
 #[tracing::instrument(skip_all)]
 pub fn init_sync_listeners(socket: &SocketRef) {
@@ -18,7 +21,12 @@ pub fn init_sync_listeners(socket: &SocketRef) {
     |socket: SocketRef,
      value: Data<Value>,
      sync_step_2: AckSender,
-     State(GlobalState { documents })| {
+     State(SocketState { documents }),
+     metrics: State<MetricsState>| async move {
+      let metrics = metrics.lock().await;
+      metrics.inc_messages_received("/yjs|all", "sync-step-1");
+      let start_time = Instant::now();
+
       let binary = value.as_slice().unwrap();
       let state_vector = StateVector::decode_v1(binary).unwrap();
 
@@ -30,19 +38,34 @@ pub fn init_sync_listeners(socket: &SocketRef) {
           .transact_mut()
           .encode_state_as_update_v1(&state_vector),
       );
+
+      let latency = start_time.elapsed().as_secs_f64();
+      metrics.observe_event_latency("/yjs|all", "sync-update", latency);
+
       sync_step_2.send(&data).unwrap();
+      metrics.inc_messages_sent("/yjs|all", "sync-step-1");
     },
   );
 
   socket.on(
     "sync-update",
-    |socket: SocketRef, data: Data<Value>, State(GlobalState { documents })| {
+    |socket: SocketRef,
+     data: Data<Value>,
+     State(SocketState { documents }),
+     metrics: State<MetricsState>| async move {
+      let metrics = metrics.lock().await;
+      metrics.inc_messages_received("/yjs|all", "sync-update");
+      let start_time = Instant::now();
+
       let binary = data.as_slice().unwrap();
       let update = Update::decode_v1(binary).unwrap();
 
       let doc_ns = socket.ns().replace("/yjs|", "");
       let awareness = documents.get(&doc_ns).unwrap();
       awareness.doc().transact_mut().apply_update(update).unwrap();
+
+      let latency = start_time.elapsed().as_secs_f64();
+      metrics.observe_event_latency("/yjs|all", "sync-update", latency);
     },
   );
 }
@@ -51,33 +74,52 @@ pub fn init_sync_listeners(socket: &SocketRef) {
 pub fn init_awareness_listeners(socket: &SocketRef) {
   socket.on(
     "awareness-update",
-    |socket: SocketRef, data: Data<Value>, State(GlobalState { documents })| {
+    |socket: SocketRef,
+     data: Data<Value>,
+     State(SocketState { documents }),
+     metrics: State<MetricsState>| async move {
+      let metrics = metrics.lock().await;
+      metrics.inc_messages_received("/yjs|all", "awareness-update");
+      let start_time = Instant::now();
+
       let binary = data.as_slice().unwrap();
       let update = AwarenessUpdate::decode_v1(binary).unwrap();
 
       let doc_ns = socket.ns().replace("/yjs|", "");
       let awareness = documents.get(&doc_ns).unwrap();
       awareness.apply_update(update).unwrap();
+
+      let latency = start_time.elapsed().as_secs_f64();
+      metrics.observe_event_latency("/yjs|all", "awareness-update", latency);
     },
   );
 }
 
-// pub fn init_socket_listeners(socket: SocketRef, doc: Document) {
-//   socket.on_disconnect(|| {
-//     socket.
-//     if ((await socket.nsp.allSockets()).size === 0) {
-//       this.emit("all-document-connections-closed", [doc])
-//       if (this.persistence != null) {
-//         await this.persistence.writeState(doc.name, doc)
-//         await doc.destroy()
-//       }
-//     }
+pub async fn init_socket_listeners(socket: &SocketRef) {
+  socket.on_disconnect(
+    move |socket: SocketRef,
+          State(SocketState { documents }),
+          metrics: State<MetricsState>,
+          reason: DisconnectReason| async move {
+      let metrics = metrics.lock().await;
+      metrics.dec_active_connections("/yjs|all");
+      metrics.inc_disconnects("/yjs|all", format!("{reason}"));
 
-//   })
-// }
+      let doc_ns = socket.ns().replace("/yjs|", "");
+      if socket.broadcast().sockets().unwrap().len() == 0 {
+        documents.remove(&doc_ns);
+        metrics.dec_open_documents();
+      }
+    },
+  )
+}
 
 #[tracing::instrument(skip_all)]
-pub async fn start_synchronization(socket: SocketRef, awareness: Arc<Awareness>) {
+pub async fn start_synchronization(
+  socket: SocketRef,
+  awareness: Arc<Awareness>,
+  // metrics: &Metrics,
+) {
   let data = Value::from(awareness.doc().transact_mut().state_vector().encode_v1());
 
   match socket
