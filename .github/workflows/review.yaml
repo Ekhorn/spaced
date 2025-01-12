@@ -111,7 +111,7 @@ jobs:
     needs: provision_review
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - run: echo "PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)" >> $GITHUB_ENV
