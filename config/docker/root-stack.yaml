@@ -18,13 +18,12 @@ secrets:
   # Then run `docker secret create TRAEFIK_USERS users`
   TRAEFIK_USERS:
     external: true
-  # Then run `docker secret create PROM_PASSSWORD web.yaml`
   # https://prometheus.io/docs/guides/basic-auth/
   # Create a `web.yaml` file with a hashed password (use `htpasswd -nB admin`) inside like this:
   # basic_auth_users:
   #   admin: $2b$12$hNf2lSsxfm0.i4a.1kVpSOVyBCfIB51VRjgBUyv6kdnyTlgWj81Ay
   #
-  # Then run `docker secret create PROM_PASSSWORD web.yaml`
+  # Then run `docker secret create PROM_PASSWORD web.yaml`
   PROM_PASSWORD:
     external: true
 
