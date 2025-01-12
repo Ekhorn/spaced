@@ -15,7 +15,7 @@ jobs:
       name: production
       url: https://spaced.fun
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
       - uses: cssnr/stack-deploy-action@v1
