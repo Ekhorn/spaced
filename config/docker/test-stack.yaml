@@ -62,11 +62,8 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro # Required for Podman subcontainers
-      - /var/lib/docker/:/var/lib/docker:ro # Docker Root
-      # - .local/share/docker/:/var/lib/docker:ro # Docker Rootless
-      # - /var/lib/containers:/var/lib/containers:ro # Podman Root
-      # - share/containers:/var/lib/containers:ro # Podman Rootless
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     command:
       - --docker_only=true
@@ -94,7 +91,7 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.item_socket-nginx.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/`)
+        - traefik.http.routers.nginx.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/`)
         - traefik.http.services.nginx.loadbalancer.server.port=80
   # Spaced services
   item_socket:
@@ -102,7 +99,7 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.item_socket-item_socket.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/socket.io`)
+        - traefik.http.routers.item_socket.rule=Host(`${SUBDOMAIN}.spaced.fun`) && PathPrefix(`/socket.io`)
         - traefik.http.services.item_socket.loadbalancer.server.port=8081
         - traefik.http.services.item_socket.loadBalancer.sticky.cookie.name=server_id
         - traefik.http.services.item_socket.loadBalancer.sticky.cookie.httpOnly=true
