@@ -183,6 +183,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.nginx.rule=Host(`example.com`) && PathPrefix(`/`)
         - traefik.http.services.nginx.loadbalancer.server.port=80
+        - traefik.http.middlewares.compress.compress.defaultEncoding=gzip
   # Spaced services
   item_socket:
     image: ghcr.io/ekhorn/spaced/item_socket:${COMMIT_SHA:-latest}
