@@ -1,4 +1,5 @@
 import { withCursors, withYHistory, withYjs, YjsEditor } from '@slate-yjs/core';
+import { jsPDF } from 'jspdf';
 import {
   type Range,
   type NodeEntry,
@@ -35,6 +36,8 @@ import {
   withShortcuts,
   withValidNode,
 } from '../lib/plugins.js';
+
+const pdf = new jsPDF();
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -323,7 +326,21 @@ function Footer(props: RenderProps & { editor: Editor }) {
         <button class="rounded px-1 hover:bg-[#ecedef]" title="Fullscreen">
           <FaSolidExpand />
         </button>
-        <button class="rounded px-1 hover:bg-[#ecedef]" title="Export to PDF">
+        <button
+          class="rounded px-1 hover:bg-[#ecedef]"
+          title="Export to PDF"
+          onClick={async () => {
+            const content = document.querySelector('[data-slate-editor]')!;
+            await pdf.html(content as HTMLElement, {
+              callback: function (pdf) {
+                pdf.save(`untitled.pdf`);
+              },
+              margin: 10,
+              width: 190, // Width of the content in the PDF (max is 210 for A4)
+              windowWidth: content.scrollWidth,
+            });
+          }}
+        >
           <FaSolidFilePdf />
         </button>
       </div>
