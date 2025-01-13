@@ -4,6 +4,7 @@ import { AuthProvider } from './AuthProvider.js';
 import { Background } from './Background.js';
 import { Container } from './Container.js';
 import { Controls } from './Controls.jsx';
+import { Dialog } from './Dialog.jsx';
 import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
 import { ViewportProvider, useViewport } from './ViewportProvider.js';
@@ -182,16 +183,18 @@ export function App() {
     <AuthProvider>
       <ViewportProvider>
         <IPCProvider>
-          {/* TODO: resolve FOUC */}
-          <Background />
-          <main class="absolute h-full w-full" onDrop={handleDrop}>
-            <Controls />
-            <Index each={items()}>
-              {(item, index) => (
-                <Container index={index} item={item()} setItems={setItems} />
-              )}
-            </Index>
-          </main>
+          <Dialog>
+            {/* TODO: resolve FOUC */}
+            <Background />
+            <main class="absolute h-full w-full" onDrop={handleDrop}>
+              <Controls />
+              <Index each={items()}>
+                {(item, index) => (
+                  <Container index={index} item={item()} setItems={setItems} />
+                )}
+              </Index>
+            </main>
+          </Dialog>
         </IPCProvider>
       </ViewportProvider>
     </AuthProvider>

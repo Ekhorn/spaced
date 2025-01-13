@@ -21,11 +21,21 @@ import {
   FaSolidUsersSlash,
   FaSolidXmark,
 } from 'solid-icons/fa';
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
+import {
+  type Setter,
+  type JSXElement,
+  createEffect,
+  createSignal,
+  on,
+  onCleanup,
+  Show,
+} from 'solid-js';
+import { Portal } from 'solid-js/web';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 
 import { type RenderProps } from './Container.js';
+import { Dialog, useDialog } from './Dialog.jsx';
 import { RenderElement, RenderLeaf } from './Elements.js';
 import { useIPC } from './IPCProvider.js';
 import { toggleMark, Toolbar } from './Toolbar.js';
@@ -141,6 +151,8 @@ function SlateEditor(
     connected?: boolean;
   },
 ) {
+  const [fullscreen, setFullscreen] = createSignal(false);
+
   // eslint-disable-next-line solid/reactivity
   const isMarkdown = props.item.editor === 'markdown';
   const plugins: (<T extends CustomEditor>(editor: T) => T)[] = [
@@ -195,58 +207,82 @@ function SlateEditor(
   };
 
   return (
-    <Slate
-      initialValue={props.initialValue}
-      editor={editor}
-      // eslint-disable-next-line solid/reactivity
-      onValueChange={async () => {
-        const [item] = await updateItem([
-          {
-            ...props.item,
-            schema: JSON.stringify(editor.children),
-          },
-        ]);
+    <Fullscreen fullscreen={fullscreen()}>
+      <Slate
+        initialValue={props.initialValue}
+        editor={editor}
         // eslint-disable-next-line solid/reactivity
-        props.setItems((prev) => prev.with(props.index, item));
-      }}
-    >
-      <Show when={!isMarkdown}>
-        <Toolbar selected={props.selected} />
-        <div class="h-1 w-[424px]" />
-      </Show>
-      <div class="pointer-events-none relative -z-20 rounded bg-white">
-        <Editable
-          decorate={props.decorate}
-          onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
-          readOnly={!props.selected()}
-          renderElement={RenderElement}
-          renderLeaf={RenderLeaf}
-          placeholder="Enter some rich text…"
-          spellCheck
-          style={{
-            padding: '4px',
-            'background-color': 'white',
-            'border-radius': '4px',
-            'padding-bottom': '12px',
-            'pointer-events': 'auto',
-          }}
-          onKeyDown={(event: KeyboardEvent) => {
-            for (const hotkey in HOTKEYS) {
-              if (isHotkey(hotkey, event)) {
-                event.preventDefault();
-                const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS];
-                toggleMark(editor, mark);
+        onValueChange={async () => {
+          const [item] = await updateItem([
+            {
+              ...props.item,
+              schema: JSON.stringify(editor.children),
+            },
+          ]);
+          // eslint-disable-next-line solid/reactivity
+          props.setItems((prev) => prev.with(props.index, item));
+        }}
+      >
+        <Show when={!isMarkdown || fullscreen()}>
+          <Toolbar selected={props.selected} fullscreen={fullscreen} />
+          <div class="h-1 w-[424px]" />
+        </Show>
+        <div class="pointer-events-none relative -z-20 rounded bg-white">
+          <Editable
+            decorate={props.decorate}
+            onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
+            readOnly={!props.selected()}
+            renderElement={RenderElement}
+            renderLeaf={RenderLeaf}
+            placeholder="Enter some rich text…"
+            spellCheck
+            style={{
+              padding: '4px',
+              'background-color': 'white',
+              'border-radius': '4px',
+              'padding-bottom': '12px',
+              'pointer-events': 'auto',
+            }}
+            onKeyDown={(event: KeyboardEvent) => {
+              for (const hotkey in HOTKEYS) {
+                if (isHotkey(hotkey, event)) {
+                  event.preventDefault();
+                  const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS];
+                  toggleMark(editor, mark);
+                }
               }
-            }
-          }}
-        />
-        <Footer editor={editor} {...props} />
-      </div>
-    </Slate>
+            }}
+          />
+          <Show when={!fullscreen()}>
+            <Footer editor={editor} setFullscreen={setFullscreen} {...props} />
+          </Show>
+        </div>
+        <Show when={fullscreen()}>
+          <Footer editor={editor} setFullscreen={setFullscreen} {...props} />
+        </Show>
+      </Slate>
+    </Fullscreen>
   );
 }
 
-function Footer(props: RenderProps & { editor: Editor }) {
+function Fullscreen(props: { fullscreen: boolean; children: JSXElement }) {
+  const { isOpen, toggleDialog } = useDialog();
+
+  createEffect(on(() => props.fullscreen, toggleDialog));
+
+  return (
+    <Show when={props.fullscreen && isOpen()} fallback={props.children}>
+      <Portal
+        mount={document.querySelector('#dialog')!}
+        children={props.children}
+      />
+    </Show>
+  );
+}
+
+function Footer(
+  props: RenderProps & { editor: Editor; setFullscreen: Setter<boolean> },
+) {
   const [sharing, setShare] = createSignal<'share' | 'configure' | 'sharing'>(
     // eslint-disable-next-line solid/reactivity
     props.item.shared ? 'sharing' : 'share',
@@ -323,7 +359,13 @@ function Footer(props: RenderProps & { editor: Editor }) {
   return (
     <div class="pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]">
       <div class="flex flex-row border-r pr-1">
-        <button class="rounded px-1 hover:bg-[#ecedef]" title="Fullscreen">
+        <button
+          class="rounded px-1 hover:bg-[#ecedef]"
+          title="Fullscreen"
+          onClick={() => {
+            props.setFullscreen((prev) => !prev);
+          }}
+        >
           <FaSolidExpand />
         </button>
         <button

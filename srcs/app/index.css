@@ -8,6 +8,48 @@
   }
 }
 
+dialog {
+  animation: fade-out 0.2s ease-out;
+}
+
+dialog[open] {
+  animation: fade-in 0.2s ease-out;
+}
+
+dialog[open]::backdrop {
+  animation: backdrop-fade-in 0.2s ease-out forwards;
+}
+
+/* Animation keyframes */
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+    display: none;
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+    display: block;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    transform: scaleY(1);
+    display: block;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scaleY(0);
+    display: none;
+  }
+}
+
 body {
   font-family: 'IBM Plex Sans', sans-serif;
   background-color: #999999;

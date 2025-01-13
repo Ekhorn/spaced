@@ -131,11 +131,20 @@ function BlockButton(props: {
   );
 }
 
-export function Toolbar(props: { selected: Accessor<boolean> }) {
+export function Toolbar(props: {
+  selected: Accessor<boolean>;
+  fullscreen: Accessor<boolean>;
+}) {
   return (
     <div
       class="absolute -z-20 flex w-full -translate-y-full rounded bg-white p-1"
-      style={props.selected() ? {} : { display: 'none' }}
+      style={
+        props.selected()
+          ? {}
+          : props.fullscreen()
+            ? { translate: 'unset' }
+            : { display: 'none' }
+      }
       data-testid="toolbar"
     >
       <MarkButton format="bold" icon={<FaSolidBold />} />
