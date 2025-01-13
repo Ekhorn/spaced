@@ -94,6 +94,8 @@ async fn app() -> anyhow::Result<Router> {
 
   let io_clone = io.clone();
 
+  io.ns("/", || {});
+
   io.dyn_ns(
     "/yjs|{doc_ns}",
     |socket: SocketRef, state: State<SocketState>, metrics: State<MetricsState>| async move {

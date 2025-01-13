@@ -151,22 +151,30 @@ jobs:
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: .env
 
-  # load_test:
-  #   runs-on: self-hosted
-  #   needs: test_servers
-  #   timeout-minutes: 20
-  #   concurrency:
-  #     group: ${{ matrix.subdomain }}
-  #   strategy:
-  #     matrix:
-  #       subdomain: [aws, do, hetzner]
-  #       # gc, ionos
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: artilleryio/action-cli@v1
-  #       with:
-  #         command: run config/load/socket-io.yml ${{ matrix.subdomain }}.spaced.fun
-  #     # - run: ssh spaced@${{ matrix.subdomain }}.spaced.fun
+  load_test:
+    runs-on: self-hosted
+    needs: test_servers
+    timeout-minutes: 20
+    concurrency:
+      group: ${{ matrix.subdomain }}
+    strategy:
+      matrix:
+        subdomain: [aws, do, hetzner]
+        # gc, ionos
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+      - uses: artilleryio/action-cli@v1
+        env:
+          ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
+          SUBDOMAIN: ${{ matrix.subdomain }}
+        with:
+          command: run config/load/socketio.yaml --record -o socket-io_${{ env.TIMESTAMP }}.json -e review
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: artillery-report
+          path: ./socket-io_${{ env.TIMESTAMP }}.json
 
   # cleanup:
   #   runs-on: ubuntu-latest

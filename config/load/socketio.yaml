@@ -1,17 +1,46 @@
+# yaml-language-server: $schema=https://www.artillery.io/schema.json
 config:
-  target: 'http://localhost:8080'
-  socketio:
-    query: 'EIO=4&transport=websocket'
-    transports: ['websocket']
-  phases:
-    - duration: 60
-      arrivalRate: 25
+  ensure:
+    maxErrorRate: 1
+    max: 500
+  environments:
+    local:
+      target: http://localhost:7777
+      socketio:
+        query: EIO=4&transport=websocket
+        transports: ['websocket']
+      phases:
+        - duration: 60
+          arrivalRate: 50
+    review:
+      target: http://{{ $env.SUBDOMAIN }}.spaced.fun
+      socketio:
+        query: EIO=4&transport=websocket
+        transports: ['websocket']
+      phases:
+        # Create ramp up to 10 VUs per second
+        - name: initial
+          arrivalRate: 1
+          rampTo: 10
+          maxVusers: 10
+          duration: 10
+        # Creates 10 VUs every second
+        - name: sustained
+          arrivalRate: 1
+          duration: 30
+        - pause: 10
+        # Creates 1 VU every second
+        - name: stress
+          arrivalRate: 5
+          rampTo: 50
+          maxVusers: 50
+          duration: 30
 
 scenarios:
   - name: initial test
     engine: socketio
     flow:
-      - namespace: '/yjs|test-room'
+      - namespace: /yjs|room-test
         emit:
-          channel: 'echo'
-          data: '["awareness-update",{"_placeholder":true,"num":0}]'
+          namespace: /yjs|room-test
+          data: '{}'
