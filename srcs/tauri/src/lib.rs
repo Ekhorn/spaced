@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use clap::Parser;
 use item::{Asset, Descendant, Item};
 use serde::{Serialize, Serializer};
 use sqlx::{
@@ -11,7 +12,7 @@ use std::{env, str::FromStr, vec};
 use tauri::{AppHandle, Runtime, State};
 use tauri_plugin_dialog::DialogExt;
 use tokio::sync::RwLock;
-use tracing::info;
+use tracing::{info, level_filters::LevelFilter};
 use uuid::Uuid;
 
 mod item;
@@ -44,9 +45,19 @@ struct AppState {
   db: RwLock<Option<SqlitePool>>,
 }
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+  #[arg(long, env, default_value_t = LevelFilter::INFO)]
+  log_level: LevelFilter,
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() -> anyhow::Result<()> {
-  utils::init_logging();
+  let args = Args::parse();
+
+  utils::init_logging(args.log_level);
+
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .manage(AppState { db: None.into() })

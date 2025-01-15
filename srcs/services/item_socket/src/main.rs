@@ -11,7 +11,7 @@ use socketioxide::{
 };
 use tokio::{net::TcpListener, sync::Mutex};
 use tower::ServiceBuilder;
-use tracing::info;
+use tracing::{info, level_filters::LevelFilter};
 use utils::shutdown_task;
 use yrs::sync::Awareness;
 
@@ -26,13 +26,16 @@ struct Args {
   host: String,
   #[arg(long, env, default_value_t = 8081)]
   port: u16,
+  #[arg(long, env, default_value_t = LevelFilter::INFO)]
+  log_level: LevelFilter,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  utils::init_logging();
-
   let args = Args::parse();
+
+  utils::init_logging(args.log_level);
+
   let address = format!("{}:{}", args.host, args.port);
 
   info!("Server starting on http://{}", address);
