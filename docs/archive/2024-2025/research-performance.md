@@ -8,7 +8,7 @@
 
 ## Blazingly Fast Knowledge Base <!-- omit in toc -->
 
-![](../assets/spaced-2024-rich-text.png)
+![](../../assets/spaced-2024-rich-text.png)
 
 |         |                      |
 | ------- | -------------------- |
@@ -25,20 +25,44 @@
 | Version | Date       | Author               | Changes         | State |
 | ------- | ---------- | -------------------- | --------------- | ----- |
 | 0.1     | 2024-11-15 | Koen Schellingerhout | initial version | draft |
-
+| 1.0     | 2024-01-15 | Koen Schellingerhout |                 | final |
 
 #### Distribution <!-- omit in toc -->
 
 | Version | Date       | Receivers            |
 | ------- | ---------- | -------------------- |
 | 0.1     | 2024-11-15 | Canvas: Erik Schriek |
+| 1.0     | 2025-01-15 | Canvas: Erik Schriek |
 
 
 <div style="page-break-after: always;"></div>
 
-###
+### Contents <!-- omit in toc -->
 
-#### 1. Research questions
+<style>
+  .toc > ul { padding-left: 1em; }
+  .toc > * * ul { padding-left: 1em; }
+  .toc > * > li { list-style-type: none; }
+  .toc > * * > li { list-style-type: none; }
+</style>
+
+<div class="toc">
+
+- [1. Research questions](#1-research-questions)
+- [2. Results](#2-results)
+  - [2.1. Preliminary questions](#21-preliminary-questions)
+    - [2.1.1. What actions are expected to be involved?](#211-what-actions-are-expected-to-be-involved)
+    - [2.1.2. Which providers should be tested on their VPS hosting?](#212-which-providers-should-be-tested-on-their-vps-hosting)
+    - [2.1.3. What is the expected cost of load testing on each hosting provider?](#213-what-is-the-expected-cost-of-load-testing-on-each-hosting-provider)
+  - [2.2 Sub questions](#22-sub-questions)
+    - [2.2.1. How to generate realistic loads for the VPS instances?](#221-how-to-generate-realistic-loads-for-the-vps-instances)
+    - [2.2.2. How are the bottlenecks holding back the maxium threshold?](#222-how-are-the-bottlenecks-holding-back-the-maxium-threshold)
+    - [2.2.3. How can Spaced be optimized to increase the maximum threshold?](#223-how-can-spaced-be-optimized-to-increase-the-maximum-threshold)
+- [3. Conclusion](#3-conclusion)
+
+</div>
+
+### 1. Research questions
 
 **Primary question**
 How to make creating and collaborating on documents in Spaced for students and experts as cheap as possible while maintaining a 99% reliable latency of less than 1 seconds?
@@ -59,7 +83,7 @@ _\*Please read the remarks below on the "less than 1 second" and "threshold"._
 
 ### 2. Results
 
-#### 2.1 Preliminary questions
+#### 2.1. Preliminary questions
 
 ##### 2.1.1. What actions are expected to be involved?
 
