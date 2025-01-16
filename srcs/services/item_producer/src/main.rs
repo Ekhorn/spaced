@@ -15,7 +15,7 @@ use socketioxide::{
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tracing::{error, info};
+use tracing::{error, info, level_filters::LevelFilter};
 
 mod clients;
 mod consumer;
@@ -34,6 +34,8 @@ struct Args {
   host: String,
   #[arg(long, env, default_value_t = 8080)]
   port: u16,
+  #[arg(long, env, default_value_t = LevelFilter::INFO)]
+  log_level: LevelFilter,
 
   #[arg(long, env, default_value_t = String::from("localhost"))]
   amqp_host: String,
@@ -50,9 +52,10 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  utils::init_logging();
-
   let args = Args::parse();
+
+  utils::init_logging(args.log_level);
+
   let db_pool = PgPool::connect(&args.database_host).await?;
 
   sqlx::migrate!("../migrations").run(&db_pool).await?;

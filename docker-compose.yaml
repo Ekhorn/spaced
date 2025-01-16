@@ -32,7 +32,7 @@ services:
   traefik:
     image: traefik:v3.2
     labels:
-      - traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)
       - traefik.http.services.dashboard.loadbalancer.server.port=8080
     container_name: traefik
     profiles: [services]
@@ -40,16 +40,16 @@ services:
     volumes:
       - /var/run/user/${UID:-1000}/docker.sock:/var/run/docker.sock
     command:
+      - --log.level=DEBUG
       - --api.insecure=true
       - --metrics.prometheus=true
-      - --providers.docker
+      - --providers.docker=true
     ports:
-      - 7777:80
+      - 8000:80
   # Static file server
   nginx:
     image: nginx:alpine
     labels:
-      - traefik.enable=true
       - traefik.http.routers.nginx.rule=Host(`localhost`)
     container_name: nginx
     profiles: [services]
@@ -70,6 +70,7 @@ services:
     restart: always
     environment:
       - HOST=0.0.0.0
+      - LOG_LEVEL=DEBUG
     build:
       dockerfile: srcs/services/item_socket/Dockerfile
       args: [*distroless-tag]
@@ -103,9 +104,13 @@ services:
   # Metrics
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
+    labels:
+      - traefik.http.routers.cadvisor.rule=PathPrefix(`/cadvisor`)
     container_name: cadvisor
     profiles: [services]
     restart: always
+    environment:
+      - CADVISOR_HEALTHCHECK_URL=http://localhost:8080/cadvisor/healthz
     privileged: true
     devices:
       - /dev/kmsg
@@ -123,19 +128,23 @@ services:
       - *docker-sock
       - *podman-sock
       - --docker_only=true
+      - --url_base_prefix=/cadvisor
     ports:
       - 8080:8080
     depends_on:
       - item_socket
   prometheus:
     image: prom/prometheus
+    labels:
+      - traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)
     container_name: prometheus
-    restart: always
     profiles: [services]
+    restart: always
     ports:
       - 9090:9090
     command:
       - --config.file=/etc/prometheus/dev.yml
+      - --web.external-url=/prometheus/
     volumes:
       - ./config/prometheus/dev.yaml:/etc/prometheus/dev.yml:ro
     depends_on:

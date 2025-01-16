@@ -48,9 +48,9 @@ use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;
 
 #[cfg(feature = "logging")]
-pub fn init_logging() {
+pub fn init_logging(level: LevelFilter) {
   let env_filter = EnvFilter::builder()
-    .with_default_directive(LevelFilter::INFO.into())
+    .with_default_directive(level.into())
     .from_env_lossy();
 
   tracing_subscriber::fmt()

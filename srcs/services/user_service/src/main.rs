@@ -3,7 +3,7 @@ use clap::Parser;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
-use tracing::info;
+use tracing::{info, level_filters::LevelFilter};
 
 mod auth;
 mod handlers;
@@ -15,6 +15,8 @@ struct Args {
   host: String,
   #[arg(long, env, default_value_t = 8081)]
   port: u16,
+  #[arg(long, env, default_value_t = LevelFilter::INFO)]
+  log_level: LevelFilter,
 
   #[arg(long, env, default_value_t = String::from("postgres://admin:password@localhost:5432/spaced"))]
   database_host: String,
@@ -22,9 +24,9 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  utils::init_logging();
-
   let args = Args::parse();
+
+  utils::init_logging(args.log_level);
 
   let db_pool = PgPool::connect(&args.database_host).await?;
 
