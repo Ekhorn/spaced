@@ -12,6 +12,7 @@
     "autoprefixer": "^10.0.0",
     "axios": "^1.0.0",
     "idb": "^8.0.0",
+    "jspdf": "^2.0.0",
     "postcss": "^8.0.0",
     "slate": "0.103.0",
     "slate-history": "0.109.0",
