@@ -159,22 +159,63 @@ jobs:
       group: ${{ matrix.subdomain }}
     strategy:
       matrix:
-        subdomain: [aws, do, hetzner]
+        subdomain: [do]
+        # subdomain: [aws, do] # ADD LAST MINIMUM
+        # subdomain: [aws, do, hetzner]
         # gc, ionos
+    environment: manual_approval
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /data/runner_workspace/.cache/ms-playwright
     steps:
       - uses: actions/checkout@v4
       - run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
-      - uses: artilleryio/action-cli@v1
+      - run: npm i && npx artillery
+      - run: |
+          npx artillery run config/load/playwright.yaml \
+            --tags env:review,host:${{ matrix.subdomain }},sha:${{ github.sha }} \
+            --record -o playwright_${{ env.TIMESTAMP }}.json -e breakpoint
+        continue-on-error: true
         env:
           ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
           SUBDOMAIN: ${{ matrix.subdomain }}
-        with:
-          command: run config/load/socketio.yaml --record -o socket-io_${{ env.TIMESTAMP }}.json -e review
+      - run: |
+          jq '
+            .intermediate
+            | to_entries
+            | map(select(
+                .value.counters."vusers.failed" < 1 and
+                .value.summaries."browser.step.open".p99 < 1000 and
+                .value.summaries."browser.step.create".p99 < 1000 and
+                .value.summaries."browser.step.share".p99 < 1000 or
+                .value.summaries."browser.step.open".p99 < 1000 and
+                .value.summaries."browser.step.join".p99 < 1000 and
+                .value.summaries."browser.step.create_check_list".p99 < 2000
+              ))
+            | sort_by(.value.counters."vusers.created" | tonumber)
+            | last
+            | {
+                record: .key,
+                "vusers.created": .value.counters."vusers.created",
+                "vusers.session_length.p999": .value.summaries."vusers.session_length".p999,
+              }
+          ' playwright_${{ env.TIMESTAMP }}.json | tee | jq ."vusers.created" > NUM
+
+          echo SMOKE_RATE=$(cat NUM | jq '. * 0.10 | round') >> $GITHUB_ENV
+          echo AVG_RATE=$(cat NUM | jq '. * 0.50 | round') >> $GITHUB_ENV
+          echo STRESS_RATE=$(cat NUM | jq '. * 0.75 | round') >> $GITHUB_ENV
+          echo SPIKE_RATE=$(cat NUM) >> $GITHUB_ENV
+      - run: |
+          npx artillery run config/load/playwright.yaml \
+            --tags env:review,host:${{ matrix.subdomain }},sha:${{ github.sha }} \
+            --record -o playwright_${{ env.TIMESTAMP }}.json -e smoke_average_stress_spike
+        env:
+          ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
+          SUBDOMAIN: ${{ matrix.subdomain }}
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: artillery-report
-          path: ./socket-io_${{ env.TIMESTAMP }}.json
+          path: ./playwright_${{ env.TIMESTAMP }}.json
 
   # cleanup:
   #   runs-on: ubuntu-latest

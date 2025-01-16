@@ -1,22 +1,41 @@
 # yaml-language-server: $schema=https://www.artillery.io/schema.json
 config:
+  processor: ./functions.cjs
+  plugins:
+    ensure: {}
   ensure:
     maxErrorRate: 1
-    max: 500
+    thresholds:
+      - 'vusers.session_length.p999': 1000
   environments:
     local:
-      target: http://localhost:7777
+      target: http://localhost:8081
       socketio:
         query: EIO=4&transport=websocket
-        transports: ['websocket']
+        transports: [websocket]
       phases:
-        - duration: 60
-          arrivalRate: 50
-    review:
+        - name: Find breakpoint
+          duration: 10
+          arrivalCount: 1
+          maxVusers: 1
+    breakpoint:
       target: http://{{ $env.SUBDOMAIN }}.spaced.fun
       socketio:
         query: EIO=4&transport=websocket
-        transports: ['websocket']
+        transports: [websocket]
+      phases:
+        # duration / 10 = reports
+        # rampTo / reports = concurrent users added per report (granularity)
+        - name: Find breakpoint
+          duration: 10m
+          arrivalRate: 1
+          rampTo: 30
+          # maxVusers: 500
+    smoke_average_stress_spike:
+      target: http://{{ $env.SUBDOMAIN }}.spaced.fun
+      socketio:
+        query: EIO=4&transport=websocket
+        transports: [websocket]
       phases:
         # Create ramp up to 10 VUs per second
         - name: initial
@@ -36,11 +55,23 @@ config:
           maxVusers: 50
           duration: 30
 
+        # - name: Breakpoint: this test type might be how I determine the average load the VPS can take on - so the initial load test.
+        # - name: Smoke: I could include as initial phase
+        # - name: Average load: Not sure how to conduct this for different systems
+        # - name: Stress: When load exceeds expected average - not sure either - maybe through initial tests, and hardcoded values
+        # - name: Spike: I should can do this
+
 scenarios:
-  - name: initial test
+  - name: open_new_document
     engine: socketio
     flow:
-      - namespace: /yjs|room-test
+      - function: uuid
+      - namespace: /yjs|{{ uuid }}
         emit:
-          namespace: /yjs|room-test
           data: '{}'
+      - namespace: /yjs|{{ uuid }}
+        emit:
+          channel: sync-step-1
+          data: '{}'
+        acknowledge:
+          data: '0["sync-step-1",{"_placeholder":true,"num":0}]'
