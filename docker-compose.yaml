@@ -103,7 +103,7 @@ services:
   # ports: [8081:8081]
   # Metrics
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
     labels:
       - traefik.http.routers.cadvisor.rule=PathPrefix(`/cadvisor`)
     container_name: cadvisor
