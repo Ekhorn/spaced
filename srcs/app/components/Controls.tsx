@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { type Descendant } from 'slate';
 import { FaBrandsMarkdown, FaSolidFileCirclePlus } from 'solid-icons/fa';
 import { HiOutlineCircleStack, HiSolidArrowRight } from 'solid-icons/hi';
@@ -63,7 +63,7 @@ export function StorageSelector() {
     const target = event.target as HTMLSelectElement;
     let newPath;
     if (target.value === 'local') {
-      newPath = await invoke('save');
+      newPath = await invoke<string>('save');
     }
     const con = await connect(target.value as Storage, newPath);
     setConnected(con);
@@ -80,7 +80,7 @@ export function StorageSelector() {
     } else {
       let newPath;
       if (ref.value === 'local') {
-        newPath = await invoke('save');
+        newPath = await invoke<string>('save');
       }
       connect(isTauri ? 'local' : 'browser', newPath).then(setConnected);
     }

@@ -12,6 +12,9 @@ srcs/slate-yjs-solid/lib
 # Rust
 target
 
+# Tauri
+srcs/tauri/gen
+
 # NPM
 node_modules
 

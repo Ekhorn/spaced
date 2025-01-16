@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { type IDBPDatabase, openDB } from 'idb';
 import { type Socket, io } from 'socket.io-client';
 import { type JSXElement, useContext, createContext } from 'solid-js';
@@ -44,7 +44,7 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
       if (isTauri && selectedPath) {
         localStorage.setItem('storage', 'local');
         localStorage.setItem('path', selectedPath);
-        await invoke('connect', { path: selectedPath });
+        await invoke<string>('connect', { path: selectedPath });
         return true;
       }
       return false;
@@ -75,7 +75,7 @@ async function getNearbyItems() {
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('get_nearby_items');
+        return await invoke<Item[]>('get_nearby_items');
       }
       break;
     }
@@ -104,7 +104,7 @@ async function getAsset(id: string) {
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('get_asset', { id });
+        return await invoke<Asset>('get_asset', { id });
       }
       break;
     }
@@ -163,7 +163,7 @@ async function createItem(item: Item, assets: number[][]) {
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('create_item', { ...item, assets });
+        return await invoke<Item>('create_item', { ...item, assets });
       }
       break;
     }
@@ -199,7 +199,7 @@ async function updateItem(items: Item[]) {
     }
     case 'local': {
       if (isTauri) {
-        await invoke('patch_item', { items });
+        await invoke<Item>('patch_item', { items });
         return items;
       }
       break;
@@ -233,7 +233,7 @@ async function deleteItem(id: number) {
     }
     case 'local': {
       if (isTauri) {
-        return await invoke('delete_item', { id });
+        return await invoke<number>('delete_item', { id });
       }
       break;
     }
