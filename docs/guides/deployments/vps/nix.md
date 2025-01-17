@@ -44,7 +44,7 @@ When it comes to using Nix there are pro's and cons.
 
 **NixOS** allows you to **maintain a reproducible system configuration** across your hosts, and it's therefore **simpler** to maintain when you have **multiple machines**.
 
-**However** using Nix comes at a cost of potentially **extra storage space**, and **sometimes** being a little **extra tideous**. The installation process also requires at least 962MiB of RAM.
+**However** using Nix comes at a cost of potentially **extra storage space**, and **sometimes** being a little **extra tideous**. The installation process also requires at least 696MiB of (available) RAM.
 
 <div style="page-break-after: always;"></div>
 
@@ -53,7 +53,7 @@ When it comes to using Nix there are pro's and cons.
 ### 2.1. Prerequisites
 
 - You have a VPS with SSH access, and a Linux install (with kexec).
-- You have a VPS with at least 962MiB total RAM (check with `free -h`).
+- You have a VPS with at least 696MiB (available) RAM (check with `free -h`).
 - You have SSH access to the root user or a passwordless sudo user.
 - You have [Nix Package Manager or NixOS](https://nixos.org/download) installed on your host system.
 - You have copied the default nix configuration files from the `config/nix` directory in GitHub.
