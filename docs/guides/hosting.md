@@ -96,7 +96,7 @@ When you know what provider you want to go with, the next steps to deploy Spaced
 
 > **AWS**: [Amazon EC2](https://aws.amazon.com/ec2/) is **recommended** over [Amazon Lightsail](https://aws.amazon.com/lightsail/). While Amazon Lightsail is advertised as VPS product it's considerably more expsensive (at the time of writing) compared to EC2. If you would like to use Lightsail instead you can follow the general instructions.
 >
-> **DigitalOcean**: Uses the term Droplet to refer to Virtual Private Server.https://www.digitalocean.com/products/droplets
+> **DigitalOcean**: Uses the term [Droplet](https://www.digitalocean.com/products/droplets) to refer to Virtual Private Server.
 
 ### 2.1. VPS deployment
 
