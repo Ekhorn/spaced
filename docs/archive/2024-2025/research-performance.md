@@ -6,8 +6,8 @@
 
 |         |                      |
 | ------- | -------------------- |
-| Date    | 2024-11-17           |
-| Version | 1.0                  |
+| Date    | 2025-01-17           |
+| Version | 1.1                  |
 | State   | final                |
 | Author  | Koen Schellingerhout |
 |         |                      |
@@ -19,8 +19,9 @@
 | Version | Date       | Author               | Changes         | State |
 | ------- | ---------- | -------------------- | --------------- | ----- |
 | 0.1     | 2024-11-15 | Koen Schellingerhout | initial version | draft |
-| 1.0     | 2024-01-15 | Koen Schellingerhout |                 | draft |
-| 1.0     | 2024-01-17 | Koen Schellingerhout |                 | final |
+| 1.0     | 2025-01-15 | Koen Schellingerhout |                 | draft |
+| 1.0     | 2025-01-17 | Koen Schellingerhout |                 | final |
+| 1.1     | 2025-01-17 | Koen Schellingerhout | Fix wrong dates |       |
 
 #### Distribution <!-- omit in toc -->
 
@@ -28,6 +29,7 @@
 | ------- | ---------- | -------------------- |
 | 0.1     | 2024-11-15 | Canvas: Erik Schriek |
 | 1.0     | 2025-01-17 | Canvas: Erik Schriek |
+| 1.1     | 2025-01-17 | Canvas: Erik Schriek |
 
 
 <div style="page-break-after: always;"></div>
