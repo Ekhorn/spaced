@@ -133,10 +133,16 @@ The **recommended minimum** here is based on tests conducted in [1.1. Tested VPS
 
 > **Google Cloud**: Using a custom E2 machine type with 0.25 (shared) vCPUs, and 1.25 GB RAM NixOS OS can be installed when following [nix](./deployments/vps/nix.md). You may be able to get away with less memory when configuring manually, allowing you to use e.g. e2-micro with 0.25-2 (shared) vCPUs and 1 GB RAM.
 
-| Use                                 | CPU    | RAM   | Storage |
-| ----------------------------------- | ------ | ----- | ------- |
-| Personal <!-- (up-to XXX users) --> | 1 vCPU | 1 GiB | 8 GB    |
-| ...                                 |
+| Use                                                                                                                             | CPU    | RAM   | Storage | Notes                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------ | ----- | ------- | ----------------------------------------------------------------------------- |
+| Personal ([up to 50 users](https://app.artillery.io/share/sh_c6d1962381de251139ac73fa45d25747e8237da99e60911d061bf09fc6d32b29)) | 1 vCPU | 1 GiB | 8 GB    | You may experience the server lock up every so often e.g. during deployments. |
+| ...                                                                                                                             | 2 vCPU | 2 GiB | 8 GB    | Coming soon                                                                   |
+| ...                                                                                                                             | 2 vCPU | 4 GiB | 8 GB    | Coming soon                                                                   |
+| ...                                                                                                                             | 1 vCPU | 1 GiB | 8 GB    | Coming soon                                                                   |
+
+> **Note**: The research conducted cannot guarantee that Spaced will not fail at some point, nor can it guarentee that your data won't get lost. The system has some instabilities that make it restart every once in a while. The more users the more this may occur.
+>
+> The above recommendations are based on the [performance research of Spaced](https://github.com/Ekhorn/spaced/blob/0ed7ac2adc4c07ca2a6340cdeeea128da6f82447/docs/archive/2024-2025/research-performance.md).
 
 <!-- TODO: add concurrent user counts based on load tests -->
 <!-- TODO: consider adding traffic stats -->
