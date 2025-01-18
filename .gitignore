@@ -4,6 +4,9 @@ srcs/e2e/playwright-report/
 srcs/e2e/blob-report/
 srcs/e2e/playwright/.cache/
 
+# Artillery
+config/load/*.json
+
 # Typescript
 tsconfig.tsbuildinfo
 srcs/slate-solid/lib

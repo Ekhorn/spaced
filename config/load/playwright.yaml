@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://www.artillery.io/schema.json
+config:
+  processor: scenarios.mjs
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+  plugins:
+    ensure: {}
+  ensure:
+    maxErrorRate: 1
+    conditions:
+      - expression: 'browser.step.open.p99 < 1000 and browser.step.create.p99 < 1000 and browser.step.share.p99 < 1000 or browser.step.open.p99 < 1000 and browser.step.join.p99 < 1000 and browser.step.create_check_list.p99 < 2000'
+  variables:
+    uuid: 28cf22c3-77e8-49f5-b2ef-fa3eb212cce3
+  environments:
+    dev:
+      target: http://localhost:1420
+      engines:
+        playwright:
+          launchOptions:
+            headless: false
+          trace:
+            enabled: true
+    breakpoint:
+      target: http://{{ $env.SUBDOMAIN }}.spaced.fun
+      socketio:
+        query: EIO=4&transport=websocket
+        transports: [websocket]
+      phases:
+        # duration / 10 = reports
+        # rampTo / reports = concurrent users added per report (granularity)
+        - name: Find breakpoint
+          duration: 2m
+          arrivalRate: 1
+          rampTo: 100
+          # maxVusers: 500
+    smoke_average_stress_spike:
+      target: http://{{ $env.SUBDOMAIN }}.spaced.fun
+      socketio:
+        query: EIO=4&transport=websocket
+        transports: [websocket]
+      phases:
+        - name: smoke
+          duration: 10
+          arrivalRate: '{{ $env.SMOKE_RATE }}' # breakpoint * .10
+          maxVusers: '{{ $env.SMOKE_RATE }}' # breakpoint * .10
+        - name: average
+          duration: 60
+          arrivalRate: '{{ $env.AVG_RATE }}' # breakpoint * .50
+        - name: stress
+          duration: 120
+          arrivalRate: '{{ $env.STRESS_RATE }}' # breakpoint * .75
+        - name: pause
+          pause: 10
+        - name: spike
+          duration: 5
+          arrivalRate: '{{ $env.SPIKE_RATE }}' # breakpoint
+          maxVusers: 200
+
+scenarios:
+  - engine: playwright
+    testFunction: create_and_share_document
+    weight: 1
+  - engine: playwright
+    testFunction: join_and_update_document
+    weight: 6
