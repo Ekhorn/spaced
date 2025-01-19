@@ -1,0 +1,42 @@
+@startuml item_socket_components
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+LAYOUT_WITH_LEGEND()
+' REVERSE PROXY
+Container(reverse_proxy, "Reverse proxy & Load-balancer", "Traefik", "Load balancing & Request routing.")
+System_Boundary(item_socket, "Item Socket"){
+  Component(dyn_nsp, "/yjs|", "Dynamic Socket.IO Namespace", "Inits all other socket listeners on the namespace.")
+  Component(init_document, "init_document", "Document state method", "Creates or reuses a document.")
+  Component(sync_update, "sync_update", "Socket.IO listener", "Updates connected clients with document changes.")
+  Component(sync_step_1, "sync_step_1", "Socket.IO listener", "Starts the initial document synchronization process and acknowlegdes with sync-step-2.")
+  Component(awareness_update, "awareness_update", "Socket.IO listener", "Updates connected clients cursor data.")
+  Component(on_disconnect, "on_disconnect", "Socket.IO listener", "Closes the document connection and records it to metrics.")
+  Component(document_storage, "Document Storage", "In-Memory Concurrent HashMap", "Stores documents with open connections for real-time updates.")
+  Component(metrics_registry, "Metrics Registry", "Prometheus", "Stores metrics in memory.")
+  Component(metrics_handler, "metrics_handler", "Prometheus", "Shares Item Socket metrics at /metrics.")
+}
+' RELATIONS
+Rel_D(reverse_proxy, dyn_nsp, "Realtime bi-directional communication", "HTTPS/WSS")
+Rel_D(dyn_nsp, init_document, "runs")
+Rel_D(dyn_nsp, sync_update, "inits")
+Rel_D(dyn_nsp, sync_step_1, "inits")
+Rel_D(dyn_nsp, awareness_update, "inits")
+Rel_D(dyn_nsp, on_disconnect, "inits")
+' DATABASE
+Container(message_broker, "Message broker", "RabbitMQ", "Receives messages and queues them up for consumer services to process further")
+ContainerDb(postgres, "Database", "PostgreSQL (+ PostGIS)", "To store at least some item data or atleast item metadata and user settings.")
+Rel_D(init_document, document_storage, "")
+Rel_D(sync_update, document_storage, "")
+Rel_D(sync_step_1, document_storage, "")
+Rel_D(awareness_update, document_storage, "")
+Rel_D(on_disconnect, document_storage, "")
+Rel_D(document_storage, message_broker, "Messaging", "TCP")
+Rel_D(document_storage, postgres, "Connection", "TCP")
+' METRICS
+Container(prometheus, "Prometheus", "Prometheus", "Aggregates metrics from Item Sockets, Traefik and cAdvisor.")
+Rel_D(sync_update, metrics_registry, "")
+Rel_D(sync_step_1, metrics_registry, "")
+Rel_D(awareness_update, metrics_registry, "")
+Rel_D(on_disconnect, metrics_registry, "")
+Rel_R(metrics_handler, metrics_registry, "Scrapes metrics at /metrics", "HTTP")
+Rel_U(prometheus, metrics_handler, "Scrapes metrics at /metrics", "HTTP")
+@enduml

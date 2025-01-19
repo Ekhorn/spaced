@@ -1,0 +1,85 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" version="26.0.6">
+  <diagram name="Page-1" id="qxxAHt2iK1a96zuKmFLE">
+    <mxGraphModel dx="1390" dy="1804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="S1gKSSgfagjmehGkuh5f-11" value="&lt;div&gt;[Onwed Servers]&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;align=left;" parent="1" vertex="1">
+          <mxGeometry x="120" y="-1043" width="870" height="503" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-25" value="&lt;div&gt;Google Cloud&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" parent="1" vertex="1">
+          <mxGeometry x="420" y="-830" width="270" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-20" value="&lt;div align=&quot;left&quot;&gt;AWS&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" parent="1" vertex="1">
+          <mxGeometry x="420" y="-1010" width="270" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-27" value="&lt;div&gt;DigitalOcean&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;" parent="1" vertex="1">
+          <mxGeometry x="700" y="-1010" width="270" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-26" value="&lt;div&gt;Hetzner&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="1" vertex="1">
+          <mxGeometry x="700" y="-830" width="270" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-8" value="&lt;div align=&quot;left&quot;&gt;IONOS(de)&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="1" vertex="1">
+          <mxGeometry x="140" y="-1010" width="270" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-9" value="&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&lt;/span&gt;87.106.135.28&lt;span style=&quot;white-space: pre;&quot;&gt;&lt;br&gt;&lt;/span&gt;[A RECORD] staging.spaced.fun&lt;br&gt;&amp;nbsp;[A RECORD] *.review.spaced.fun&lt;/div&gt;2 vCPU / 2 GB RAM" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="253.70000000000005" y="-800" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-15" value="&lt;div&gt;87.106.217.140&lt;/div&gt;&lt;div&gt;[NO DNS RECORD]&lt;/div&gt;1 vCPU / 1 GB RAM" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="330" y="-983" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-28" value="&lt;div&gt;(ephemeral IPv4)&lt;span style=&quot;white-space: pre;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&amp;nbsp;&lt;/span&gt;[NO DNS RECORD]&lt;/div&gt;0.25 vCPU / 1.25 GB RAM" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="533.7" y="-800" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-29" value="&lt;div&gt;188.245.210.9&lt;span style=&quot;white-space: pre;&quot;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;[A RECORD] hetzner.spaced.fun&lt;/div&gt;&lt;div&gt;2 vCPU / 4 GB RAM&lt;/div&gt;" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="813.7" y="-800" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="S1gKSSgfagjmehGkuh5f-1" target="4FSUhRkqJqPFxkSM7QeZ-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="S1gKSSgfagjmehGkuh5f-1" target="4FSUhRkqJqPFxkSM7QeZ-23" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="S1gKSSgfagjmehGkuh5f-1" target="4FSUhRkqJqPFxkSM7QeZ-30" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="S1gKSSgfagjmehGkuh5f-1" target="4FSUhRkqJqPFxkSM7QeZ-29" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="835" y="-840" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.523;entryY=0.009;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="S1gKSSgfagjmehGkuh5f-1" target="4FSUhRkqJqPFxkSM7QeZ-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="S1gKSSgfagjmehGkuh5f-13" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="68" y="-770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-13" value="github.com" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="46.94999999999999" y="-650" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="S1gKSSgfagjmehGkuh5f-14" target="S1gKSSgfagjmehGkuh5f-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-14" value="&lt;div&gt;Self-hosted runner&lt;/div&gt;&lt;div&gt;Ryzen 5950X / 32 GB RAM&lt;br&gt;&lt;/div&gt;" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="253.7" y="-650" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-23" value="&lt;div&gt;3.121.116.160&lt;/div&gt;&lt;div&gt;[A RECORD] aws.spaced.fun&lt;/div&gt;&lt;div&gt;&lt;div&gt;1 vCPU / 1 GB RAM&lt;/div&gt;&lt;/div&gt;" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="533.7" y="-983" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-30" value="&lt;div&gt;206.189.100.29&lt;/div&gt;&lt;div&gt;[A RECORD] do.spaced.fun&lt;/div&gt;&lt;div&gt;1 vCPU / 1 GB RAM&lt;/div&gt;" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="813.7" y="-983" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="4FSUhRkqJqPFxkSM7QeZ-7" value="&lt;div&gt;217.160.139.233&lt;/div&gt;&lt;div&gt;[A RECORD] spaced.fun&lt;br&gt;&lt;/div&gt;&lt;div&gt;2 vCPU / 2 GB RAM&lt;/div&gt;" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" parent="1" vertex="1">
+          <mxGeometry x="190" y="-983" width="42.599999999999994" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="S1gKSSgfagjmehGkuh5f-1" value="&lt;div&gt;DNS Server&lt;br&gt;&lt;/div&gt;" style="verticalLabelPosition=bottom;sketch=0;aspect=fixed;html=1;verticalAlign=top;strokeColor=none;align=center;outlineConnect=0;shape=mxgraph.citrix.dns_server;" parent="1" vertex="1">
+          <mxGeometry x="30" y="-886.25" width="76.5" height="92.5" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

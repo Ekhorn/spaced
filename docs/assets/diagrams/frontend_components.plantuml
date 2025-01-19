@@ -1,0 +1,23 @@
+@startuml frontend_component_diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+LAYOUT_WITH_LEGEND()
+Person(user, "Student / Expert / Life-long learner")
+System_Boundary(item_socket, "Browser / 'Native' web app"){
+  Component(slate_editor, "SlateEditor", "SolidJS Component", "The editor allows users to create and modify rich text documents.")
+  Component(collab_editor, "Collaborative Editor", "SolidJS Component", "Handles the Socket.IO /yjs|{document_id} namespace connection.")
+  Component(controls, "Controls", "SolidJS Component", "Inputs for users to create new items and select where to store them.")
+  Component(ipc_layer, "IPC layer", "Socket.IO / IndexedDB / Tauri", "Combines Item CRUD operations for Browser, Desktop and Cloud storage into environment agnostic operations.")
+}
+' BROWSER STORAGE
+Component_Ext(indexeddb, "Persistent Browser Storage", "IndexedDB", "Persistent data storage for items in the webview.")
+Rel_R(ipc_layer, indexeddb, "")
+' REVERSE PROXY
+Container(reverse_proxy, "Reverse proxy & Load-balancer", "Traefik", "Load balancing & Request routing.")
+Rel_D(collab_editor, reverse_proxy, "Realtime bi-directional communication", "HTTPS/WSS")
+' RELATIONS
+Rel_D(user, slate_editor, "", "")
+Rel_D(user, controls, "", "")
+Rel_D(slate_editor, ipc_layer, "", "")
+Rel_D(controls, ipc_layer, "", "")
+Rel_U(collab_editor, slate_editor, "")
+@enduml
