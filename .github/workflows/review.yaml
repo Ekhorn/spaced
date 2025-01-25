@@ -52,7 +52,7 @@ jobs:
           write-comment: true
           github-token: ${{ secrets.GITHUB_TOKEN }} # to be able to write the comment
 
-  review:
+  deploy:
     runs-on: ubuntu-latest
     needs: publish
     timeout-minutes: 20
@@ -65,39 +65,29 @@ jobs:
       - id: set-subdomain
         run: |
           PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-          SUBDOMAIN=$PR_NUMBER.review
-          echo "SUBDOMAIN=$SUBDOMAIN" >> .env
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "COMMIT_SHA=${{ github.sha }}" >> .env
-          echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
-          echo "STACK_NAME=review-${{ env.PR_NUMBER }}" >> .env
+          echo "STACK_NAME=review-$PR_NUMBER" >> .env
+          echo "SUBDOMAIN=$PR_NUMBER.review" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
-          name: review-${{ env.PR_NUMBER }}
+          name: review-${{ steps.set-subdomain.outputs.pr_number }}
           file: config/docker/services-stack.yaml
           host: review.spaced.fun
           user: spaced
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: .env
 
-  provision_review:
+  provision:
     runs-on: ubuntu-latest
-    needs: review
+    needs: deploy
     timeout-minutes: 20
     environment:
-      name: review-${{ needs.review.outputs.pr_number }}
-      url: https://${{ needs.review.outputs.pr_number }}.review.spaced.fun
-    if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
+      name: review-${{ needs.deploy.outputs.pr_number }}
+      url: https://${{ needs.deploy.outputs.pr_number }}.review.spaced.fun
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-          SUBDOMAIN=$PR_NUMBER.review
-          echo "SUBDOMAIN=$SUBDOMAIN" >> .env
-          echo "COMMIT_SHA=${{ github.sha }}" >> .env
-          echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
           name: root
@@ -110,19 +100,19 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: provision_review
+    needs: provision
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: echo "PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)" >> $GITHUB_ENV
+      - run: echo "PR_NUMBER=${{ needs.deploy.outputs.pr_number }}" >> $GITHUB_ENV
       - run: npx @lhci/cli@0.14 autorun --config config/lighthouserc.cjs
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   e2e:
-    needs: provision_review
+    needs: provision
     uses: ./.github/workflows/e2e.yaml
 
   test_servers:
@@ -137,11 +127,11 @@ jobs:
         # gc, ionos
     environment:
       name: test/${{ matrix.subdomain }}
-    if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
     steps:
       - uses: actions/checkout@v4
-      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
-      - run: echo "SUBDOMAIN=${{ matrix.subdomain }}" >> .env
+      - run: |
+          echo "COMMIT_SHA=${{ github.sha }}" >> .env
+          echo "SUBDOMAIN=${{ matrix.subdomain }}" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
           name: ${{ matrix.subdomain }}
