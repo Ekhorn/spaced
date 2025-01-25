@@ -421,7 +421,7 @@ test.describe('Item collaboration', () => {
     // TODO: fix cursor position to be in the correct location
     for (const [i, expected] of [
       `Collaborating..., yes we are!  `,
-      `:)${user1} `,
+      `:) ${user1} `,
     ].entries()) {
       const text = await editor2.locator(`p`).nth(i).textContent();
       expect(text?.replace('\uFEFF', '')).toBe(expected);

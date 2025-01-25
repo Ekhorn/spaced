@@ -30,22 +30,19 @@ jobs:
       registry: ghcr.io
       username: ${{ github.actor }}
 
-  ##################################################
-  # Deploy Stage                                 ###
-  ##################################################
-  staging:
+  deploy:
     runs-on: ubuntu-latest
     needs: publish
     timeout-minutes: 20
     environment:
       name: staging
       url: https://staging.spaced.fun
-    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
-      - run: echo "SUBDOMAIN=staging" >> .env
-      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
-      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+      - run: |
+          echo "COMMIT_SHA=${{ github.sha }}" >> .env
+          echo "STACK_NAME=staging" >> .env
+          echo "SUBDOMAIN=staging" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
           name: staging
@@ -55,18 +52,15 @@ jobs:
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           env_file: .env
 
-  provision_staging:
+  provision:
     runs-on: ubuntu-latest
-    needs: staging
+    needs: deploy
     timeout-minutes: 20
     environment:
       name: staging
       url: https://staging.spaced.fun
-    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
-      - run: echo "SUBDOMAIN=staging" >> .env
-      - run: echo "COMMIT_SHA=${{ github.sha }}" >> .env
       - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
@@ -80,7 +74,7 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: provision_staging
+    needs: provision
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -91,5 +85,5 @@ jobs:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   e2e:
-    needs: provision_staging
+    needs: provision
     uses: ./.github/workflows/e2e.yaml
