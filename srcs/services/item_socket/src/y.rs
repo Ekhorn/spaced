@@ -106,7 +106,7 @@ pub async fn init_socket_listeners(socket: &SocketRef) {
       metrics.inc_disconnects("/yjs|all", format!("{reason}"));
 
       let doc_ns = socket.ns().replace("/yjs|", "");
-      if socket.broadcast().sockets().unwrap().len() == 0 {
+      if socket.broadcast().sockets().len() == 0 {
         documents.remove(&doc_ns);
         metrics.dec_open_documents();
       }
