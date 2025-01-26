@@ -30,7 +30,7 @@ services:
       - 15672:15672
   # Reverse-proxy for Spaced services
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3.3
     labels:
       - traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)
       - traefik.http.services.dashboard.loadbalancer.server.port=8080
