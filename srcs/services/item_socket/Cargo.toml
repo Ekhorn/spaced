@@ -17,7 +17,7 @@ bytes.workspace = true
 clap.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-socketioxide = { version = "0.15", features = [
+socketioxide = { version = "0.16", features = [
   "tracing",
   "extensions",
   "state",

@@ -16,21 +16,23 @@ pub fn create(namespace: String, socket: SocketIo) -> Arc<Awareness> {
     .doc()
     // TODO: figure out why _with is needed for subscriptions to work
     .observe_after_transaction_with("update", move |tx| {
-      socket_clone
+      // TODO: figure out non-async closures with y-rs
+      // or wait for async closures to become stable https://rust-lang.github.io/rfcs/3668-async-closures.html
+      let future = socket_clone
         .of(&nsp)
         .unwrap()
-        .emit("sync-update", &Value::from(tx.encode_update_v1()))
-        .unwrap();
+        .emit("sync-update", &Value::from(tx.encode_update_v1()));
+      tokio::spawn(async { future.await.unwrap() });
     })
     .unwrap();
 
   awareness.on_update_with("update", move |awareness, _, _| {
     let data = awareness.update().unwrap().encode_v1();
-    socket
+    let future = socket
       .of(&namespace)
       .unwrap()
-      .emit("awareness-update", &Value::from(data))
-      .unwrap();
+      .emit("awareness-update", &Value::from(data));
+    tokio::spawn(async { future.await.unwrap() });
   });
 
   awareness
