@@ -34,9 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: publish
     timeout-minutes: 20
-    environment:
-      name: staging
-      url: https://staging.spaced.fun
     steps:
       - uses: actions/checkout@v4
       - run: |
