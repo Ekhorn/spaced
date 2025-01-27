@@ -30,7 +30,7 @@ services:
       - 15672:15672
   # Reverse-proxy for Spaced services
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3
     labels:
       - traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)
       - traefik.http.services.dashboard.loadbalancer.server.port=8080
@@ -103,7 +103,7 @@ services:
   # ports: [8081:8081]
   # Metrics
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.51
     labels:
       - traefik.http.routers.cadvisor.rule=PathPrefix(`/cadvisor`)
     container_name: cadvisor
