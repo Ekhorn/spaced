@@ -55,20 +55,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: publish
     timeout-minutes: 20
-    outputs:
-      pr_number: ${{ steps.set-subdomain.outputs.pr_number }}
     steps:
       - uses: actions/checkout@v4
       - id: set-subdomain
         run: |
-          PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_OUTPUT
           echo "COMMIT_SHA=${{ github.sha }}" >> .env
-          echo "STACK_NAME=review-$PR_NUMBER" >> .env
-          echo "SUBDOMAIN=$PR_NUMBER.review" >> .env
+          echo "STACK_NAME=review-${{ github.event.number }}" >> .env
+          echo "SUBDOMAIN=${{ github.event.number }}.review" >> .env
       - uses: cssnr/stack-deploy-action@v1
         with:
-          name: review-${{ steps.set-subdomain.outputs.pr_number }}
+          name: review-${{ github.event.number }}
           file: config/docker/services-stack.yaml
           host: review.spaced.fun
           user: spaced
@@ -80,8 +77,8 @@ jobs:
     needs: deploy
     timeout-minutes: 20
     environment:
-      name: review-${{ needs.deploy.outputs.pr_number }}
-      url: https://${{ needs.deploy.outputs.pr_number }}.review.spaced.fun
+      name: review-${{ github.event.number }}
+      url: https://${{ github.event.number }}.review.spaced.fun
     steps:
       - uses: actions/checkout@v4
       - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
@@ -103,7 +100,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: echo "PR_NUMBER=${{ needs.deploy.outputs.pr_number }}" >> $GITHUB_ENV
+      - run: echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
       - run: npx @lhci/cli@0.14 autorun --config config/lighthouserc.cjs
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
