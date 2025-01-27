@@ -37,7 +37,7 @@ services:
     ports: [8081:8081]
   # Metrics
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.51
     container_name: cadvisor
     profiles: [services]
     restart: always

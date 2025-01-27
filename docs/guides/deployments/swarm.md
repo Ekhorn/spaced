@@ -109,7 +109,7 @@ secrets:
 services:
   # Reverse-proxy for Spaced services
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3
     deploy:
       labels:
         - traefik.enable=true
@@ -142,7 +142,7 @@ services:
       - 80:80
   # Metrics
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.51
     deploy:
       labels:
         - traefik.enable=false
