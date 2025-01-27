@@ -72,7 +72,7 @@ const String = (props: {
  * Leaf strings with text in them.
  */
 const TextString = (props: { text: string; isTrailing?: boolean }) => {
-  let ref: HTMLSpanElement;
+  let ref!: HTMLSpanElement;
   const getTextContent = () => {
     return `${props.text ?? ''}${props.isTrailing ? '\n' : ''}`;
   };

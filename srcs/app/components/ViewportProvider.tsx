@@ -163,7 +163,7 @@ const ViewportContext = createContext({
   lastRelativePointerPosition,
 });
 
-let ref: HTMLDivElement;
+let ref!: HTMLDivElement;
 
 export function ViewportProvider(props: ViewportProps) {
   onMount(() => {
