@@ -132,7 +132,7 @@ pub async fn start_synchronization(
       let update = Update::decode_v1(binary).unwrap();
       awareness.doc().transact_mut().apply_update(update).unwrap();
     }
-    Err(err) => println!("Ack error {:?}", err),
+    Err(err) => println!("Ack error {:?}", err), // TODO: Exit if timeout
   }
 
   let data = awareness.update().unwrap().encode_v1();
