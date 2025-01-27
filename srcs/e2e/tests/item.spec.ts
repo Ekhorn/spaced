@@ -403,7 +403,7 @@ test.describe('Item collaboration', () => {
     const text = await editor1.textContent();
     // TODO: handle invalid cursors remove normalize string remove BOM unicode chars etc.
     expect(text?.replace('\uFEFF', '')).toBe(
-      `Collaborating..., yes we are!${user2} `,
+      `Collaborating..., yes we are! ${user2}`,
     );
     // TODO: fix cursor position to be in the correct location
     await expect(editor2).toContainText(`Collaborating..., yes we are!  `);
