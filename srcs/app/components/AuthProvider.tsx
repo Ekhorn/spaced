@@ -154,7 +154,7 @@ export function AuthProvider(props: AuthProps) {
                 <input
                   type="email"
                   name="email"
-                  class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
+                  class="w-full rounded border px-3 py-2 transition-all duration-300 outline-none focus:border-blue-500"
                   placeholder="email"
                 />
               </label>
@@ -164,7 +164,7 @@ export function AuthProvider(props: AuthProps) {
                   <input
                     type="text"
                     name="username"
-                    class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
+                    class="w-full rounded border px-3 py-2 transition-all duration-300 outline-none focus:border-blue-500"
                     placeholder="username"
                   />
                 </label>
@@ -174,13 +174,13 @@ export function AuthProvider(props: AuthProps) {
                 <input
                   type="password"
                   name="password"
-                  class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
+                  class="w-full rounded border px-3 py-2 transition-all duration-300 outline-none focus:border-blue-500"
                   placeholder="•••••••••••••"
                 />
               </label>
             </div>
             <button
-              class="w-full rounded-md bg-blue-500 px-4 py-2 text-white outline-none transition-all duration-300 hover:bg-blue-600"
+              class="w-full rounded-md bg-blue-500 px-4 py-2 text-white transition-all duration-300 outline-none hover:bg-blue-600"
               type="submit"
             >
               Submit
