@@ -88,7 +88,7 @@ function MarkButton(props: { format: string; icon: JSXElement }) {
   const editor = useSlate();
   return (
     <button
-      class="rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]"
+      class="rounded-sm px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]"
       onMouseDown={(event) => {
         event.preventDefault();
         toggleMark(editor, props.format);
@@ -111,7 +111,7 @@ function BlockButton(props: {
   const editor = useSlate();
   return (
     <button
-      class="rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]"
+      class="rounded-sm px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]"
       onMouseDown={(event) => {
         event.preventDefault();
         toggleBlock(editor, props.format);
@@ -134,7 +134,7 @@ function BlockButton(props: {
 export function Toolbar(props: { selected: Accessor<boolean> }) {
   return (
     <div
-      class="absolute -z-20 flex w-full -translate-y-full rounded bg-white p-1"
+      class="absolute -z-20 flex w-full -translate-y-full rounded-sm bg-white p-1"
       style={props.selected() ? {} : { display: 'none' }}
       data-testid="toolbar"
     >
