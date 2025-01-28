@@ -34,7 +34,8 @@
       "eslint"
     ]
   },
-  "dependencies": {
+  "devDependencies": {
+    "@eslint/compat": "^1.0.0",
     "@solidjs/testing-library": "^0.8.0",
     "@tauri-apps/cli": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",

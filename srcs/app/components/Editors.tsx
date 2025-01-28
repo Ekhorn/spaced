@@ -87,9 +87,7 @@ export function CollaborativeEditor(props: RenderProps) {
 
   const wrapper = () => {
     const editor = withCursors(
-      // eslint-disable-next-line solid/reactivity
       withYHistory(withYjs(createEditor(), sharedType())),
-      // eslint-disable-next-line solid/reactivity
       provider()?.awareness,
       {
         // The current user's name and color

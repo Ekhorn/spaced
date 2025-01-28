@@ -387,7 +387,6 @@ export const SolidEditor: SolidEditorInterface = {
     const path: Path = [];
     let child = node;
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const parent = NODE_TO_PARENT.get(child);
 
@@ -891,7 +890,6 @@ export const SolidEditor: SolidEditorInterface = {
             lastRange.startContainer instanceof HTMLTableRowElement
           ) {
             // HTMLElement, becouse Element is a slate element
-            // eslint-disable-next-line no-inner-declarations
             function getLastChildren(element: HTMLElement): HTMLElement {
               return element.childElementCount > 0
                 ? getLastChildren(<HTMLElement>element.children[0])
