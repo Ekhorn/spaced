@@ -85,13 +85,15 @@ export function AuthProvider(props: AuthProps) {
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
     if (email && password) {
-      isRegistration()
-        ? register(
-            formData.get('username')?.toString() ?? 'user',
-            email,
-            password,
-          )
-        : login(email, password);
+      if (isRegistration()) {
+        register(
+          formData.get('username')?.toString() ?? 'user',
+          email,
+          password,
+        );
+      } else {
+        login(email, password);
+      }
     }
   }
 
