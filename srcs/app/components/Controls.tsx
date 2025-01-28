@@ -89,7 +89,7 @@ export function StorageSelector() {
   return (
     <div class="control-btn">
       <Show when={!connected()}>
-        <span class="before:absolute before:-left-[0.125rem] before:-top-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]"></span>
+        <span class="before:absolute before:-top-[0.125rem] before:-left-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]"></span>
       </Show>
       <HiOutlineCircleStack class="absolute" />
       <select
@@ -189,7 +189,7 @@ export function Controls() {
   return (
     <>
       <Search {...createItemProps} />
-      <div class="absolute right-1 top-1 flex flex-col gap-1 overflow-visible">
+      <div class="absolute top-1 right-1 flex flex-col gap-1 overflow-visible">
         <Show when={!isTauri}>
           <LogOutButton />
         </Show>
