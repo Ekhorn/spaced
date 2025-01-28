@@ -45,7 +45,7 @@ export function Search(props: CreateItemProps) {
     <input
       type="text"
       placeholder="Enter code"
-      class="absolute z-50 m-2 w-[412px] rounded border-0 bg-white p-1 text-lg ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
+      class="absolute z-50 m-2 w-[412px] rounded-sm border-0 bg-white p-1 text-lg ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
       onChange={handleChange}
       onPaste={handlePaste}
     />
@@ -89,12 +89,12 @@ export function StorageSelector() {
   return (
     <div class="control-btn">
       <Show when={!connected()}>
-        <span class="before:absolute before:-top-[0.125rem] before:-left-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]"></span>
+        <span class="before:absolute before:-top-[0.125rem] before:-left-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow-sm before:shadow-[#2D2D2D]"></span>
       </Show>
       <HiOutlineCircleStack class="absolute" />
       <select
         ref={ref}
-        class="z-50 appearance-none overflow-visible bg-transparent text-transparent outline-none"
+        class="z-50 appearance-none overflow-visible bg-transparent text-transparent outline-hidden"
         onChange={handleChange}
         title="Connect to storage"
       >
