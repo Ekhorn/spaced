@@ -41,11 +41,11 @@ pub async fn get_nearby(
   }): State<GlobalState>,
 ) {
   let records: Vec<Item> = sqlx::query_as!(Item, "SELECT * FROM item;")
-    .fetch_all(db_pool)
+    .fetch_all(&db_pool)
     .await
     .unwrap();
 
-  ack.send(records).ok();
+  ack.send(&records).ok();
 }
 
 #[tracing::instrument(skip_all)]
@@ -132,7 +132,7 @@ VALUES ( $1, $2, $3, $4, $5 ) RETURNING *
 
   transaction.commit().await.unwrap();
 
-  ack.send(item).ok();
+  ack.send(&item).ok();
 }
 
 // pub async fn update_outer(

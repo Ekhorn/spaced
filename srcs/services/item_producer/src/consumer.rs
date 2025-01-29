@@ -41,7 +41,7 @@ impl AsyncConsumer for ItemConsumer {
       .socket
       .emit(
         "/",
-        serde_json::to_string(&Item {
+        &serde_json::to_string(&Item {
           id: item.id,
           x: item.x,
           y: item.y,
@@ -51,6 +51,7 @@ impl AsyncConsumer for ItemConsumer {
         })
         .unwrap(),
       )
+      .await
       .unwrap();
   }
 }

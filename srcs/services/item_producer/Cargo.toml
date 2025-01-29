@@ -23,7 +23,7 @@ clap.workspace = true
 prost.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-socketioxide = { version = "0.11", features = [
+socketioxide = { version = "0.16", features = [
   "tracing",
   "extensions",
   "state",
@@ -33,10 +33,9 @@ tokio.workspace = true
 tower.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
-futures.workspace = true
 futures-util.workspace = true
 utils = { path = "../../utils", features = ["logging"] }
-uuid = { version = "=1.10.0", features = ["v4"] }
+uuid = { version = "=1.12.1", features = ["v4"] }
 
 [dev-dependencies]
-rust_socketio = { version = "0.4.4", features = ["async"] }
+rust_socketio = { version = "0.6.0", features = ["async"] }
