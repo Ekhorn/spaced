@@ -4,7 +4,7 @@ use std::{
 };
 
 use serde::Deserialize;
-use socketioxide::extract::SocketRef;
+use socketioxide::{extract::SocketRef, ParserError};
 use tracing::info;
 
 static USERS: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
@@ -20,12 +20,12 @@ pub struct AuthData {
 #[derive(Debug)]
 pub enum ConnectError {
   InvalidUsername,
-  EncodeError(serde_json::Error),
+  EncodeError(ParserError),
 }
 
 pub fn user_connect(
   socket: &SocketRef,
-  auth: Result<AuthData, serde_json::Error>,
+  auth: Result<AuthData, ParserError>,
 ) -> Result<(), ConnectError> {
   let auth = auth.map_err(ConnectError::EncodeError)?;
   let mut users = get_users().write().unwrap();
