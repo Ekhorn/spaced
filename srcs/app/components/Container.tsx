@@ -90,7 +90,7 @@ export function Container(props: ContainerProps) {
 
   return (
     <div
-      class="absolute min-h-8 min-w-8 whitespace-pre rounded"
+      class="absolute min-h-8 min-w-8 rounded-sm whitespace-pre"
       data-spaced-item={props.item.id}
       style={{
         'pointer-events': 'all',

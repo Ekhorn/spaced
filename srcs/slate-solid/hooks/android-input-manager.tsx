@@ -380,7 +380,7 @@ export function createAndroidInputManager({
     const idx = pendingDiffs.findIndex((change) =>
       Path.equals(change.path, path),
     );
-    if (idx < 0) {
+    if (idx === -1) {
       const normalized = normalizeStringDiff(target.text, diff);
       if (normalized) {
         pendingDiffs.push({ path, diff, id: idCounter++ });

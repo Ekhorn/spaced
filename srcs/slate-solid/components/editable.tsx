@@ -181,7 +181,6 @@ export function Editable(props: EditableProps) {
   const state = {
     isDraggingInternally: false,
     isUpdatingSelection: false,
-    // eslint-disable-next-line unicorn/no-null
     latestElement: null as DOMElement | null,
     hasMarkPlaceholder: false,
   };
@@ -1747,7 +1746,6 @@ const defaultScrollSelectionIntoView = (
  * Check if an event is overriden by a handler.
  */
 export const isEventHandled = <EventType extends Event>(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   event: EventType,
   handler?: (event: EventType) => void | boolean,
 ) => {

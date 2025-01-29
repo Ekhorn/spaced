@@ -85,13 +85,15 @@ export function AuthProvider(props: AuthProps) {
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
     if (email && password) {
-      isRegistration()
-        ? register(
-            formData.get('username')?.toString() ?? 'user',
-            email,
-            password,
-          )
-        : login(email, password);
+      if (isRegistration()) {
+        register(
+          formData.get('username')?.toString() ?? 'user',
+          email,
+          password,
+        );
+      } else {
+        login(email, password);
+      }
     }
   }
 
@@ -139,7 +141,7 @@ export function AuthProvider(props: AuthProps) {
       <Show when={false}>
         <dialog
           open={!isLoggedIn()}
-          class="inset-0 z-[9999] flex h-[460px] items-center justify-center rounded"
+          class="inset-0 z-9999 flex h-[460px] items-center justify-center rounded-sm"
         >
           <form
             onSubmit={onSubmit}
@@ -148,13 +150,13 @@ export function AuthProvider(props: AuthProps) {
             <h2 class="mb-4 text-center text-2xl font-bold text-gray-800">
               {isRegistration() ? 'Register' : 'Login to account'}
             </h2>
-            <div class="mb-6 flex-grow">
+            <div class="mb-6 grow">
               <label class="mb-2 block font-semibold text-gray-800">
                 Email
                 <input
                   type="email"
                   name="email"
-                  class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
+                  class="w-full rounded-sm border px-3 py-2 outline-hidden transition-all duration-300 focus:border-blue-500"
                   placeholder="email"
                 />
               </label>
@@ -164,7 +166,7 @@ export function AuthProvider(props: AuthProps) {
                   <input
                     type="text"
                     name="username"
-                    class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
+                    class="w-full rounded-sm border px-3 py-2 outline-hidden transition-all duration-300 focus:border-blue-500"
                     placeholder="username"
                   />
                 </label>
@@ -174,13 +176,13 @@ export function AuthProvider(props: AuthProps) {
                 <input
                   type="password"
                   name="password"
-                  class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
+                  class="w-full rounded-sm border px-3 py-2 outline-hidden transition-all duration-300 focus:border-blue-500"
                   placeholder="•••••••••••••"
                 />
               </label>
             </div>
             <button
-              class="w-full rounded-md bg-blue-500 px-4 py-2 text-white outline-none transition-all duration-300 hover:bg-blue-600"
+              class="w-full rounded-md bg-blue-500 px-4 py-2 text-white outline-hidden transition-all duration-300 hover:bg-blue-600"
               type="submit"
             >
               Submit
@@ -190,7 +192,7 @@ export function AuthProvider(props: AuthProps) {
                 <p>
                   Already have an account?{' '}
                   <button
-                    class="text-blue-500 transition-all duration-300 hover:underline focus:outline-none"
+                    class="text-blue-500 transition-all duration-300 hover:underline focus:outline-hidden"
                     onClick={() => setIsRegistration(false)}
                   >
                     Login here
@@ -200,7 +202,7 @@ export function AuthProvider(props: AuthProps) {
                 <p>
                   Don't have an account?{' '}
                   <button
-                    class="text-blue-500 transition-all duration-300 hover:underline focus:outline-none"
+                    class="text-blue-500 transition-all duration-300 hover:underline focus:outline-hidden"
                     onClick={() => setIsRegistration(true)}
                   >
                     Register here
