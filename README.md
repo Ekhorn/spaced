@@ -48,7 +48,7 @@ cargo run -i item_socket
 The web-frontend can be started with the following script.
 
 ```sh
-npm run dev
+trunk serve
 ```
 
 The web-frontend can also be displayed from a desktop application with the following command.
@@ -69,7 +69,7 @@ docker compose up -d
 The web-frontend can be built using the following script.
 
 ```sh
-npm run build
+trunk build
 ```
 
 The docker images for each service can be built using the following command.
