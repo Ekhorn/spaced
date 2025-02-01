@@ -60,6 +60,9 @@
     "typescript": "^5.0.0",
     "vitest": "^2.0.0"
   },
+  "peerDependencies": {
+    "playwright": "~1.47"
+  },
   "engines": {
     "node": ">=18"
   }
