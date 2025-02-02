@@ -7,9 +7,9 @@ use super::app::Item;
 #[component]
 pub fn Container(props: Item) -> impl IntoView {
   let absolute_viewport_position =
-    use_context::<ReadSignal<Vec2D>>().expect("to have found the setter provided");
+    use_context::<ReadSignal<Vec2D>>().expect("to have found the getter provided");
+  let scalar = use_context::<ReadSignal<f64>>().expect("to have found the getter provided");
 
-  // const { absoluteViewportPosition, scalar } = useViewport();
   let translation = move || {
     absolute_to_relative(
       &Vec2D {
@@ -17,7 +17,7 @@ pub fn Container(props: Item) -> impl IntoView {
         y: props.y as f64,
       },
       &absolute_viewport_position.get(),
-      1.0,
+      scalar.get(),
     )
   };
 
@@ -76,7 +76,7 @@ pub fn Container(props: Item) -> impl IntoView {
       // data-spaced-item={props.item.id}
       style="pointer-events: all; transform-origin: top left"
       style:translate=move || format!("{}px {}px", translation().x, -translation().y)
-      // style:scale=move || scalar().to_string()
+      style:scale=move || scalar.get().to_string()
       style:width=move || format!("{}px", props.w)
       // TEMP
       style:height="30px"
