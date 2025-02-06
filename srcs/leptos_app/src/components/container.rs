@@ -1,4 +1,4 @@
-use leptos::prelude::*;
+use leptos::{html::Div, prelude::*};
 
 use crate::lib::vector::{absolute_to_relative, Vec2D};
 
@@ -20,6 +20,8 @@ pub fn Container(props: Item) -> impl IntoView {
       scalar.get(),
     )
   };
+
+  let node_ref = NodeRef::<Div>::new();
 
   // const { holdingCtrl, holdingShift, selections, setSelecting } =
   //   useSelection();
@@ -73,7 +75,7 @@ pub fn Container(props: Item) -> impl IntoView {
   view! {
     <div
       class="absolute min-h-8 min-w-8 whitespace-pre rounded bg-white"
-      // data-spaced-item={props.item.id}
+      data-spaced-item=props.id
       style="pointer-events: all; transform-origin: top left"
       style:translate=move || format!("{}px {}px", translation().x, -translation().y)
       style:scale=move || scalar.get().to_string()
@@ -85,7 +87,7 @@ pub fn Container(props: Item) -> impl IntoView {
       // on:pointermove=handlePointerMove
       // on:keyup=handleKeyUp
       // on:focusout=handleFocusOut
-      // ref=ref
+      node_ref=node_ref
     >
       // <ErrorBoundary fallback=|| view! { <RenderFallback {...props} /> }>
       //   // <Render initialValue={schema()} {...renderProps} />
