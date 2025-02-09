@@ -1,19 +1,40 @@
 use std::{cell::RefCell, rc::Rc};
 
 use leptos::{
-  ev::{PointerEvent, WheelEvent},
+  ev::{self, PointerEvent, WheelEvent},
   prelude::*,
 };
+use reactive_stores::Store;
 
-use crate::lib::vector::{scale_viewport_out_from, scale_viewport_up_to, Vec2D};
+use crate::lib::{
+  selection::{Selection, SelectionStoreFields},
+  vector::{scale_viewport_out_from, scale_viewport_up_to, Vec2D},
+};
 
 #[component]
 pub fn Viewport(children: ChildrenFn) -> impl IntoView {
   let children = StoredValue::new(children);
 
-  fn selecting() -> bool {
-    false
-  }
+  let selection = Store::new(Selection::default());
+  let selecting = selection.selecting();
+
+  window_event_listener(ev::keydown, move |event| {
+    selection.holding_ctrl().set(event.ctrl_key());
+    selection.holding_shift().set(event.shift_key());
+  });
+  window_event_listener(ev::keyup, move |event| match event.key().as_str() {
+    "Control" => {
+      selection.holding_ctrl().set(false);
+    }
+    "Shift" => {
+      selection.holding_shift().set(false);
+    }
+    _ => {}
+  });
+  window_event_listener(ev::click, move |event| {
+    selection.holding_ctrl().set(event.ctrl_key());
+    selection.holding_shift().set(event.shift_key());
+  });
 
   let (wheel_factor, _set_wheel_factor) = signal(1.2);
   let (pinch_factor, _set_pinch_factor) = signal(1.05);
@@ -103,13 +124,17 @@ pub fn Viewport(children: ChildrenFn) -> impl IntoView {
     .sub(&last_relative_pointer_position.get())
     .div(scalar.get());
     if event.shift_key() && event.buttons() == 1 {
-    } else if event.buttons() == 1 && !selecting() {
+    } else if event.buttons() == 1 && !selecting.get() {
       set_absolute_viewport_position.update(|prev| *prev = prev.add(&pointer_delta.neg()));
     }
     set_last_relative_pointer_position.set(Vec2D {
       x: event.client_x() as f64,
       y: -event.client_y() as f64,
     });
+
+    if event.buttons() == 0 {
+      selecting.set(false);
+    }
   };
 
   let cloned_pointers = Rc::clone(&pointers);
@@ -150,6 +175,7 @@ pub fn Viewport(children: ChildrenFn) -> impl IntoView {
 
   provide_context(absolute_viewport_position);
   provide_context(scalar);
+  provide_context(selection);
 
   view! {
     <div
