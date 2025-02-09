@@ -1,9 +1,9 @@
 {
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "trunk serve",
+    "beforeBuildCommand": "trunk build",
     "frontendDist": "../../dist",
-    "devUrl": "http://localhost:1420"
+    "devUrl": "http://localhost:1421"
   },
   "bundle": {
     "active": true,
@@ -21,7 +21,7 @@
   "identifier": "fun.spaced.dev",
   "plugins": {},
   "app": {
-    "withGlobalTauri": false,
+    "withGlobalTauri": true,
     "windows": [
       {
         "dragDropEnabled": false,
