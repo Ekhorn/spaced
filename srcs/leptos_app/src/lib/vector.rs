@@ -1,3 +1,7 @@
+//! Basic vector abstractions
+//!
+//! Provides vector addition-, substraction-, multiplication-, division-, and negation operations.
+
 #[derive(Debug, Default, Clone)]
 pub struct Vec2D {
   pub x: f64,
@@ -82,6 +86,8 @@ pub fn scale_viewport_up_to(relative: &Vec2D, viewport: &Vec2D, scalar: f64, fac
  * @param factor the factor by which the scalar value is scaled.
  * @returns the new absolute viewport position.
  */
+
+/// # [Vec2D]
 pub fn scale_viewport_out_from(
   relative: &Vec2D,
   viewport: &Vec2D,

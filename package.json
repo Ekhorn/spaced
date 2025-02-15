@@ -3,6 +3,7 @@
   "type": "module",
   "workspaces": [
     "srcs/app",
+    "srcs/slate-leptos",
     "srcs/slate-solid",
     "srcs/slate-yjs-solid",
     "srcs/types",
