@@ -152,14 +152,25 @@ jobs:
   #         command: run config/load/socket-io.yml ${{ matrix.subdomain }}.spaced.fun
   #     # - run: ssh spaced@${{ matrix.subdomain }}.spaced.fun
 
-  # cleanup:
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 20
-  #   if: github.event_name == pull_request && github.event.action == closed
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - run: |
-  #         PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)
-  #         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-  #         SUBDOMAIN=$PR_NUMBER.review
-  #         echo "SUBDOMAIN=$SUBDOMAIN" >> .env
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == pull_request && github.event.action == closed
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+      - uses: ./.github/actions/docker-stack.yaml
+        with:
+          args: rm review-${{ github.event.number }}
+          name: ${{ matrix.subdomain }}
+          file: config/docker/test-stack.yaml
+          host: ${{ matrix.subdomain }}.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env
+# docker stack config
+# docker stack deploy
+# docker stack ls
+# docker stack ps
+# docker stack rm
+# docker stack services

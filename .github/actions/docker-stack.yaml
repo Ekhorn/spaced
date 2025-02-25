@@ -1,0 +1,31 @@
+name: Docker Stack
+
+inputs:
+  args:
+    description: The stack command to run
+    required: true
+  name:
+    description: Docker Stack Name
+    required: true
+  file:
+    description: Docker Compose File
+    required: true
+  host:
+    description: Docker Host
+    required: true
+  user:
+    description: Docker User
+    required: true
+  pass:
+    description: Docker Pass
+    required: false
+  ssh_key:
+    description: SSH Key File
+    required: false
+  env_file:
+    description: 'Environment File'
+    required: false
+
+runs:
+  using: docker
+  image: Dockerfile
