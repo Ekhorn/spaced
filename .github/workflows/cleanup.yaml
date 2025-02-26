@@ -1,0 +1,20 @@
+name: review
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/docker_stack
+        with:
+          args: rm review-${{ github.event.number }}
+          host: review.spaced.fun
+          user: spaced
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          env_file: .env

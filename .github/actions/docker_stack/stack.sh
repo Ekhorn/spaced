@@ -18,7 +18,6 @@ if [ -n "${INPUT_ENV_FILE}" ]; then
   source "${INPUT_ENV_FILE}"
 fi
 
-echo "$INPUT_ARGS" | while IFS= read -r ARGS; do
-  echo "Running \`docker stack ${ARGS}\`"
-  docker stack "${ARGS}"
+echo "$INPUT_ARGS" | sed '/^[ \t]*$/d' | while IFS= read -r ARGS; do
+  docker stack $ARGS
 done

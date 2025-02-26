@@ -1,4 +1,4 @@
-FROM docker:28-dind
+FROM docker:27-dind
 
 COPY stack.sh /stack.sh
 

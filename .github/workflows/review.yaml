@@ -79,7 +79,7 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: provision
+    needs: deploy
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -91,7 +91,7 @@ jobs:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   e2e:
-    needs: provision
+    needs: deploy
     uses: ./.github/workflows/e2e.yaml
 
   test_servers:
@@ -135,17 +135,3 @@ jobs:
   #       with:
   #         command: run config/load/socket-io.yml ${{ matrix.subdomain }}.spaced.fun
   #     # - run: ssh spaced@${{ matrix.subdomain }}.spaced.fun
-
-  # cleanup:
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 20
-  #   if: github.event_name == pull_request && github.event.action == closed
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: ./.github/actions/docker_stack
-  #       with:
-  #         args: rm review-${{ github.event.number }}
-  #         host: review.spaced.fun
-  #         user: spaced
-  #         ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         env_file: .env
