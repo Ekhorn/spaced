@@ -1,0 +1,28 @@
+name: Docker Stack
+
+inputs:
+  args:
+    description: Stack Args
+    required: true
+    # docker stack config
+    # docker stack deploy
+    # docker stack ls
+    # docker stack ps
+    # docker stack rm
+    # docker stack services
+  host:
+    description: Docker Host
+    required: true
+  user:
+    description: Docker User
+    required: true
+  ssh_key:
+    description: SSH Key File
+    required: false
+  env_file:
+    description: Environment File
+    required: false
+
+runs:
+  using: docker
+  image: Dockerfile
