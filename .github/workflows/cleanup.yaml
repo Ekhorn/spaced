@@ -17,4 +17,3 @@ jobs:
           host: review.spaced.fun
           user: spaced
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          env_file: .env
