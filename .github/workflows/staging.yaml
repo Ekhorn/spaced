@@ -34,35 +34,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: publish
     timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - run: |
-          echo "COMMIT_SHA=${{ github.sha }}" >> .env
-          echo "STACK_NAME=staging" >> .env
-          echo "SUBDOMAIN=staging" >> .env
-      - uses: cssnr/stack-deploy-action@v1
-        with:
-          name: staging
-          file: config/docker/services-stack.yaml
-          host: staging.spaced.fun
-          user: spaced
-          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          env_file: .env
-
-  provision:
-    runs-on: ubuntu-latest
-    needs: deploy
-    timeout-minutes: 20
     environment:
       name: staging
       url: https://staging.spaced.fun
     steps:
       - uses: actions/checkout@v4
-      - run: echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
-      - uses: cssnr/stack-deploy-action@v1
+      - run: |
+          echo "COMMIT_SHA=${{ github.sha }}" >> .env
+          echo "LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }}" >> .env
+          echo "STACK_NAME=staging" >> .env
+          echo "SUBDOMAIN=staging" >> .env
+      - uses: ./.github/actions/docker_stack
         with:
-          name: root
-          file: config/docker/root-stack.yaml
+          args: |
+            deploy staging -c config/docker/services-stack.yaml
+            deploy root -c config/docker/root-stack.yaml
           host: staging.spaced.fun
           user: spaced
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -71,7 +57,7 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: provision
+    needs: deploy
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,5 +68,5 @@ jobs:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   e2e:
-    needs: provision
+    needs: deploy
     uses: ./.github/workflows/e2e.yaml
