@@ -15,7 +15,7 @@
     "jwt-decode": "^4.0.0",
     "postcss": "^8.0.0",
     "slate": "0.112.0",
-    "slate-history": "0.110.3",
+    "slate-history": "0.113.1",
     "socket.io-client": "^4.0.0",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.0.0",
