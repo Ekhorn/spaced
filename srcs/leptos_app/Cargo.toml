@@ -11,3 +11,4 @@ leptos = { version = "0.7.4", features = ["csr"] }
 reactive_stores = "*"
 wasm-bindgen = "*"
 web-sys = { version = "*", features = [] }
+slate_leptos = { path = "../slate_leptos" }

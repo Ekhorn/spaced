@@ -4,6 +4,7 @@ members = [
   "srcs/services/item_socket",
   "srcs/services/user_service",
   "srcs/leptos_app",
+  "srcs/slate_leptos",
   "srcs/tauri",
   "srcs/utils",
 ]

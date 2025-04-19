@@ -6,6 +6,7 @@ use leptos::{logging, mount};
 
 fn main() {
   console_error_panic_hook::set_once();
+  // slate_leptos::create_editor();
   logging::log!("csr mode - mounting to body");
   mount::mount_to_body(App)
 }
