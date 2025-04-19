@@ -12,6 +12,7 @@
     "dockerfile",
     "github-actions"
   ],
+  "ignoreDeps": ["playwright", "@playwright/test"],
   "semanticCommits": "enabled",
   "commitMessageTopic": "{{depName}} from {{currentVersion}}",
   "packageRules": [
