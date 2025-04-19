@@ -1,0 +1,17 @@
+[package]
+name = "slate_leptos"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "slate_leptos"
+crate-type = ["lib"]
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+leptos = { version = "0.7.4", features = ["csr"] }
+reactive_stores = "*"
+wasm-bindgen = "*"
+web-sys = { version = "*", features = [] }
