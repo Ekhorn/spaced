@@ -87,9 +87,7 @@ export function CollaborativeEditor(props: RenderProps) {
 
   const wrapper = () => {
     const editor = withCursors(
-      // eslint-disable-next-line solid/reactivity
       withYHistory(withYjs(createEditor(), sharedType())),
-      // eslint-disable-next-line solid/reactivity
       provider()?.awareness,
       {
         // The current user's name and color
@@ -124,7 +122,7 @@ export function CollaborativeEditor(props: RenderProps) {
   return (
     <Show
       when={connected() && sharedType() && provider()}
-      fallback={<div class="flex rounded bg-white p-1">Loading…</div>}
+      fallback={<div class="flex rounded-sm bg-white p-1">Loading…</div>}
     >
       {wrapper()}
     </Show>
@@ -211,7 +209,7 @@ function SlateEditor(
         <Toolbar selected={props.selected} />
         <div class="h-1 w-[424px]" />
       </Show>
-      <div class="pointer-events-none relative -z-20 rounded bg-white">
+      <div class="pointer-events-none relative -z-20 rounded-sm bg-white">
         <Editable
           decorate={props.decorate}
           onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
@@ -320,16 +318,19 @@ function Footer(props: RenderProps & { editor: Editor }) {
   return (
     <div class="pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]">
       <div class="flex flex-row border-r pr-1">
-        <button class="rounded px-1 hover:bg-[#ecedef]" title="Fullscreen">
+        <button class="rounded-sm px-1 hover:bg-[#ecedef]" title="Fullscreen">
           <FaSolidExpand />
         </button>
-        <button class="rounded px-1 hover:bg-[#ecedef]" title="Export to PDF">
+        <button
+          class="rounded-sm px-1 hover:bg-[#ecedef]"
+          title="Export to PDF"
+        >
           <FaSolidFilePdf />
         </button>
       </div>
       <Show when={sharing() === 'share'}>
         <button
-          class="row-end-auto rounded bg-gray-50 px-1 hover:bg-[#ecedef]"
+          class="row-end-auto rounded-sm bg-gray-50 px-1 hover:bg-[#ecedef]"
           title="Share"
           onClick={configure}
         >
@@ -357,13 +358,13 @@ function Footer(props: RenderProps & { editor: Editor }) {
           <Show when={sharing() === 'configure'}>
             <button
               type="submit"
-              class="rounded px-1 hover:bg-[#ecedef]"
+              class="rounded-sm px-1 hover:bg-[#ecedef]"
               title="Share & Copy"
             >
               <FaSolidCheck />
             </button>
             <button
-              class="rounded px-1 hover:bg-[#ecedef]"
+              class="rounded-sm px-1 hover:bg-[#ecedef]"
               title="Cancel"
               type="button"
               onClick={cancel}
@@ -376,7 +377,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
       <Show when={sharing() === 'sharing'}>
         <div class="flex flex-row">
           <button
-            class="rounded px-1 hover:bg-[#ecedef]"
+            class="rounded-sm px-1 hover:bg-[#ecedef]"
             title="Stop sharing"
             onClick={cancel}
           >
@@ -384,7 +385,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
           </button>
           <button
             type="submit"
-            class="rounded px-1 hover:bg-[#ecedef]"
+            class="rounded-sm px-1 hover:bg-[#ecedef]"
             title="Copy"
             onClick={copyToClipboard}
           >
