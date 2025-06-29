@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "peerDependencies": {
-    "slate": "0.112.0",
+    "slate": "0.117.2",
     "solid-js": "^1.0.0"
   },
   "engines": {
