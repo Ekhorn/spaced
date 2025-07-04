@@ -13,6 +13,7 @@ use crate::lib::{
 };
 
 use super::app::Item;
+use super::editor::Editor;
 
 #[component]
 pub fn Container(props: Item) -> impl IntoView {
@@ -111,8 +112,9 @@ pub fn Container(props: Item) -> impl IntoView {
       node_ref=node_ref
     >
       <div class="pointer-events-none">
-        <div class="pointer-events-auto h-7" contenteditable=move || format!("{}", selected())>
-        </div>
+        <Editor></Editor>
+        // <div class="pointer-events-auto h-7" contenteditable=move || format!("{}", selected())>
+        // </div>
       </div>
       // <ErrorBoundary fallback=|| view! { <RenderFallback {...props} /> }>
       //   // <Render initialValue={schema()} {...renderProps} />

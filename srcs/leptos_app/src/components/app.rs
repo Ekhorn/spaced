@@ -22,24 +22,24 @@ pub fn App() -> impl IntoView {
   let (items, set_items) = signal(vec![
     Item {
       id: 1,
-      x: 30,
-      y: 90,
+      x: 800,
+      y: -400,
       w: 30,
       h: 30,
       editor: "".to_string(),
       schema: Some("".to_string()),
       shared: Some("".to_string()),
     },
-    Item {
-      id: 2,
-      x: 30,
-      y: 30,
-      w: 30,
-      h: 30,
-      editor: "".to_string(),
-      schema: Some("".to_string()),
-      shared: Some("".to_string()),
-    },
+    // Item {
+    //   id: 2,
+    //   x: 30,
+    //   y: 30,
+    //   w: 30,
+    //   h: 30,
+    //   editor: "".to_string(),
+    //   schema: Some("".to_string()),
+    //   shared: Some("".to_string()),
+    // },
   ]);
 
   view! {
