@@ -23,7 +23,7 @@ clap.workspace = true
 prost.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-socketioxide = { version = "0.16", features = [
+socketioxide = { version = "0.17", features = [
   "tracing",
   "extensions",
   "state",
@@ -35,7 +35,7 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 futures-util.workspace = true
 utils = { path = "../../utils", features = ["logging"] }
-uuid = { version = "=1.15.1", features = ["v4"] }
+uuid = { version = "=1.17.0", features = ["v4"] }
 
 [dev-dependencies]
 rust_socketio = { version = "0.6.0", features = ["async"] }
