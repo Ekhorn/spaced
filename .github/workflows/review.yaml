@@ -59,7 +59,7 @@ jobs:
       name: review-${{ github.event.number }}
       url: https://${{ github.event.number }}.review.spaced.fun
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_OUTPUT
           echo "COMMIT_SHA=${{ github.sha }}" >> .env
@@ -81,10 +81,10 @@ jobs:
     timeout-minutes: 20
     needs: deploy
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 18
+          node-version: 22
       - run: echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
       - run: npx @lhci/cli@0.14 autorun --config config/lighthouserc.cjs
         env:
