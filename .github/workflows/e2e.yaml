@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 18
+          node-version: 22
       - if: ${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
         run: echo "PR_NUMBER=$(git name-rev HEAD --name-only | cut -d'/' -f3)" >> $GITHUB_ENV
       - run: npm ci
