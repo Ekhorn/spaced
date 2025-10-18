@@ -2,21 +2,17 @@ name: fmt
 on: workflow_call
 
 jobs:
-  fmt:
+  cargo_fmt:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - run: npm run fmt
 
-  prettier:
+  deno_fmt:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: npm
-      - run: npm ci
-      - run: npx prettier --check .
+      - uses: denoland/setup-deno@v2
+      - run: deno fmt --check
