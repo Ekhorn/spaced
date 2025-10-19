@@ -13,10 +13,10 @@ import {
 } from './editable.js';
 import String from './string.js';
 import { useSlateStatic } from '../hooks/use-slate-static.js';
-import { IS_WEBKIT, IS_ANDROID } from '../utils/environment.js';
+import { IS_ANDROID, IS_WEBKIT } from '../utils/environment.js';
 import {
-  PLACEHOLDER_SYMBOL,
   EDITOR_TO_PLACEHOLDER_ELEMENT,
+  PLACEHOLDER_SYMBOL,
 } from '../utils/weakmaps.js';
 
 // Delay the placeholder on Android to prevent the keyboard from closing.

@@ -1,7 +1,7 @@
 import { render } from '@solidjs/testing-library';
 import { createEditor, Text, Transforms } from 'slate';
 import { createEffect } from 'solid-js';
-import { expect, test, describe, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { Editable } from './editable.js';
 import { Slate } from './slate.js';

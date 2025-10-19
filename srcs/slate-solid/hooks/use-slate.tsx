@@ -12,10 +12,12 @@ export interface SlateContextValue {
   editor: SolidEditor;
 }
 
-export const SlateContext = createContext<Accessor<{
-  v: number;
-  editor: SolidEditor;
-}> | null>();
+export const SlateContext = createContext<
+  Accessor<{
+    v: number;
+    editor: SolidEditor;
+  }> | null
+>();
 
 /**
  * Get the current editor object from the React context.

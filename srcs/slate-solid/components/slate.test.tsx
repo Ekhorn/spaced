@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-null */
 import { render } from '@solidjs/testing-library';
 import { createEditor, Transforms } from 'slate';
-import { expect, test, describe, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { Editable } from './editable.js';
 import { Slate } from './slate.js';
@@ -40,7 +40,7 @@ describe('slate-solid', () => {
         expect(windowSelection?.focusOffset).toBe(testSelection.focus.offset);
       });
 
-      test('should be able to call .focus without getting toDOMNode errors', async () => {
+      test('should be able to call .focus without getting toDOMNode errors', () => {
         const editor = withSolid(createEditor());
         const initialValue = [{ type: 'block', children: [{ text: 'test' }] }];
 

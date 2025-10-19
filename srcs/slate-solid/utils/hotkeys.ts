@@ -49,9 +49,9 @@ const WINDOWS_HOTKEYS = {
  * Create a platform-aware hotkey checker.
  */
 const create = (key: string) => {
-  const generic = HOTKEYS[<keyof typeof HOTKEYS>key];
-  const apple = APPLE_HOTKEYS[<keyof typeof APPLE_HOTKEYS>key];
-  const windows = WINDOWS_HOTKEYS[<keyof typeof WINDOWS_HOTKEYS>key];
+  const generic = HOTKEYS[<keyof typeof HOTKEYS> key];
+  const apple = APPLE_HOTKEYS[<keyof typeof APPLE_HOTKEYS> key];
+  const windows = WINDOWS_HOTKEYS[<keyof typeof WINDOWS_HOTKEYS> key];
   type fn = (e: KeyboardEvent) => boolean;
   const isGeneric = generic && isHotkey(generic);
   const isApple = apple && isHotkey(apple);

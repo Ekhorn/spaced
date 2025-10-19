@@ -1,4 +1,4 @@
-import { type Page, test, expect } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { type Item } from 'types';
 
 import { toEndOfLine } from '../utils/editor.js';
@@ -38,7 +38,7 @@ const getItems = async (page: Page): Promise<Item[]> => {
   return await page.evaluate(async () => {
     return await new Promise<Item[]>((resolve) => {
       const request = indexedDB.open('spaced');
-      request.onsuccess = async () => {
+      request.onsuccess = () => {
         const db = request.result;
         const tx = db.transaction('item', 'readwrite');
         const items = tx.objectStore('item').getAll();
@@ -307,10 +307,7 @@ test.describe('Markdown item', () => {
     }
 
     for (const { shortcut, type } of elements) {
-      test(`should remove ${type.toLowerCase()} block on backspace at line start`, async ({
-        browserName,
-        page,
-      }) => {
+      test(`should remove ${type.toLowerCase()} block on backspace at line start`, async ({ browserName, page }) => {
         test.fixme(
           browserName === 'webkit',
           "Backspace at line start on line 1 doesn't work",
@@ -416,10 +413,12 @@ test.describe('Item collaboration', () => {
       /Collaborating..., yes we are!/,
       `:)`,
     ]);
-    for (const [i, expected] of [
-      `Collaborating..., yes we are!`,
-      `:)`,
-    ].entries()) {
+    for (
+      const [i, expected] of [
+        `Collaborating..., yes we are!`,
+        `:)`,
+      ].entries()
+    ) {
       const text = await editor2.locator(`p`).nth(i).textContent();
       expect(text?.replace('\uFEFF', '').replace(user1, '')).toBe(expected);
     }

@@ -1,12 +1,12 @@
 /* eslint-disable unicorn/no-null */
 import {
   type BaseEditor,
-  type Operation,
-  type PathRef,
   Editor,
   Element,
   Node,
+  type Operation,
   Path,
+  type PathRef,
   Point,
   Range,
   Transforms,
@@ -316,8 +316,7 @@ export const withSolid = <T extends BaseEditor>(
     /**
      * Checking copied fragment from application/x-slate-fragment or data-slate-fragment
      */
-    const fragment =
-      data.getData(`application/${clipboardFormatKey}`) ||
+    const fragment = data.getData(`application/${clipboardFormatKey}`) ||
       getSlateFragmentAttribute(data);
 
     if (fragment) {

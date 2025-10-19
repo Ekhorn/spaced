@@ -3,12 +3,12 @@ import { jwtDecode } from 'jwt-decode';
 import {
   type Accessor,
   type Context,
-  type JSXElement,
-  createSignal,
-  useContext,
   createContext,
-  Show,
+  createSignal,
+  type JSXElement,
   onMount,
+  Show,
+  useContext,
 } from 'solid-js';
 
 import { useIPC } from './IPCProvider.jsx';
@@ -87,10 +87,10 @@ export function AuthProvider(props: AuthProps) {
     if (email && password) {
       isRegistration()
         ? register(
-            formData.get('username')?.toString() ?? 'user',
-            email,
-            password,
-          )
+          formData.get('username')?.toString() ?? 'user',
+          email,
+          password,
+        )
         : login(email, password);
     }
   }
@@ -128,85 +128,85 @@ export function AuthProvider(props: AuthProps) {
     };
   });
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-ignore //
   AuthContext = createContext({ register, login, logout, isLoggedIn });
 
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
     <AuthContext.Provider>
       <Show when={false}>
         <dialog
           open={!isLoggedIn()}
-          class="inset-0 z-[9999] flex h-[460px] items-center justify-center rounded"
+          class='inset-0 z-[9999] flex h-[460px] items-center justify-center rounded'
         >
           <form
             onSubmit={onSubmit}
-            class="flex h-full w-96 flex-col overflow-hidden rounded-md p-8 shadow-md"
+            class='flex h-full w-96 flex-col overflow-hidden rounded-md p-8 shadow-md'
           >
-            <h2 class="mb-4 text-center text-2xl font-bold text-gray-800">
+            <h2 class='mb-4 text-center text-2xl font-bold text-gray-800'>
               {isRegistration() ? 'Register' : 'Login to account'}
             </h2>
-            <div class="mb-6 flex-grow">
-              <label class="mb-2 block font-semibold text-gray-800">
+            <div class='mb-6 flex-grow'>
+              <label class='mb-2 block font-semibold text-gray-800'>
                 Email
                 <input
-                  type="email"
-                  name="email"
-                  class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
-                  placeholder="email"
+                  type='email'
+                  name='email'
+                  class='w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500'
+                  placeholder='email'
                 />
               </label>
               <Show when={isRegistration()}>
-                <label class="mb-2 block font-semibold text-gray-800">
+                <label class='mb-2 block font-semibold text-gray-800'>
                   Username
                   <input
-                    type="text"
-                    name="username"
-                    class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
-                    placeholder="username"
+                    type='text'
+                    name='username'
+                    class='w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500'
+                    placeholder='username'
                   />
                 </label>
               </Show>
-              <label class="mb-2 block font-semibold text-gray-800">
+              <label class='mb-2 block font-semibold text-gray-800'>
                 Password
                 <input
-                  type="password"
-                  name="password"
-                  class="w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500"
-                  placeholder="•••••••••••••"
+                  type='password'
+                  name='password'
+                  class='w-full rounded border px-3 py-2 outline-none transition-all duration-300 focus:border-blue-500'
+                  placeholder='•••••••••••••'
                 />
               </label>
             </div>
             <button
-              class="w-full rounded-md bg-blue-500 px-4 py-2 text-white outline-none transition-all duration-300 hover:bg-blue-600"
-              type="submit"
+              class='w-full rounded-md bg-blue-500 px-4 py-2 text-white outline-none transition-all duration-300 hover:bg-blue-600'
+              type='submit'
             >
               Submit
             </button>
-            <div class="mt-6 text-center text-gray-800">
-              {isRegistration() ? (
-                <p>
-                  Already have an account?{' '}
-                  <button
-                    class="text-blue-500 transition-all duration-300 hover:underline focus:outline-none"
-                    onClick={() => setIsRegistration(false)}
-                  >
-                    Login here
-                  </button>
-                </p>
-              ) : (
-                <p>
-                  Don't have an account?{' '}
-                  <button
-                    class="text-blue-500 transition-all duration-300 hover:underline focus:outline-none"
-                    onClick={() => setIsRegistration(true)}
-                  >
-                    Register here
-                  </button>
-                </p>
-              )}
+            <div class='mt-6 text-center text-gray-800'>
+              {isRegistration()
+                ? (
+                  <p>
+                    Already have an account?{' '}
+                    <button
+                      class='text-blue-500 transition-all duration-300 hover:underline focus:outline-none'
+                      onClick={() => setIsRegistration(false)}
+                    >
+                      Login here
+                    </button>
+                  </p>
+                )
+                : (
+                  <p>
+                    Don't have an account?{' '}
+                    <button
+                      class='text-blue-500 transition-all duration-300 hover:underline focus:outline-none'
+                      onClick={() => setIsRegistration(true)}
+                    >
+                      Register here
+                    </button>
+                  </p>
+                )}
             </div>
           </form>
         </dialog>

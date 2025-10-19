@@ -1,4 +1,4 @@
-import { type Text, type Element as SlateElement, Transforms } from 'slate';
+import { type Element as SlateElement, type Text, Transforms } from 'slate';
 import {
   type RenderElementProps,
   type RenderLeafProps,
@@ -16,19 +16,21 @@ import {
 import { type CursorData } from '../lib/types.js';
 
 type Element = (
-  props: Omit<RenderElementProps, 'attributes'> &
-    RenderElementProps['attributes'] & { style?: string | JSX.CSSProperties },
+  props:
+    & Omit<RenderElementProps, 'attributes'>
+    & RenderElementProps['attributes']
+    & { style?: string | JSX.CSSProperties },
 ) => JSXElement;
 
 /* eslint-disable solid/no-destructure, @typescript-eslint/no-unused-vars */
-const block_quote: Element = ({ element, ...p }) => <blockquote {...p} />,
-  bulleted_list: Element = ({ element, ...props }) => <ul {...props} />,
-  heading_one: Element = ({ element, ...props }) => <h1 {...props} />,
+const block_quote: Element = ({ element: _, ...p }) => <blockquote {...p} />,
+  bulleted_list: Element = ({ element: _, ...props }) => <ul {...props} />,
+  heading_one: Element = ({ element: _, ...props }) => <h1 {...props} />,
   // heading_two: Element = ({element, ...props}) => <h2 {...props} />,
-  ordered_list: Element = ({ element, ...props }) => <ol {...props} />,
-  list_item: Element = ({ element, ...props }) => <li {...props} />,
-  link: Element = ({ element, ...props }) => <a {...props} />,
-  paragraph: Element = ({ element, ...props }) => <p {...props} />;
+  ordered_list: Element = ({ element: _, ...props }) => <ol {...props} />,
+  list_item: Element = ({ element: _, ...props }) => <li {...props} />,
+  link: Element = ({ element: _, ...props }) => <a {...props} />,
+  paragraph: Element = ({ element: _, ...props }) => <p {...props} />;
 /* eslint-enable solid/no-destructure, @typescript-eslint/no-unused-vars */
 
 // eslint-disable-next-line solid/no-destructure
@@ -37,12 +39,12 @@ const check_list: Element = ({ children, element, ...attributes }) => {
   // const readOnly = useReadOnly()
   const { checked } = element as CheckListElement;
   return (
-    <div class="flex flex-row items-center" {...attributes}>
-      <span contenteditable={false} class="mx-1">
+    <div class='flex flex-row items-center' {...attributes}>
+      <span contenteditable={false} class='mx-1'>
         <input
-          type="checkbox"
+          type='checkbox'
           checked={checked}
-          class="w-max"
+          class='w-max'
           onChange={(event) => {
             const path = SolidEditor.findPath(editor, element);
             const newProperties: Partial<SlateElement> = {
@@ -54,7 +56,7 @@ const check_list: Element = ({ children, element, ...attributes }) => {
       </span>
       <span
         // contenteditable={false /*!readOnly*/}
-        class="flex-1"
+        class='flex-1'
         style={{
           opacity: `${checked ? 0.666 : 1}`,
           'text-decoration': `${checked ? 'line-through' : 'none'}`,
@@ -83,15 +85,14 @@ export function RenderElement(props: RenderElementProps): JSXElement {
   return (
     <Dynamic
       children={props.children}
-      component={
-        elementsMap[
-          props.element.type as Exclude<CustomElement['type'], 'image'>
-        ] ?? ((props) => <p {...props} />)
-      }
+      component={elementsMap[
+        props.element.type as Exclude<CustomElement['type'], 'image'>
+      ] ?? ((props) => <p {...props} />)}
       element={props.element}
       style={{
-        'text-align':
-          'align' in props.element ? props.element.align : undefined,
+        'text-align': 'align' in props.element
+          ? props.element.align
+          : undefined,
       }}
       {...props.attributes}
     />
@@ -118,15 +119,15 @@ export function RenderLeaf(props: RenderLeafProps) {
     for (const caret of getRemoteCaretsOnLeaf<CursorData, Text>(props.leaf)) {
       if (caret.data) {
         children = (
-          <span class="relative">
+          <span class='relative'>
             <span
               contentEditable={false}
-              class="absolute bottom-0 left-[-1px] top-0 w-0.5"
+              class='absolute bottom-0 left-[-1px] top-0 w-0.5'
               style={{ 'background-color': caret.data.color }}
             />
             <span
               contentEditable={false}
-              class="absolute left-[-1px] top-0 select-none whitespace-nowrap rounded rounded-bl-none px-1.5 py-0.5 text-xs text-white"
+              class='absolute left-[-1px] top-0 select-none whitespace-nowrap rounded rounded-bl-none px-1.5 py-0.5 text-xs text-white'
               style={{
                 'background-color': caret.data.color,
                 transform: 'translateY(-100%)',

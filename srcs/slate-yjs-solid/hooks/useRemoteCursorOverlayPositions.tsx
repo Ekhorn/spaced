@@ -8,24 +8,26 @@ import { useRemoteCursorStates } from './useRemoteCursorStates.js';
 import { useOnResize, useRequestRerender } from './utils.js';
 import { getCursorRange } from '../utils/getCursorRange.js';
 import {
-  getOverlayPosition,
   type CaretPosition,
+  getOverlayPosition,
   type OverlayPosition,
   type SelectionRect,
 } from '../utils/getOverlayPosition.js';
 
 const FROZEN_EMPTY_ARRAY = Object.freeze([]);
 
-export type UseRemoteCursorOverlayPositionsOptions<T extends HTMLElement> = {
-  shouldGenerateOverlay?: NodeMatch<Text>;
-} & (
-  | {
+export type UseRemoteCursorOverlayPositionsOptions<T extends HTMLElement> =
+  & {
+    shouldGenerateOverlay?: NodeMatch<Text>;
+  }
+  & (
+    | {
       // Container the overlay will be rendered in. If set, all returned overlay positions
       // will be relative to this container and the cursor positions will be automatically
       // updated on container resize.
       containerRef?: undefined;
     }
-  | {
+    | {
       containerRef: T;
 
       // Whether to refresh the cursor overlay positions on container resize. Defaults
@@ -33,10 +35,11 @@ export type UseRemoteCursorOverlayPositionsOptions<T extends HTMLElement> = {
       // each animation frame.
       refreshOnResize?: boolean | 'debounced';
     }
-);
+  );
 
 export type CursorOverlayData<TCursorData extends Record<string, unknown>> =
-  CursorState<TCursorData> & {
+  & CursorState<TCursorData>
+  & {
     range: BaseRange | null;
     caretPosition: CaretPosition | null;
     selectionRects: SelectionRect[];
@@ -59,8 +62,9 @@ export function useRemoteCursorOverlayPositions<
     Record<string, OverlayPosition>
   >({});
 
-  const refreshOnResize =
-    'refreshOnResize' in opts ? (opts.refreshOnResize ?? true) : true;
+  const refreshOnResize = 'refreshOnResize' in opts
+    ? (opts.refreshOnResize ?? true)
+    : true;
 
   // @ts-expect-error ingore
   useOnResize(refreshOnResize ? containerRef : undefined, () => {
@@ -80,8 +84,7 @@ export function useRemoteCursorOverlayPositions<
     const xOffset = containerRect?.x ?? 0;
     const yOffset = containerRect?.y ?? 0;
 
-    let overlayPositionsChanged =
-      Object.keys(overlayPositions).length !==
+    let overlayPositionsChanged = Object.keys(overlayPositions).length !==
       Object.keys(cursorStates()).length;
 
     const updated = Object.fromEntries(
@@ -125,7 +128,7 @@ export function useRemoteCursorOverlayPositions<
         caretPosition: overlayPosition?.caretPosition ?? null,
         selectionRects: overlayPosition?.selectionRects ?? FROZEN_EMPTY_ARRAY,
       };
-    }),
+    })
   );
 
   const refresh = () => {

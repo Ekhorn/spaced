@@ -1,4 +1,4 @@
-import { type Range, type Element as SlateElement, Editor, Node } from 'slate';
+import { Editor, type Element as SlateElement, Node, type Range } from 'slate';
 import { type JSXElement, Match, Switch } from 'solid-js';
 
 import { createChildren } from './children.js';
@@ -146,7 +146,7 @@ export const DefaultElement = (props: RenderElementProps) => {
           {props.children}
         </span>
       </Match>
-      <Match when={true}>
+      <Match when>
         <div {...props.attributes} style={{ position: 'relative' }}>
           {props.children}
         </div>

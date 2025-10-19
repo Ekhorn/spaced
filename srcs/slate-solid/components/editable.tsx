@@ -1,24 +1,26 @@
 /* eslint-disable unicorn/no-null */
 import {
-  type NodeEntry,
+  Descendant,
   Editor,
   Element,
   Node,
-  Range,
-  Transforms,
+  type NodeEntry,
   Path,
+  Range,
   Text,
+  Transforms,
 } from 'slate';
 import {
   type Accessor,
-  type JSX,
   createEffect,
-  type JSXElement,
   createSignal,
-  splitProps,
+  type JSX,
+  type JSXElement,
+  on,
   onCleanup,
   onMount,
-  on,
+  Ref,
+  splitProps,
 } from 'solid-js';
 
 import { createChildren } from './children.js';
@@ -35,14 +37,14 @@ import { SolidEditor } from '../plugin/solid-editor.js';
 import { TRIPLE_CLICK } from '../utils/constants.js';
 import { getDirection } from '../utils/direction.js';
 import {
-  type DOMText,
+  type DOMElement,
   type DOMRange,
+  type DOMText,
   getActiveElement,
   getDefaultView,
-  type DOMElement,
   getSelection,
-  isDOMNode,
   isDOMElement,
+  isDOMNode,
   isPlainTextOnlyPaste,
 } from '../utils/dom.js';
 import {
@@ -77,7 +79,7 @@ import {
  */
 export interface RenderElementProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children: any;
+  children: Descendant[];
   element: Element;
   attributes: {
     'data-slate-node': 'element';
@@ -85,7 +87,7 @@ export interface RenderElementProps {
     'data-slate-void'?: true;
     dir?: 'rtl';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ref: any;
+    ref: Ref<Element>;
   };
 }
 
@@ -94,7 +96,7 @@ export interface RenderElementProps {
  */
 export interface RenderLeafProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children: any;
+  children: Descendant[];
   leaf: Text;
   text: Text;
   attributes: {
@@ -113,7 +115,7 @@ const Children = (props: Parameters<typeof createChildren>[0]) => (
  */
 export type RenderPlaceholderProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  children: any;
+  children: Descendant[];
   attributes: {
     'data-slate-placeholder': boolean;
     dir?: 'rtl';
@@ -123,11 +125,12 @@ export type RenderPlaceholderProps = {
   };
 };
 
-type ElementAttributes<T extends HTMLElement> = Omit<
-  Partial<T>,
-  'style' | keyof JSX.CustomEventHandlersLowerCase<T>
-> &
-  JSX.CustomEventHandlersCamelCase<T>;
+type ElementAttributes<T extends HTMLElement> =
+  & Omit<
+    Partial<T>,
+    'style' | keyof JSX.CustomEventHandlersLowerCase<T>
+  >
+  & JSX.CustomEventHandlersCamelCase<T>;
 
 export type EditableProps = {
   decorate?: (entry: NodeEntry) => Range[];
@@ -161,8 +164,7 @@ export function Editable(props: EditableProps) {
     'renderLeaf',
     'renderPlaceholder',
     'scrollSelectionIntoView',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ]) as [EditableProps, any];
+  ]) as [EditableProps, JSX.BaseHTMLAttributes<HTMLDivElement>];
   const ctx = useSlateWithV();
   const editor = useSlate();
 
@@ -417,8 +419,8 @@ export function Editable(props: EditableProps) {
         // Otherwise the DOM selection is out of sync, so update it.
         state.isUpdatingSelection = true;
 
-        const newDomRange: DOMRange | null =
-          selection && SolidEditor.toDOMRange(editor, selection);
+        const newDomRange: DOMRange | null = selection &&
+          SolidEditor.toDOMRange(editor, selection);
 
         if (newDomRange) {
           if (SolidEditor.isComposing(editor) && !IS_ANDROID) {
@@ -554,8 +556,8 @@ export function Editable(props: EditableProps) {
       const { inputType: type } = event;
       const data = event.dataTransfer || event.data || undefined;
 
-      const isCompositionChange =
-        type === 'insertCompositionText' || type === 'deleteCompositionText';
+      const isCompositionChange = type === 'insertCompositionText' ||
+        type === 'deleteCompositionText';
 
       // COMPAT: use composition change events as a hint to where we should insert
       // composition text if we aren't composing to work around https://github.com/ianstormtaylor/slate/issues/5038
@@ -644,8 +646,7 @@ export function Editable(props: EditableProps) {
           if (!selection || !Range.equals(selection, range)) {
             native = false;
 
-            const selectionRef =
-              !isCompositionChange &&
+            const selectionRef = !isCompositionChange &&
               editor.selection &&
               Editor.rangeRef(editor, editor.selection);
 
@@ -866,8 +867,7 @@ export function Editable(props: EditableProps) {
   createEffect(
     on(ctx, () => {
       const decorations = (props.decorate ?? defaultDecorate)([editor, []]);
-      const showPlaceholder =
-        props.placeholder &&
+      const showPlaceholder = props.placeholder &&
         editor.children.length === 1 &&
         [...Node.texts(editor)].length === 1 &&
         Node.string(editor) === '' &&
@@ -898,8 +898,7 @@ export function Editable(props: EditableProps) {
       if (editor.selection && Range.isCollapsed(editor.selection) && marks) {
         const { anchor } = editor.selection;
         const leaf = Node.leaf(editor, anchor.path);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { text, ...rest } = leaf;
+        const { text: _, ...rest } = leaf;
 
         // While marks isn't a 'complete' text, we can still use loose Text.equals
         // here which only compares marks anyway.
@@ -951,45 +950,37 @@ export function Editable(props: EditableProps) {
             role={slate.readOnly ? undefined : 'textbox'}
             aria-multiline={slate.readOnly ? undefined : true}
             {...attributes}
-            spellCheck={
-              HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
-                ? attributes.spellCheck
-                : false
-            }
-            autoCorrect={
-              HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
-                ? attributes.autoCorrect
-                : 'false'
-            }
-            autoCapitalize={
-              HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
-                ? attributes.autoCapitalize
-                : 'false'
-            }
+            spellcheck={HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+              ? attributes.spellcheck
+              : 'false'}
+            autocorrect={HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+              ? attributes.autocorrect
+              : 'off'}
+            autocapitalize={HAS_BEFORE_INPUT_SUPPORT || !CAN_USE_DOM
+              ? attributes.autocapitalize
+              : undefined}
             data-slate-editor
-            data-slate-node="value"
+            data-slate-node='value'
             contentEditable={!slate.readOnly}
             // eslint-disable-next-line solid/reactivity
             ref={callbackRef}
             style={{
-              ...(props.disableDefaultStyles
-                ? {}
-                : {
-                    // in some cases, a decoration needs access to the range / selection to decorate a text node,
-                    // then you will select the whole text node when you select part the of text
-                    // this magic zIndex="-1" will fix it
-                    'z-index': -1,
-                    // Allow positioning relative to the editable element.
-                    position: 'relative',
-                    // Preserve adjacent whitespace and new lines.
-                    'white-space': 'pre-wrap',
-                    // Allow words to break if they are too long.
-                    'word-wrap': 'break-word',
-                    // Make the minimum height that of the placeholder.
-                    ...(placeholderHeight()
-                      ? { minHeight: placeholderHeight() }
-                      : {}),
-                  }),
+              ...(props.disableDefaultStyles ? {} : {
+                // in some cases, a decoration needs access to the range / selection to decorate a text node,
+                // then you will select the whole text node when you select part the of text
+                // this magic zIndex="-1" will fix it
+                'z-index': -1,
+                // Allow positioning relative to the editable element.
+                position: 'relative',
+                // Preserve adjacent whitespace and new lines.
+                'white-space': 'pre-wrap',
+                // Allow words to break if they are too long.
+                'word-wrap': 'break-word',
+                // Make the minimum height that of the placeholder.
+                ...(placeholderHeight()
+                  ? { minHeight: placeholderHeight() }
+                  : {}),
+              }),
               // Allow for passed-in styles to override anything.
               ...props?.style,
             }}
@@ -1006,7 +997,7 @@ export function Editable(props: EditableProps) {
                 event.preventDefault();
                 if (!SolidEditor.isComposing(editor)) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const text = (event as any).data as string;
+                  const text = event.data as string;
                   Editor.insertText(editor, text);
                 }
               }
@@ -1182,8 +1173,8 @@ export function Editable(props: EditableProps) {
                   !IS_UC_MOBILE &&
                   event.data
                 ) {
-                  const placeholderMarks =
-                    EDITOR_TO_PENDING_INSERTION_MARKS.get(editor);
+                  const placeholderMarks = EDITOR_TO_PENDING_INSERTION_MARKS
+                    .get(editor);
                   EDITOR_TO_PENDING_INSERTION_MARKS.delete(editor);
 
                   // Ensure we insert text with the marks the user was actually seeing
@@ -1413,10 +1404,9 @@ export function Editable(props: EditableProps) {
                 }
 
                 const { selection } = editor;
-                const element =
-                  editor.children[
-                    selection === null ? 0 : selection.focus.path[0]
-                  ];
+                const element = editor.children[
+                  selection === null ? 0 : selection.focus.path[0]
+                ];
                 const isRTL = getDirection(Node.string(element)) === 'rtl';
 
                 // COMPAT: Since we prevent the default behavior on
@@ -1425,8 +1415,9 @@ export function Editable(props: EditableProps) {
                 // hotkeys ourselves. (2019/11/06)
                 if (Hotkeys.isRedo(event)) {
                   event.preventDefault();
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const maybeHistoryEditor: any = editor;
+                  const maybeHistoryEditor = editor as SolidEditor & {
+                    redo: () => void;
+                  };
 
                   if (typeof maybeHistoryEditor.redo === 'function') {
                     maybeHistoryEditor.redo();
@@ -1437,8 +1428,9 @@ export function Editable(props: EditableProps) {
 
                 if (Hotkeys.isUndo(event)) {
                   event.preventDefault();
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const maybeHistoryEditor: any = editor;
+                  const maybeHistoryEditor = editor as SolidEditor & {
+                    undo: () => void;
+                  };
 
                   if (typeof maybeHistoryEditor.undo === 'function') {
                     maybeHistoryEditor.undo();
@@ -1731,8 +1723,9 @@ const defaultScrollSelectionIntoView = (
       (editor.selection && Range.isCollapsed(editor.selection)))
   ) {
     const leafEl = domRange.startContainer.parentElement!;
-    leafEl.getBoundingClientRect =
-      domRange.getBoundingClientRect.bind(domRange);
+    leafEl.getBoundingClientRect = domRange.getBoundingClientRect.bind(
+      domRange,
+    );
     // TODO: NEEDED???
     // leafEl.scrollIntoView({
     //   scrollMode: 'if-needed',
@@ -1747,16 +1740,15 @@ const defaultScrollSelectionIntoView = (
  * Check if an event is overriden by a handler.
  */
 export const isEventHandled = <EventType extends Event>(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   event: EventType,
-  handler?: (event: EventType) => void | boolean,
+  handler?: JSX.EventHandlerUnion<HTMLDivElement, EventType>,
 ) => {
   if (!handler) {
     return false;
   }
   // The custom event handler may return a boolean to specify whether the event
   // shall be treated as being handled or not.
-  const shouldTreatEventAsHandled = handler(event);
+  const shouldTreatEventAsHandled = (handler as (e: EventType) => void)(event);
 
   if (shouldTreatEventAsHandled != undefined) {
     return shouldTreatEventAsHandled;

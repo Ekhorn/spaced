@@ -1,5 +1,5 @@
 import { type Element, type Range, Text as SlateText } from 'slate';
-import { type JSXElement, createRenderEffect } from 'solid-js';
+import { createRenderEffect, type JSXElement } from 'solid-js';
 
 import {
   type RenderLeafProps,
@@ -67,7 +67,7 @@ export const Text = (props: {
 
   return (
     // eslint-disable-next-line solid/reactivity
-    <span data-slate-node="text" ref={callbackRef}>
+    <span data-slate-node='text' ref={callbackRef}>
       {children}
     </span>
   );

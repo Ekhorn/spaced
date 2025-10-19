@@ -1,4 +1,4 @@
-import { type Range, type NodeEntry } from 'slate';
+import { type NodeEntry, type Range } from 'slate';
 import { createContext, useContext } from 'solid-js';
 
 /**
@@ -11,6 +11,6 @@ export const DecorateContext = createContext<(entry: NodeEntry) => Range[]>(
 /**
  * Get the current `decorate` prop of the editable.
  */
-export const useDecorate = (): ((entry: NodeEntry) => Range[]) => {
+export const useDecorate = (): (entry: NodeEntry) => Range[] => {
   return useContext(DecorateContext);
 };

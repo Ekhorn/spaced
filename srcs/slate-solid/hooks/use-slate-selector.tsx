@@ -52,7 +52,8 @@ export function useSlateSelector<T>(
         : latestSelectedState;
   } catch (error) {
     if (latestSubscriptionCallbackError && isError(error)) {
-      error.message += `\nThe error may be correlated with this previous error:\n${latestSubscriptionCallbackError.stack}\n\n`;
+      error.message +=
+        `\nThe error may be correlated with this previous error:\n${latestSubscriptionCallbackError.stack}\n\n`;
     }
 
     throw error;
@@ -77,8 +78,9 @@ export function useSlateSelector<T>(
       // is re-rendered, the selectors are called again, and
       // will throw again, if neither props nor store state
       // changed
-      latestSubscriptionCallbackError =
-        error instanceof Error ? error : new Error(String(error));
+      latestSubscriptionCallbackError = error instanceof Error
+        ? error
+        : new Error(String(error));
     }
 
     // forceRender();

@@ -1,4 +1,4 @@
-import { type Descendant, type BaseEditor, type BaseRange } from 'slate';
+import { type BaseEditor, type BaseRange, type Descendant } from 'slate';
 import { type SolidEditor } from 'slate-solid';
 import { type JSX } from 'solid-js';
 

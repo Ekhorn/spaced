@@ -2,15 +2,15 @@ import { invoke } from '@tauri-apps/api/core';
 import { type Descendant } from 'slate';
 import { FaBrandsMarkdown, FaSolidFileCirclePlus } from 'solid-icons/fa';
 import { HiOutlineCircleStack, HiSolidArrowRight } from 'solid-icons/hi';
-import { Show, createSignal, onMount } from 'solid-js';
+import { createSignal, onMount, Show } from 'solid-js';
 
 import { useAuth } from './AuthProvider.js';
 import { useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
 import { useViewport } from './ViewportProvider.js';
 import { isTauri } from '../lib/const.js';
-import { type Storage, type Editors } from '../lib/types.js';
-import { Vec2D, relativeToAbsolute } from '../lib/vector.js';
+import { type Editors, type Storage } from '../lib/types.js';
+import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
 
 interface CreateItemProps {
   createBaseItem: (props: {
@@ -43,9 +43,9 @@ export function Search(props: CreateItemProps) {
 
   return (
     <input
-      type="text"
-      placeholder="Enter code"
-      class="absolute z-50 m-2 w-[412px] rounded border-0 bg-white p-1 text-lg ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
+      type='text'
+      placeholder='Enter code'
+      class='absolute z-50 m-2 w-[412px] rounded border-0 bg-white p-1 text-lg ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset'
       onChange={handleChange}
       onPaste={handlePaste}
     />
@@ -87,22 +87,23 @@ export function StorageSelector() {
   });
 
   return (
-    <div class="control-btn">
+    <div class='control-btn'>
       <Show when={!connected()}>
-        <span class="before:absolute before:-left-[0.125rem] before:-top-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]"></span>
+        <span class='before:absolute before:-left-[0.125rem] before:-top-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]'>
+        </span>
       </Show>
-      <HiOutlineCircleStack class="absolute" />
+      <HiOutlineCircleStack class='absolute' />
       <select
         ref={ref}
-        class="z-50 appearance-none overflow-visible bg-transparent text-transparent outline-none"
+        class='z-50 appearance-none overflow-visible bg-transparent text-transparent outline-none'
         onChange={handleChange}
-        title="Connect to storage"
+        title='Connect to storage'
       >
-        <option value="browser">Browser</option>
-        <option disabled={!isTauri} value="local">
+        <option value='browser'>Browser</option>
+        <option disabled={!isTauri} value='local'>
           Local
         </option>
-        <option value="cloud">Cloud</option>
+        <option value='cloud'>Cloud</option>
       </select>
     </div>
   );
@@ -113,7 +114,7 @@ export function RichTextButton(props: CreateItemProps) {
     await props.createBaseItem({ editor: 'rich' });
 
   return (
-    <button onClick={handleClick} class="control-btn" title="Create Item">
+    <button onClick={handleClick} class='control-btn' title='Create Item'>
       <FaSolidFileCirclePlus />
     </button>
   );
@@ -124,7 +125,7 @@ export function MarkdownButton(props: CreateItemProps) {
     await props.createBaseItem({ editor: 'markdown' });
 
   return (
-    <button onClick={handleClick} class="control-btn" title="Create Markdown">
+    <button onClick={handleClick} class='control-btn' title='Create Markdown'>
       <FaBrandsMarkdown />
     </button>
   );
@@ -134,7 +135,7 @@ export function LogOutButton() {
   const { isLoggedIn, logout } = useAuth();
   return (
     <Show when={isLoggedIn()}>
-      <button onClick={logout} class="control-btn" title="Log Out">
+      <button onClick={logout} class='control-btn' title='Log Out'>
         <HiSolidArrowRight />
       </button>
     </Show>
@@ -189,7 +190,7 @@ export function Controls() {
   return (
     <>
       <Search {...createItemProps} />
-      <div class="absolute right-1 top-1 flex flex-col gap-1 overflow-visible">
+      <div class='absolute right-1 top-1 flex flex-col gap-1 overflow-visible'>
         <Show when={!isTauri}>
           <LogOutButton />
         </Show>

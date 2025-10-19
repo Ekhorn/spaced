@@ -23,5 +23,4 @@ assignees: ''
 ### Stack trace
 
 ```
-
 ```

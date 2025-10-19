@@ -1,14 +1,14 @@
 import {
   type Descendant,
   Editor,
+  Element as SlateElement,
   Point,
   Range,
-  Element as SlateElement,
   Transforms,
 } from 'slate';
 
 import { LIST_TYPES, TEXT_ALIGN_TYPES } from './const.js';
-import { type TextAlign, type CustomElement } from './editor-types.js';
+import { type CustomElement, type TextAlign } from './editor-types.js';
 
 export const withDelBackFix = <T extends Editor>(editor: T): T => {
   const { deleteBackward } = editor;
@@ -111,14 +111,14 @@ export const withShortcuts = <T extends Editor>(editor: T) => {
           : (format as SlateElement['type']);
 
         const newProperties: Partial<SlateElement> = TEXT_ALIGN_TYPES.has(
-          format as Exclude<TextAlign, undefined>,
-        )
+            format as Exclude<TextAlign, undefined>,
+          )
           ? {
-              align: format as Exclude<TextAlign, undefined>,
-            }
+            align: format as Exclude<TextAlign, undefined>,
+          }
           : {
-              type: resolveList,
-            };
+            type: resolveList,
+          };
 
         Transforms.setNodes<SlateElement>(editor, newProperties, {
           match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),

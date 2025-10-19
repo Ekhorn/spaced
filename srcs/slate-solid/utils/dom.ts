@@ -10,13 +10,13 @@ import DOMSelection = globalThis.Selection;
 import DOMStaticRange = globalThis.StaticRange;
 
 export {
-  DOMNode,
   DOMComment,
   DOMElement,
-  DOMText,
+  DOMNode,
   DOMRange,
   DOMSelection,
   DOMStaticRange,
+  DOMText,
 };
 
 declare global {
@@ -32,8 +32,7 @@ export type DOMPoint = [Node, number];
 /**
  * Returns the host window of a DOM node
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getDefaultView = (value: any): Window | null => {
+export const getDefaultView = (value: Node): Window | null => {
   return (
     (value && value.ownerDocument && value.ownerDocument.defaultView) || null
   );
@@ -42,7 +41,6 @@ export const getDefaultView = (value: any): Window | null => {
 /**
  * Check if a DOM node is a comment node.
  */
-
 export const isDOMComment = (value: unknown): value is DOMComment => {
   return isDOMNode(value) && value.nodeType === 8;
 };
@@ -58,7 +56,7 @@ export const isDOMElement = (value: unknown): value is DOMElement => {
  * Check if a value is a DOM node.
  */
 export const isDOMNode = (value: unknown): value is DOMNode => {
-  const window = getDefaultView(value);
+  const window = getDefaultView(value as Node);
   return !!window && value instanceof window.Node;
 };
 
@@ -66,7 +64,7 @@ export const isDOMNode = (value: unknown): value is DOMNode => {
  * Check if a value is a DOM selection.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isDOMSelection = (value: any): value is DOMSelection => {
+export const isDOMSelection = (value: DOMSelection): value is DOMSelection => {
   const window = value && value.anchorNode && getDefaultView(value.anchorNode);
   return !!window && value instanceof window.Selection;
 };
@@ -116,8 +114,9 @@ export const normalizeDOMPoint = (domPoint: DOMPoint): DOMPoint => {
     }
 
     // Determine the new offset inside the text node.
-    offset =
-      isLast && node.textContent != undefined ? node.textContent.length : 0;
+    offset = isLast && node.textContent != undefined
+      ? node.textContent.length
+      : 0;
   }
 
   // Return the node and offset.

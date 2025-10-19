@@ -2,15 +2,17 @@ import { type ListTypes, type TextAlign } from './editor-types.js';
 
 export const isTauri = 'isTauri' in window && window.isTauri;
 
-export const allowedMimeTypes = new Set([
-  'text/plain',
-  'text/markdown',
-  'image/png',
-  'image/svg+xml',
-  'image/jpeg',
-  'image/gif',
-  'application/pdf',
-] as const);
+export const allowedMimeTypes = new Set(
+  [
+    'text/plain',
+    'text/markdown',
+    'image/png',
+    'image/svg+xml',
+    'image/jpeg',
+    'image/gif',
+    'application/pdf',
+  ] as const,
+);
 
 export const LIST_TYPES = new Set<string>([
   'bulleted_list',

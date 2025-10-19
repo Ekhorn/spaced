@@ -81,8 +81,8 @@ export function getOverlayPosition(
         continue;
       }
 
-      const isCaretRect =
-        isCaret && (isBackward ? i === 0 : i === clientRects.length - 1);
+      const isCaretRect = isCaret &&
+        (isBackward ? i === 0 : i === clientRects.length - 1);
 
       const top = clientRect.top - yOffset;
       const left = clientRect.left - xOffset;
@@ -91,8 +91,7 @@ export function getOverlayPosition(
         caretPosition = {
           height: clientRect.height,
           top,
-          left:
-            left +
+          left: left +
             (isBackward || Range.isCollapsed(range) ? 0 : clientRect.width),
         };
       }

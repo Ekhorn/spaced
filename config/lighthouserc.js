@@ -1,15 +1,15 @@
-const { CI, PR_NUMBER } = process.env;
+import { env } from 'node:process';
 
 module.exports = {
   ci: {
     collect: {
       settings: {
-        chromeFlags: ['--headless', CI && '--no-sandbox']
+        chromeFlags: ['--headless', env.CI && '--no-sandbox']
           .filter(Boolean)
           .join(' '),
       },
-      url: PR_NUMBER
-        ? `https://${PR_NUMBER}.review.spaced.fun`
+      url: env.PR_NUMBER
+        ? `https://${env.PR_NUMBER}.review.spaced.fun`
         : `https://staging.spaced.fun`,
     },
     assert: {

@@ -34,9 +34,10 @@ export type RemoteCaretDecoratedRange<
 
 export type TextWithRemoteCursors<
   TCursorData extends Record<string, unknown> = Record<string, unknown>,
-> = BaseText &
-  RemoteCursorDecoration<TCursorData> &
-  RemoteCaretDecoration<TCursorData>;
+> =
+  & BaseText
+  & RemoteCursorDecoration<TCursorData>
+  & RemoteCaretDecoration<TCursorData>;
 
 export function getRemoteCursorsOnLeaf<
   TCursorData extends Record<string, unknown>,
@@ -68,8 +69,7 @@ function getDecoration<
   state: CursorState<TCursorData>,
   range: BaseRange,
   caret: TCaret,
-): TCaret extends true
-  ? RemoteCursorDecoratedRange<TCursorData>
+): TCaret extends true ? RemoteCursorDecoratedRange<TCursorData>
   : RemoteCaretDecoratedRange<TCursorData> {
   if (!caret) {
     const key = `${REMOTE_CURSOR_DECORATION_PREFIX}${clientId}`;

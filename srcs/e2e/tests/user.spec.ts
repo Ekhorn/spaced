@@ -1,4 +1,4 @@
-import { type Page, test, expect } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 test.describe.serial('User', () => {
   test.skip('should be able to register', async ({ page }) => {

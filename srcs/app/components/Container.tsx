@@ -2,12 +2,12 @@ import { type Descendant } from 'slate';
 import {
   type Accessor,
   createMemo,
-  type Setter,
-  mergeProps,
   ErrorBoundary,
-  onMount,
-  onCleanup,
   Match,
+  mergeProps,
+  onCleanup,
+  onMount,
+  type Setter,
   Switch,
 } from 'solid-js';
 import { type Item } from 'types';
@@ -36,7 +36,7 @@ export function Container(props: ContainerProps) {
       new Vec2D(props.item.x, props.item.y),
       absoluteViewportPosition(),
       scalar(),
-    ),
+    )
   );
 
   const { holdingCtrl, holdingShift, selections, setSelecting } =
@@ -90,7 +90,7 @@ export function Container(props: ContainerProps) {
 
   return (
     <div
-      class="absolute min-h-8 min-w-8 whitespace-pre rounded"
+      class='absolute min-h-8 min-w-8 whitespace-pre rounded'
       data-spaced-item={props.item.id}
       style={{
         'pointer-events': 'all',
@@ -127,7 +127,7 @@ export function Render(
   },
 ) {
   return (
-    <Switch fallback={'unkown editor'}>
+    <Switch fallback='unkown editor'>
       <Match
         when={props.item.editor === 'rich' || props.item.editor === 'markdown'}
       >

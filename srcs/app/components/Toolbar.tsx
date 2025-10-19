@@ -15,10 +15,10 @@ import {
   FaSolidQuoteLeft,
   FaSolidUnderline,
 } from 'solid-icons/fa';
-import { type JSXElement, type Accessor } from 'solid-js';
+import { type Accessor, type JSXElement } from 'solid-js';
 
 import { LIST_TYPES, TEXT_ALIGN_TYPES } from '../lib/const.js';
-import { type TextAlign, type CustomElement } from '../lib/editor-types.js';
+import { type CustomElement, type TextAlign } from '../lib/editor-types.js';
 
 function isMarkActive(editor: Editor, format: string) {
   const marks = Editor.marks(editor);
@@ -61,11 +61,11 @@ function toggleBlock(editor: Editor, format: string) {
   const resolveList = isList ? 'list_item' : (format as SlateElement['type']);
   const newProperties: Partial<SlateElement> = TEXT_ALIGN_TYPES.has(format)
     ? {
-        align: isActive ? undefined : (format as Exclude<TextAlign, undefined>),
-      }
+      align: isActive ? undefined : (format as Exclude<TextAlign, undefined>),
+    }
     : {
-        type: isActive ? 'paragraph' : resolveList,
-      };
+      type: isActive ? 'paragraph' : resolveList,
+    };
   Transforms.setNodes<SlateElement>(editor, newProperties);
 
   if (!isActive && isList) {
@@ -88,7 +88,7 @@ function MarkButton(props: { format: string; icon: JSXElement }) {
   const editor = useSlate();
   return (
     <button
-      class="rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]"
+      class='rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]'
       onMouseDown={(event) => {
         event.preventDefault();
         toggleMark(editor, props.format);
@@ -111,17 +111,17 @@ function BlockButton(props: {
   const editor = useSlate();
   return (
     <button
-      class="rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]"
+      class='rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]'
       onMouseDown={(event) => {
         event.preventDefault();
         toggleBlock(editor, props.format);
       }}
       style={{
         'background-color': isBlockActive(
-          useSlate(),
-          props.format,
-          TEXT_ALIGN_TYPES.has(props.format) ? 'align' : 'type',
-        )
+            useSlate(),
+            props.format,
+            TEXT_ALIGN_TYPES.has(props.format) ? 'align' : 'type',
+          )
           ? '#ecedef'
           : '',
       }}
@@ -134,24 +134,24 @@ function BlockButton(props: {
 export function Toolbar(props: { selected: Accessor<boolean> }) {
   return (
     <div
-      class="absolute -z-20 flex w-full -translate-y-full rounded bg-white p-1"
+      class='absolute -z-20 flex w-full -translate-y-full rounded bg-white p-1'
       style={props.selected() ? {} : { display: 'none' }}
-      data-testid="toolbar"
+      data-testid='toolbar'
     >
-      <MarkButton format="bold" icon={<FaSolidBold />} />
-      <MarkButton format="italic" icon={<FaSolidItalic />} />
-      <MarkButton format="underline" icon={<FaSolidUnderline />} />
-      <MarkButton format="code" icon={<FaSolidCode />} />
-      <BlockButton format="heading_one" icon={<FaSolidHeading />} />
+      <MarkButton format='bold' icon={<FaSolidBold />} />
+      <MarkButton format='italic' icon={<FaSolidItalic />} />
+      <MarkButton format='underline' icon={<FaSolidUnderline />} />
+      <MarkButton format='code' icon={<FaSolidCode />} />
+      <BlockButton format='heading_one' icon={<FaSolidHeading />} />
       {/* <BlockButton format="heading_two" icon={<FaSolidHeading />} /> */}
-      <BlockButton format="block_quote" icon={<FaSolidQuoteLeft />} />
-      <BlockButton format="bulleted_list" icon={<FaSolidListUl />} />
-      <BlockButton format="ordered_list" icon={<FaSolidListOl />} />
-      <BlockButton format="check_list" icon={<FaSolidList />} />
-      <BlockButton format="left" icon={<FaSolidAlignLeft />} />
-      <BlockButton format="center" icon={<FaSolidAlignCenter />} />
-      <BlockButton format="right" icon={<FaSolidAlignRight />} />
-      <BlockButton format="justify" icon={<FaSolidAlignJustify />} />
+      <BlockButton format='block_quote' icon={<FaSolidQuoteLeft />} />
+      <BlockButton format='bulleted_list' icon={<FaSolidListUl />} />
+      <BlockButton format='ordered_list' icon={<FaSolidListOl />} />
+      <BlockButton format='check_list' icon={<FaSolidList />} />
+      <BlockButton format='left' icon={<FaSolidAlignLeft />} />
+      <BlockButton format='center' icon={<FaSolidAlignCenter />} />
+      <BlockButton format='right' icon={<FaSolidAlignRight />} />
+      <BlockButton format='justify' icon={<FaSolidAlignJustify />} />
     </div>
   );
 }

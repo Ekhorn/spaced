@@ -1,24 +1,24 @@
 import {
-  type Operation,
-  type Selection,
   type Descendant,
   Editor,
   Node,
+  type Operation,
   Scrubber,
+  type Selection,
 } from 'slate';
 import {
   createEffect,
-  type JSXElement,
   createSignal,
+  type JSXElement,
+  on,
   onCleanup,
   onMount,
-  on,
 } from 'solid-js';
 
 import { SlateSelectorContext, useSelectorContext } from './selector.js';
 import { FocusedContext } from '../hooks/use-focused.js';
 import { EditorContext } from '../hooks/use-slate-static.js';
-import { type SlateContextValue, SlateContext } from '../hooks/use-slate.js';
+import { SlateContext, type SlateContextValue } from '../hooks/use-slate.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import { EDITOR_TO_ON_CHANGE } from '../utils/weakmaps.js';
 
@@ -37,16 +37,20 @@ export function Slate(props: {
     (() => {
       if (!Node.isNodeList(props.initialValue)) {
         throw new Error(
-          `[Slate] initialValue is invalid! Expected a list of elements but got: ${Scrubber.stringify(
-            props.initialValue,
-          )}`,
+          `[Slate] initialValue is invalid! Expected a list of elements but got: ${
+            Scrubber.stringify(
+              props.initialValue,
+            )
+          }`,
         );
       }
       // eslint-disable-next-line solid/reactivity
       if (!Editor.isEditor(props.editor)) {
         throw new Error(
           // eslint-disable-next-line solid/reactivity
-          `[Slate] editor is invalid! You passed: ${Scrubber.stringify(props.editor)}`,
+          `[Slate] editor is invalid! You passed: ${
+            Scrubber.stringify(props.editor)
+          }`,
         );
       }
 

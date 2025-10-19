@@ -19,8 +19,7 @@ type EditorChangeHandler = (editor: Editor) => void;
 export const SlateSelectorContext = createContext<{
   getSlate: () => Editor;
   addEventListener: (callback: EditorChangeHandler) => () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}>({} as any);
+}>();
 
 const refEquality = (a: unknown, b: unknown) => a === b;
 
@@ -47,14 +46,11 @@ export function useSlateSelector<T>(
   const { addEventListener, getSlate } = context;
 
   let latestSubscriptionCallbackError: Error | undefined;
-  // eslint-disable-next-line unicorn/consistent-function-scoping, unicorn/no-null, @typescript-eslint/no-explicit-any
-  let latestSelector: (editor: Editor) => T = () => null as any;
-  // eslint-disable-next-line unicorn/no-null, @typescript-eslint/no-explicit-any
-  let latestSelectedState: T = null as any as T;
+  let latestSelector: (editor: Editor) => T = () => null as T;
+  let latestSelectedState: T = null as T;
   let selectedState: T;
 
   try {
-    // eslint-disable-next-line unicorn/prefer-ternary
     if (selector !== latestSelector || latestSubscriptionCallbackError) {
       selectedState = selector(getSlate());
     } else {
@@ -62,7 +58,8 @@ export function useSlateSelector<T>(
     }
   } catch (error) {
     if (latestSubscriptionCallbackError && isError(error)) {
-      error.message += `\nThe error may be correlated with this previous error:\n${latestSubscriptionCallbackError.stack}\n\n`;
+      error.message +=
+        `\nThe error may be correlated with this previous error:\n${latestSubscriptionCallbackError.stack}\n\n`;
     }
 
     throw error;
@@ -88,8 +85,9 @@ export function useSlateSelector<T>(
       // is re-rendered, the selectors are called again, and
       // will throw again, if neither props nor store state
       // changed
-      latestSubscriptionCallbackError =
-        error instanceof Error ? error : new Error(String(error));
+      latestSubscriptionCallbackError = error instanceof Error
+        ? error
+        : new Error(String(error));
     }
 
     forceRender(!force());

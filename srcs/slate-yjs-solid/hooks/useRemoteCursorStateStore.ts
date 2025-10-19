@@ -1,8 +1,9 @@
 /* eslint-disable unicorn/no-null */
 import {
-  type CursorState,
-  type RemoteCursorChangeEventListener,
   CursorEditor,
+  type CursorState,
+  type CursorStateChangeEvent,
+  type RemoteCursorChangeEventListener,
 } from '@slate-yjs/core';
 import { type BaseEditor } from 'slate';
 
@@ -29,13 +30,9 @@ function createRemoteCursorStateStore<
   const subscribe = (onStoreChange: () => void) => {
     onStoreChangeListeners.add(onStoreChange);
     if (!changeHandler) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      changeHandler = (event: any) => {
-        // eslint-disable-next-line unicorn/no-array-for-each, unicorn/no-array-callback-reference
+      changeHandler = (event: CursorStateChangeEvent) => {
         event.added.forEach(addChanged);
-        // eslint-disable-next-line unicorn/no-array-for-each, unicorn/no-array-callback-reference
         event.removed.forEach(addChanged);
-        // eslint-disable-next-line unicorn/no-array-for-each, unicorn/no-array-callback-reference
         event.updated.forEach(addChanged);
         for (const listener of onStoreChangeListeners) listener();
       };

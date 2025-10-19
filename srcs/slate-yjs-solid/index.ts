@@ -1,18 +1,18 @@
 export {
-  type RemoteCursorDecoration,
-  type RemoteCursorDecoratedRange,
-  type RemoteCaretDecoration,
-  type RemoteCaretDecoratedRange,
-  type TextWithRemoteCursors,
-  type UseDecorateRemoteCursorsOptions,
-  getRemoteCursorsOnLeaf,
   getRemoteCaretsOnLeaf,
+  getRemoteCursorsOnLeaf,
+  type RemoteCaretDecoratedRange,
+  type RemoteCaretDecoration,
+  type RemoteCursorDecoratedRange,
+  type RemoteCursorDecoration,
+  type TextWithRemoteCursors,
   useDecorateRemoteCursors,
+  type UseDecorateRemoteCursorsOptions,
 } from './hooks/useDecorateRemoteCursors.js';
 
 export {
-  useRemoteCursorStatesSelector,
   useRemoteCursorStates,
+  useRemoteCursorStatesSelector,
 } from './hooks/useRemoteCursorStates.js';
 
 export { useUnsetCursorPositionOnBlur } from './hooks/useUnsetCursorPositionOnBlur.js';
@@ -21,6 +21,6 @@ export { getCursorRange } from './utils/getCursorRange.js';
 
 export {
   type CursorOverlayData,
-  type UseRemoteCursorOverlayPositionsOptions,
   useRemoteCursorOverlayPositions,
+  type UseRemoteCursorOverlayPositionsOptions,
 } from './hooks/useRemoteCursorOverlayPositions.js';

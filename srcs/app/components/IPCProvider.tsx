@@ -1,8 +1,8 @@
 import { invoke } from '@tauri-apps/api/core';
 import { type IDBPDatabase, openDB } from 'idb';
-import { type Socket, io } from 'socket.io-client';
-import { type JSXElement, useContext, createContext } from 'solid-js';
-import { type Item, type Asset } from 'types';
+import { io, type Socket } from 'socket.io-client';
+import { createContext, type JSXElement, useContext } from 'solid-js';
+import { type Asset, type Item } from 'types';
 
 import { isTauri } from '../lib/const.js';
 import {
@@ -55,7 +55,6 @@ async function connect(storage?: Storage, path?: string): Promise<boolean> {
       socket.connect();
       return true;
       // }
-      return false;
     }
     default: {
       localStorage.removeItem('storage');
@@ -84,7 +83,6 @@ async function getNearbyItems() {
       const res = await socket.emitWithAck('item:get_nearby');
       return Array.isArray(res) ? res : [res];
       // }
-      break;
     }
     default: {
       throw new Error('No storage type selected.');
@@ -150,7 +148,7 @@ async function createItem(item: Item, assets: number[][]) {
           const asset_ids = resolved.slice(0, -1) as string[];
           await Promise.all(
             asset_ids.map((asset_id) =>
-              tx.objectStore(itemAssetsStore).add({ item_id, asset_id }),
+              tx.objectStore(itemAssetsStore).add({ item_id, asset_id })
             ),
           );
           return item_id;
@@ -171,7 +169,6 @@ async function createItem(item: Item, assets: number[][]) {
       // if (localStorage.getItem('access_token')) {
       return await socket.emitWithAck('item:create', { ...item, assets });
       // }
-      break;
     }
     default: {
       throw new Error('No storage type selected.');

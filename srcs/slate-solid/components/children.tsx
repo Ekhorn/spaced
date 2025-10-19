@@ -1,4 +1,4 @@
-import { type Descendant, Editor, Element, Range, type Ancestor } from 'slate';
+import { type Ancestor, type Descendant, Editor, Element, Range } from 'slate';
 import { createRenderEffect, type JSXElement } from 'solid-js';
 
 import {
@@ -34,8 +34,7 @@ export function createChildren(props: {
 
   createRenderEffect(() => {
     const path = SolidEditor.findPath(editor, props.node);
-    const isLeafBlock =
-      Element.isElement(props.node) &&
+    const isLeafBlock = Element.isElement(props.node) &&
       !editor.isInline(props.node) &&
       Editor.hasInlines(editor, props.node);
 

@@ -1,11 +1,11 @@
 import { withCursors, withYHistory, withYjs, YjsEditor } from '@slate-yjs/core';
 import {
-  type Range,
-  type NodeEntry,
   createEditor,
   Editor,
   Element as SlateElement,
   Node as SlateNode,
+  type NodeEntry,
+  type Range,
 } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, Slate, SolidEditor, withSolid } from 'slate-solid';
@@ -124,7 +124,7 @@ export function CollaborativeEditor(props: RenderProps) {
   return (
     <Show
       when={connected() && sharedType() && provider()}
-      fallback={<div class="flex rounded bg-white p-1">Loading…</div>}
+      fallback={<div class='flex rounded bg-white p-1'>Loading…</div>}
     >
       {wrapper()}
     </Show>
@@ -209,16 +209,16 @@ function SlateEditor(
     >
       <Show when={!isMarkdown}>
         <Toolbar selected={props.selected} />
-        <div class="h-1 w-[424px]" />
+        <div class='h-1 w-[424px]' />
       </Show>
-      <div class="pointer-events-none relative -z-20 rounded bg-white">
+      <div class='pointer-events-none relative -z-20 rounded bg-white'>
         <Editable
           decorate={props.decorate}
           onDOMBeforeInput={isMarkdown ? handleDOMBeforeInput : undefined}
           readOnly={!props.selected()}
           renderElement={RenderElement}
           renderLeaf={RenderLeaf}
-          placeholder="Enter some rich text…"
+          placeholder='Enter some rich text…'
           spellCheck
           style={{
             padding: '4px',
@@ -286,7 +286,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
     // eslint-disable-next-line solid/reactivity
     props.setItems((prev) =>
       // @ts-expect-error TODO: find better solution
-      prev.with(props.index, { ...item, initial: true }),
+      prev.with(props.index, { ...item, initial: true })
     );
 
     await copyToClipboard();
@@ -318,54 +318,54 @@ function Footer(props: RenderProps & { editor: Editor }) {
   };
 
   return (
-    <div class="pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]">
-      <div class="flex flex-row border-r pr-1">
-        <button class="rounded px-1 hover:bg-[#ecedef]" title="Fullscreen">
+    <div class='pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]'>
+      <div class='flex flex-row border-r pr-1'>
+        <button class='rounded px-1 hover:bg-[#ecedef]' title='Fullscreen'>
           <FaSolidExpand />
         </button>
-        <button class="rounded px-1 hover:bg-[#ecedef]" title="Export to PDF">
+        <button class='rounded px-1 hover:bg-[#ecedef]' title='Export to PDF'>
           <FaSolidFilePdf />
         </button>
       </div>
       <Show when={sharing() === 'share'}>
         <button
-          class="row-end-auto rounded bg-gray-50 px-1 hover:bg-[#ecedef]"
-          title="Share"
+          class='row-end-auto rounded bg-gray-50 px-1 hover:bg-[#ecedef]'
+          title='Share'
           onClick={configure}
         >
           <FaSolidShareFromSquare />
         </button>
       </Show>
       <Show when={sharing() === 'configure' || sharing() === 'sharing'}>
-        <form class="flex flex-row" onSubmit={submit}>
+        <form class='flex flex-row' onSubmit={submit}>
           <input
-            type="text"
-            name="username"
-            placeholder="username"
-            class="w-full rounded-l border-0 bg-white p-1 ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
+            type='text'
+            name='username'
+            placeholder='username'
+            class='w-full rounded-l border-0 bg-white p-1 ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset'
             value={localStorage.getItem('username') ?? ''}
             onKeyUp={handleUsername}
           />
           <input
-            type="color"
-            name="color"
-            title="Pick a color"
-            class="h-5 w-9 cursor-pointer rounded-r border-none p-0 hover:bg-[#ecedef]"
+            type='color'
+            name='color'
+            title='Pick a color'
+            class='h-5 w-9 cursor-pointer rounded-r border-none p-0 hover:bg-[#ecedef]'
             value={localStorage.getItem('color') ?? ''}
             onChange={handleColor}
           />
           <Show when={sharing() === 'configure'}>
             <button
-              type="submit"
-              class="rounded px-1 hover:bg-[#ecedef]"
-              title="Share & Copy"
+              type='submit'
+              class='rounded px-1 hover:bg-[#ecedef]'
+              title='Share & Copy'
             >
               <FaSolidCheck />
             </button>
             <button
-              class="rounded px-1 hover:bg-[#ecedef]"
-              title="Cancel"
-              type="button"
+              class='rounded px-1 hover:bg-[#ecedef]'
+              title='Cancel'
+              type='button'
               onClick={cancel}
             >
               <FaSolidXmark />
@@ -374,18 +374,18 @@ function Footer(props: RenderProps & { editor: Editor }) {
         </form>
       </Show>
       <Show when={sharing() === 'sharing'}>
-        <div class="flex flex-row">
+        <div class='flex flex-row'>
           <button
-            class="rounded px-1 hover:bg-[#ecedef]"
-            title="Stop sharing"
+            class='rounded px-1 hover:bg-[#ecedef]'
+            title='Stop sharing'
             onClick={cancel}
           >
             <FaSolidUsersSlash />
           </button>
           <button
-            type="submit"
-            class="rounded px-1 hover:bg-[#ecedef]"
-            title="Copy"
+            type='submit'
+            class='rounded px-1 hover:bg-[#ecedef]'
+            title='Copy'
             onClick={copyToClipboard}
           >
             <FaSolidClipboard />

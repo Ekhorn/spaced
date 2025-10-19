@@ -1,9 +1,9 @@
 import { ReactiveWeakMap } from '@solid-primitives/map';
 import {
-  type JSXElement,
-  useContext,
   createContext,
   createSignal,
+  type JSXElement,
+  useContext,
 } from 'solid-js';
 
 export const ITEM_TO_SELECTION: Record<number, HTMLElement> = {};

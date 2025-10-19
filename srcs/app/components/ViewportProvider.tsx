@@ -1,19 +1,19 @@
 import {
-  type JSXElement,
-  useContext,
   createContext,
   createSignal,
-  onMount,
+  type JSXElement,
   onCleanup,
+  onMount,
+  useContext,
 } from 'solid-js';
 
 import { useIPC } from './IPCProvider.jsx';
 import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
 import { useState } from './StateProvider.js';
 import {
-  Vec2D,
   scaleViewportOutFrom,
   scaleViewportUpTo,
+  Vec2D,
 } from '../lib/vector.js';
 
 const [wheelFactor, setWheelFactor] = createSignal(1.2);
@@ -25,14 +25,14 @@ const [absoluteViewportPosition, setAbsoluteViewportPosition] = createSignal(
 
 function handleZoomIn(relativeMousePosition: Vec2D, factor: number) {
   setAbsoluteViewportPosition((prev) =>
-    scaleViewportUpTo(relativeMousePosition, prev, scalar(), factor),
+    scaleViewportUpTo(relativeMousePosition, prev, scalar(), factor)
   );
   setScalar((prev) => prev * factor);
 }
 
 function handleZoomOut(relativeMousePosition: Vec2D, factor: number) {
   setAbsoluteViewportPosition((prev) =>
-    scaleViewportOutFrom(relativeMousePosition, prev, scalar(), factor),
+    scaleViewportOutFrom(relativeMousePosition, prev, scalar(), factor)
   );
   setScalar((prev) => prev / factor);
 }
@@ -73,7 +73,7 @@ function handlePointerDown(event: PointerEvent) {
   }
 }
 
-async function handlePointerMove(event: PointerEvent) {
+function handlePointerMove(event: PointerEvent) {
   if (event.pointerType === 'touch' && pointers.length === 2) {
     for (let i = 0; i < pointers.length; i++) {
       if (pointers[i].pointerId === event.pointerId) {
@@ -179,8 +179,8 @@ export function ViewportProvider(props: ViewportProps) {
     // @ts-ignore Ignore since getters and setters are already present
     <ViewportContext.Provider>
       <div
-        id="viewport"
-        class="h-full w-full"
+        id='viewport'
+        class='h-full w-full'
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerCancel={handlePointerRemove}

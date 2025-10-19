@@ -5,8 +5,7 @@
  * Constants.
  */
 
-const IS_MAC =
-  typeof window != 'undefined' &&
+const IS_MAC = typeof window != 'undefined' &&
   /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
 
 const MODIFIERS = {
@@ -207,11 +206,11 @@ function toKeyName(name: string) {
 export default isHotkey;
 
 export {
-  isHotkey,
+  compareHotkey,
   isCodeHotkey,
+  isHotkey,
   isKeyHotkey,
   parseHotkey,
-  compareHotkey,
   toKeyCode,
   toKeyName,
 };

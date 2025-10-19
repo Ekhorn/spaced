@@ -1,5 +1,5 @@
 import { type CursorState } from '@slate-yjs/core';
-import { createSignal, onCleanup, createMemo } from 'solid-js';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
 
 import { useRemoteCursorStateStore } from './useRemoteCursorStateStore.js';
 

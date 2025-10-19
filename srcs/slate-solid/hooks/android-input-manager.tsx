@@ -5,14 +5,14 @@ import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { useSlateStatic } from './use-slate-static.js';
 import { SolidEditor } from '../plugin/solid-editor.js';
 import {
-  type StringDiff,
-  type TextDiff,
   applyStringDiff,
   mergeStringDiffs,
   normalizePoint,
   normalizeRange,
   normalizeStringDiff,
+  type StringDiff,
   targetRange,
+  type TextDiff,
   verifyDiffState,
 } from '../utils/diff-text.js';
 import { isDOMSelection, isTrackedMutation } from '../utils/dom.js';
@@ -29,12 +29,14 @@ import {
   IS_COMPOSING,
 } from '../utils/weakmaps.js';
 
-type UseAndroidInputManagerOptions = {
-  node: HTMLElement;
-} & Omit<
-  CreateAndroidInputManagerOptions,
-  'editor' | 'onUserInput' | 'receivedUserInput'
->;
+type UseAndroidInputManagerOptions =
+  & {
+    node: HTMLElement;
+  }
+  & Omit<
+    CreateAndroidInputManagerOptions,
+    'editor' | 'onUserInput' | 'receivedUserInput'
+  >;
 
 const MUTATION_OBSERVER_CONFIG: MutationObserverInit = {
   subtree: true,
@@ -80,35 +82,35 @@ export function useMutationObserver(
 
 export const useAndroidInputManager = IS_ANDROID
   ? ({ node, ...options }: UseAndroidInputManagerOptions) => {
-      if (!IS_ANDROID) {
-        return null;
-      }
+    if (!IS_ANDROID) {
+      return null;
+    }
 
-      const editor = useSlateStatic();
-      const isMounted = useIsMounted();
+    const editor = useSlateStatic();
+    const isMounted = useIsMounted();
 
-      const [inputManager] = createSignal(
-        createAndroidInputManager({
-          editor,
-          ...options,
-        }),
+    const [inputManager] = createSignal(
+      createAndroidInputManager({
+        editor,
+        ...options,
+      }),
+    );
+
+    createEffect(() => {
+      useMutationObserver(
+        node,
+        inputManager().handleDomMutations,
+        MUTATION_OBSERVER_CONFIG,
       );
 
-      createEffect(() => {
-        useMutationObserver(
-          node,
-          inputManager().handleDomMutations,
-          MUTATION_OBSERVER_CONFIG,
-        );
+      EDITOR_TO_SCHEDULE_FLUSH.set(editor, inputManager().scheduleFlush);
+      if (isMounted) {
+        inputManager().flush();
+      }
+    });
 
-        EDITOR_TO_SCHEDULE_FLUSH.set(editor, inputManager().scheduleFlush);
-        if (isMounted) {
-          inputManager().flush();
-        }
-      });
-
-      return inputManager;
-    }
+    return inputManager;
+  }
   : () => null;
 
 export type Action = { at?: Point | Range; run: () => void };
@@ -233,8 +235,7 @@ export function createAndroidInputManager({
       flushing = 'action';
     }
 
-    const selectionRef =
-      editor.selection &&
+    const selectionRef = editor.selection &&
       Editor.rangeRef(editor, editor.selection, { affinity: 'forward' });
     EDITOR_TO_USER_MARKS.set(editor, editor.marks);
 
@@ -378,7 +379,7 @@ export function createAndroidInputManager({
 
     const target = Node.leaf(editor, path);
     const idx = pendingDiffs.findIndex((change) =>
-      Path.equals(change.path, path),
+      Path.equals(change.path, path)
     );
     if (idx < 0) {
       const normalized = normalizeStringDiff(target.text, diff);
@@ -435,8 +436,8 @@ export function createAndroidInputManager({
 
     const { inputType: type } = event;
     let targetRange: Range | null = null;
-    const data: DataTransfer | string | undefined =
-      event.dataTransfer || event.data || undefined;
+    const data: DataTransfer | string | undefined = event.dataTransfer ||
+      event.data || undefined;
 
     if (
       insertPositionHint !== false &&
@@ -506,7 +507,7 @@ export function createAndroidInputManager({
       };
       const pendingDiffs = EDITOR_TO_PENDING_DIFFS.get(editor);
       const relevantPendingDiffs = pendingDiffs?.find((change) =>
-        Path.equals(change.path, path),
+        Path.equals(change.path, path)
       );
       const diffs = relevantPendingDiffs
         ? [relevantPendingDiffs.diff, diff]
@@ -729,8 +730,8 @@ export function createAndroidInputManager({
           // isn't, so we can adjust the target range start offset if we are confident this is the
           // swiftkey insert causing the issue.
           if (text && insertPositionHint && type === 'insertCompositionText') {
-            const hintPosition =
-              insertPositionHint.start + insertPositionHint.text.search(/\S|$/);
+            const hintPosition = insertPositionHint.start +
+              insertPositionHint.text.search(/\S|$/);
             const diffPosition = diff.start + diff.text.search(/\S|$/);
 
             if (
@@ -807,10 +808,9 @@ export function createAndroidInputManager({
       return;
     }
 
-    const pathChanged =
-      !selection || !Path.equals(selection.anchor.path, range.anchor.path);
-    const parentPathChanged =
-      !selection ||
+    const pathChanged = !selection ||
+      !Path.equals(selection.anchor.path, range.anchor.path);
+    const parentPathChanged = !selection ||
       !Path.equals(
         selection.anchor.path.slice(0, -1),
         range.anchor.path.slice(0, -1),
@@ -857,7 +857,7 @@ export function createAndroidInputManager({
 
     if (
       mutations.some((mutation) =>
-        isTrackedMutation(editor, mutation, mutations),
+        isTrackedMutation(editor, mutation, mutations)
       )
     ) {
       // Cause a re-render to restore the dom state if we encounter tracked mutations without

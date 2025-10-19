@@ -1,12 +1,12 @@
 /* eslint-disable unicorn/no-null */
 import {
+  type BaseEditor,
+  Editor,
+  Element,
   type Node,
   type Path,
   type Point,
-  type BaseEditor,
   Range,
-  Editor,
-  Element,
   Scrubber,
   Transforms,
 } from 'slate';
@@ -14,18 +14,18 @@ import {
 import { type TextDiff } from '../utils/diff-text.js';
 import {
   type DOMElement,
+  type DOMNode,
   type DOMPoint,
   type DOMRange,
   type DOMSelection,
   type DOMStaticRange,
-  type DOMNode,
+  DOMText,
+  getSelection,
   hasShadowRoot,
   isDOMElement,
   isDOMNode,
   isDOMSelection,
   normalizeDOMPoint,
-  DOMText,
-  getSelection,
 } from '../utils/dom.js';
 import { IS_ANDROID, IS_CHROME, IS_FIREFOX } from '../utils/environment.js';
 import { Key } from '../utils/key.js';
@@ -103,8 +103,7 @@ export interface SolidEditorInterface {
   /**
    * Get the target range from a DOM `event`.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  findEventRange: (editor: SolidEditor, event: any) => Range;
+  findEventRange: (editor: SolidEditor, event: Event) => Range;
 
   /**
    * Find a key for a Slate node.
@@ -143,9 +142,7 @@ export interface SolidEditorInterface {
     target: EventTarget | null,
   ) => target is DOMNode;
 
-  /**
-   *
-   */
+  /** */
   hasRange: (editor: SolidEditor, range: Range) => boolean;
 
   /**
@@ -372,7 +369,7 @@ export const SolidEditor: SolidEditorInterface = {
     return range;
   },
 
-  findKey: (editor, node: Node) => {
+  findKey: (_editor, node: Node) => {
     let key = NODE_TO_KEY.get(node);
 
     if (!key) {
@@ -383,7 +380,7 @@ export const SolidEditor: SolidEditorInterface = {
     return key;
   },
 
-  findPath: (editor, node: Node) => {
+  findPath: (_editor, node: Node) => {
     const path: Path = [];
     let child = node;
 
@@ -498,8 +495,8 @@ export const SolidEditor: SolidEditorInterface = {
       (!editable || targetEl.isContentEditable
         ? true
         : (typeof targetEl.isContentEditable === 'boolean' && // isContentEditable exists only on HTMLElement, and on other nodes it will be undefined
-            // this is the core logic that lets you know you got the right editor.selection instead of null when editor is contenteditable="false"(readOnly)
-            targetEl.closest('[contenteditable="false"]') === editorEl) ||
+          // this is the core logic that lets you know you got the right editor.selection instead of null when editor is contenteditable="false"(readOnly)
+          targetEl.closest('[contenteditable="false"]') === editorEl) ||
           !!targetEl.dataset.slateZeroWidth)
     );
   },
@@ -541,8 +538,7 @@ export const SolidEditor: SolidEditorInterface = {
   isTargetInsideNonReadonlyVoid: (editor, target) => {
     if (IS_READ_ONLY.get(editor)) return false;
 
-    const slateNode =
-      SolidEditor.hasTarget(editor, target) &&
+    const slateNode = SolidEditor.hasTarget(editor, target) &&
       SolidEditor.toSlateNode(editor, target);
     return Element.isElement(slateNode) && Editor.isVoid(editor, slateNode);
   },
@@ -560,7 +556,9 @@ export const SolidEditor: SolidEditorInterface = {
     // console.trace('test');
     if (!domNode) {
       throw new Error(
-        `Cannot resolve a DOM node from Slate node: ${Scrubber.stringify(node)}`,
+        `Cannot resolve a DOM node from Slate node: ${
+          Scrubber.stringify(node)
+        }`,
       );
     }
 
@@ -631,9 +629,11 @@ export const SolidEditor: SolidEditorInterface = {
 
     if (!domPoint) {
       throw new Error(
-        `Cannot resolve a DOM point from Slate point: ${Scrubber.stringify(
-          point,
-        )}`,
+        `Cannot resolve a DOM point from Slate point: ${
+          Scrubber.stringify(
+            point,
+          )
+        }`,
       );
     }
 
@@ -670,7 +670,7 @@ export const SolidEditor: SolidEditorInterface = {
     return domRange;
   },
 
-  toSlateNode: (editor, domNode: DOMNode) => {
+  toSlateNode: (_editor, domNode: DOMNode) => {
     let domEl = isDOMElement(domNode) ? domNode : domNode.parentElement;
 
     // eslint-disable-next-line unicorn/prefer-dom-node-dataset
@@ -710,10 +710,9 @@ export const SolidEditor: SolidEditorInterface = {
       // within this editor, and not a void node within some parent editor. This can happen
       // if this editor is within a void node of another editor ("nested editors", like in
       // the "Editable Voids" example on the docs site).
-      const voidNode =
-        potentialVoidNode && editorEl.contains(potentialVoidNode)
-          ? potentialVoidNode
-          : null;
+      const voidNode = potentialVoidNode && editorEl.contains(potentialVoidNode)
+        ? potentialVoidNode
+        : null;
       let leafNode = parentNode.closest('[data-slate-leaf]');
       let domNode: DOMElement | null = null;
 
@@ -783,9 +782,11 @@ export const SolidEditor: SolidEditorInterface = {
           textNode = leafNode.closest('[data-slate-node="text"]')!;
           domNode = leafNode;
           offset = domNode.textContent!.length;
-          for (const el of domNode.querySelectorAll(
-            '[data-slate-zero-width]',
-          )) {
+          for (
+            const el of domNode.querySelectorAll(
+              '[data-slate-zero-width]',
+            )
+          ) {
             offset -= el.textContent!.length;
           }
         } else {
@@ -892,39 +893,38 @@ export const SolidEditor: SolidEditorInterface = {
           ) {
             // HTMLElement, becouse Element is a slate element
             // eslint-disable-next-line no-inner-declarations
-            function getLastChildren(element: HTMLElement): HTMLElement {
+            const getLastChildren = (element: HTMLElement): HTMLElement => {
               return element.childElementCount > 0
-                ? getLastChildren(<HTMLElement>element.children[0])
+                ? getLastChildren(<HTMLElement> element.children[0])
                 : element;
-            }
+            };
 
-            const firstNodeRow = <HTMLTableRowElement>firstRange.startContainer;
-            const lastNodeRow = <HTMLTableRowElement>lastRange.startContainer;
+            const firstNodeRow = <HTMLTableRowElement> firstRange
+              .startContainer;
+            const lastNodeRow = <HTMLTableRowElement> lastRange.startContainer;
 
             // This should never fail as "The HTMLElement interface represents any HTML element."
             const firstNode = getLastChildren(
-              <HTMLElement>firstNodeRow.children[firstRange.startOffset],
+              <HTMLElement> firstNodeRow.children[firstRange.startOffset],
             );
             const lastNode = getLastChildren(
-              <HTMLElement>lastNodeRow.children[lastRange.startOffset],
+              <HTMLElement> lastNodeRow.children[lastRange.startOffset],
             );
 
             // Zero, as we allways take the right one as the anchor point
             focusOffset = 0;
 
-            anchorNode =
-              lastNode.childNodes.length > 0
-                ? lastNode.childNodes[0]
-                : lastNode;
+            anchorNode = lastNode.childNodes.length > 0
+              ? lastNode.childNodes[0]
+              : lastNode;
 
-            focusNode =
-              firstNode.childNodes.length > 0
-                ? firstNode.childNodes[0]
-                : firstNode;
+            focusNode = firstNode.childNodes.length > 0
+              ? firstNode.childNodes[0]
+              : firstNode;
 
             // eslint-disable-next-line unicorn/prefer-ternary
             if (lastNode instanceof HTMLElement) {
-              anchorOffset = (<HTMLElement>lastNode).innerHTML.length;
+              anchorOffset = (<HTMLElement> lastNode).innerHTML.length;
             } else {
               // Fallback option
               anchorOffset = 0;
@@ -955,11 +955,10 @@ export const SolidEditor: SolidEditorInterface = {
         // (2020/08/08)
         // https://bugs.chromium.org/p/chromium/issues/detail?id=447523
         // IsCollapsed might not work in firefox, but this will
-        isCollapsed =
-          (IS_CHROME && hasShadowRoot(anchorNode)) || IS_FIREFOX
-            ? domRange.anchorNode === domRange.focusNode &&
-              domRange.anchorOffset === domRange.focusOffset
-            : domRange.isCollapsed;
+        isCollapsed = (IS_CHROME && hasShadowRoot(anchorNode)) || IS_FIREFOX
+          ? domRange.anchorNode === domRange.focusNode &&
+            domRange.anchorOffset === domRange.focusOffset
+          : domRange.isCollapsed;
       } else {
         anchorNode = domRange.startContainer;
         anchorOffset = domRange.startOffset;
@@ -1018,9 +1017,9 @@ export const SolidEditor: SolidEditorInterface = {
     const focus = isCollapsed
       ? anchor
       : SolidEditor.toSlatePoint(editor, [focusNode, focusOffset], {
-          exactMatch,
-          suppressThrow,
-        });
+        exactMatch,
+        suppressThrow,
+      });
     if (!focus) {
       return null as T extends true ? Range | null : Range;
     }

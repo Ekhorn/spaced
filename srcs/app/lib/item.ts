@@ -40,24 +40,24 @@ export function processRefs(
         schema.uuid = assets[index].id as string;
         return [outputSchema, assets];
       }
-      // case 'video': {
-      //   // TODO: implement
-      //   return [outputSchema, assets];
-      // }
-      // case 'input': {
-      //   const figure = schema.descendants;
-      //   if (figure) {
-      //     const index = Number(figure.content);
-      //     if (assets.length < index) {
-      //       throw Error;
-      //     }
-      //     assets[index].name = figure.name;
-      //     assets[index].mime = figure.mime;
-      //     figure.content = assets[index].id as string;
-      //   }
-      //   return [outputSchema, assets];
-      // }
-      /* eslint-enable no-fallthrough */
+        // case 'video': {
+        //   // TODO: implement
+        //   return [outputSchema, assets];
+        // }
+        // case 'input': {
+        //   const figure = schema.descendants;
+        //   if (figure) {
+        //     const index = Number(figure.content);
+        //     if (assets.length < index) {
+        //       throw Error;
+        //     }
+        //     assets[index].name = figure.name;
+        //     assets[index].mime = figure.mime;
+        //     figure.content = assets[index].id as string;
+        //   }
+        //   return [outputSchema, assets];
+        // }
+        /* eslint-enable no-fallthrough */
     }
   } else {
     return [outputSchema, assets];

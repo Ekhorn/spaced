@@ -6,7 +6,7 @@ import { Container } from './Container.js';
 import { Controls } from './Controls.jsx';
 import { IPCProvider, useIPC } from './IPCProvider.js';
 import { useState } from './StateProvider.js';
-import { ViewportProvider, useViewport } from './ViewportProvider.js';
+import { useViewport, ViewportProvider } from './ViewportProvider.js';
 import { allowedMimeTypes } from '../lib/const.js';
 import { type ImageElement } from '../lib/editor-types.js';
 import { type MimeTypes } from '../lib/types.js';
@@ -184,7 +184,7 @@ export function App() {
         <IPCProvider>
           {/* TODO: resolve FOUC */}
           <Background />
-          <main class="absolute h-full w-full" onDrop={handleDrop}>
+          <main class='absolute h-full w-full' onDrop={handleDrop}>
             <Controls />
             <Index each={items()}>
               {(item, index) => (

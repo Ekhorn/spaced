@@ -9,7 +9,7 @@
  * - 16 : 5th button (typically the "Browser Forward" button)
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mouseMap = {
+const _mouseMap = {
   0: 'none',
   1: 'primary',
   2: 'secondary',
@@ -50,8 +50,6 @@ const shortcuts: Record<string, string> = {
 
 /**
  * Item coordinate matching ...
- *
- *
  */
 
 /**

@@ -1,13 +1,13 @@
 /* eslint-disable unicorn/no-null */
 import {
-  type Operation,
   Editor,
+  Element,
   Node,
+  type Operation,
   Path,
   Point,
   Range,
   Text,
-  Element,
 } from 'slate';
 
 import { EDITOR_TO_PENDING_DIFFS } from './weakmaps.js';
@@ -227,7 +227,7 @@ export function transformPendingPoint(
 ): Point | null {
   const pendingDiffs = EDITOR_TO_PENDING_DIFFS.get(editor);
   const textDiff = pendingDiffs?.find(({ path }) =>
-    Path.equals(path, point.path),
+    Path.equals(path, point.path)
   );
 
   if (!textDiff || point.offset <= textDiff.diff.start) {

@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/no-null */
-import { type Text, type Element, Editor, Path, Node } from 'slate';
+import { Editor, type Element, Node, Path, type Text } from 'slate';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
 import { useSlateStatic } from '../hooks/use-slate-static.js';
