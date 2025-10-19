@@ -4,7 +4,7 @@
   "type": "module",
   "peerDependencies": {
     "slate": "0.112.0",
-    "solid-js": "^1.0.0"
+    "solid-js": "1.0.0"
   },
   "engines": {
     "node": ">=18"
