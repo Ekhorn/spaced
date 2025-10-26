@@ -89,7 +89,7 @@ export function StorageSelector() {
   return (
     <div class='control-btn'>
       <Show when={!connected()}>
-        <span class='before:absolute before:-left-[0.125rem] before:-top-[0.125rem] before:h-[0.375rem] before:w-[0.375rem] before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]'>
+        <span class='before:absolute before:-left-0.5 before:-top-0.5 before:h-1.5 before:w-1.5 before:rounded-full before:bg-yellow-600 before:shadow before:shadow-[#2D2D2D]'>
         </span>
       </Show>
       <HiOutlineCircleStack class='absolute' />

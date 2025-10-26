@@ -319,7 +319,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
 
   return (
     <div class='pointer-events-auto relative -z-10 flex h-7 flex-row justify-between rounded-b bg-gray-50 p-1 text-xs text-[#aaa]'>
-      <div class='flex flex-row border-r pr-1'>
+      <div class='flex flex-row border-r pr-1 border-[#e5e7eb]'>
         <button class='rounded px-1 hover:bg-[#ecedef]' title='Fullscreen'>
           <FaSolidExpand />
         </button>

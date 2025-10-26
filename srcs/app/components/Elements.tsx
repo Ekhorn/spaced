@@ -122,12 +122,12 @@ export function RenderLeaf(props: RenderLeafProps) {
           <span class='relative'>
             <span
               contentEditable={false}
-              class='absolute bottom-0 left-[-1px] top-0 w-0.5'
+              class='absolute bottom-0 -left-px top-0 w-0.5'
               style={{ 'background-color': caret.data.color }}
             />
             <span
               contentEditable={false}
-              class='absolute left-[-1px] top-0 select-none whitespace-nowrap rounded rounded-bl-none px-1.5 py-0.5 text-xs text-white'
+              class='absolute -left-px top-0 select-none whitespace-nowrap rounded rounded-bl-none px-1.5 py-0.5 text-xs text-white'
               style={{
                 'background-color': caret.data.color,
                 transform: 'translateY(-100%)',

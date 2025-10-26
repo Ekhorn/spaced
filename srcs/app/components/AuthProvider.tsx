@@ -137,7 +137,7 @@ export function AuthProvider(props: AuthProps) {
       <Show when={false}>
         <dialog
           open={!isLoggedIn()}
-          class='inset-0 z-[9999] flex h-[460px] items-center justify-center rounded'
+          class='inset-0 z-9999 flex h-[460px] items-center justify-center rounded'
         >
           <form
             onSubmit={onSubmit}
@@ -146,7 +146,7 @@ export function AuthProvider(props: AuthProps) {
             <h2 class='mb-4 text-center text-2xl font-bold text-gray-800'>
               {isRegistration() ? 'Register' : 'Login to account'}
             </h2>
-            <div class='mb-6 flex-grow'>
+            <div class='mb-6 grow'>
               <label class='mb-2 block font-semibold text-gray-800'>
                 Email
                 <input

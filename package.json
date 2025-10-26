@@ -28,6 +28,7 @@
     ]
   },
   "dependencies": {
+    "@tailwindcss/vite": "4.1.16",
     "@solidjs/testing-library": "0.8.10",
     "@tauri-apps/cli": "2.8.4",
     "husky": "9.1.7",

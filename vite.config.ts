@@ -1,8 +1,20 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(() => ({
-  plugins: [solidPlugin()],
+  plugins: [
+    solidPlugin(),
+    tailwindcss(
+      {
+        content: ['./srcs/app/**/*.{html,js,jsx,ts,tsx}'],
+        theme: {
+          extend: {},
+        },
+        plugins: [],
+      } as import('@tailwindcss/vite').PluginOptions,
+    ),
+  ],
   root: 'srcs/app',
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors

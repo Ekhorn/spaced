@@ -88,7 +88,7 @@ function MarkButton(props: { format: string; icon: JSXElement }) {
   const editor = useSlate();
   return (
     <button
-      class='rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]'
+      class='rounded px-2 py-px text-[#aaa] hover:bg-[#ecedef]'
       onMouseDown={(event) => {
         event.preventDefault();
         toggleMark(editor, props.format);
@@ -111,7 +111,7 @@ function BlockButton(props: {
   const editor = useSlate();
   return (
     <button
-      class='rounded px-2 py-[1px] text-[#aaa] hover:bg-[#ecedef]'
+      class='rounded px-2 py-px text-[#aaa] hover:bg-[#ecedef]'
       onMouseDown={(event) => {
         event.preventDefault();
         toggleBlock(editor, props.format);
