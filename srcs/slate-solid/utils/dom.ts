@@ -63,7 +63,7 @@ export const isDOMNode = (value: unknown): value is DOMNode => {
 /**
  * Check if a value is a DOM selection.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export const isDOMSelection = (value: DOMSelection): value is DOMSelection => {
   const window = value && value.anchorNode && getDefaultView(value.anchorNode);
   return !!window && value instanceof window.Selection;

@@ -18,7 +18,6 @@ type StateProps = {
 
 export function StateProvider(props: StateProps) {
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
     <StateContext.Provider>{props.children}</StateContext.Provider>
   );

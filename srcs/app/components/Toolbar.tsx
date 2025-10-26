@@ -17,8 +17,8 @@ import {
 } from 'solid-icons/fa';
 import { type Accessor, type JSXElement } from 'solid-js';
 
-import { LIST_TYPES, TEXT_ALIGN_TYPES } from '../lib/const.js';
-import { type CustomElement, type TextAlign } from '../lib/editor-types.js';
+import { LIST_TYPES, TEXT_ALIGN_TYPES } from '../lib/const.ts';
+import { type CustomElement, type TextAlign } from '../lib/editor-types.ts';
 
 function isMarkActive(editor: Editor, format: string) {
   const marks = Editor.marks(editor);

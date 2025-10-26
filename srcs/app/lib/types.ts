@@ -1,6 +1,6 @@
-import { type Item } from 'types';
+import type { Item } from 'types';
 
-import { type allowedMimeTypes } from './const.js';
+import { type allowedMimeTypes } from './const.ts';
 
 export type Storage = 'local' | 'browser' | 'cloud';
 

@@ -2,7 +2,6 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/internal@^1.0.10": "1.0.12",
-    "jsr:@std/path@*": "1.1.2",
     "jsr:@std/path@^1.1.2": "1.1.2",
     "npm:@playwright/test@1.56.1": "1.56.1",
     "npm:@slate-yjs/core@1.0.2": "1.0.2_slate@0.112.0_yjs@13.6.27",
@@ -22,7 +21,6 @@
     "npm:slate@0.112.0": "0.112.0",
     "npm:socket.io-client@4.8.1": "4.8.1",
     "npm:solid-icons@1.1.0": "1.1.0_solid-js@1.9.9__seroval@1.3.2",
-    "npm:solid-js@1.0.0": "1.0.0",
     "npm:solid-js@1.9.9": "1.9.9_seroval@1.3.2",
     "npm:tailwindcss@4.1.14": "4.1.14",
     "npm:typescript@5.9.3": "5.9.3",
@@ -530,27 +528,27 @@
       "integrity": "sha512-sXK/rS68B4oq3XXNyLrzVhLtT1pnimmMUahd2FqhtYUuyQsCfnW058ptO1s+lWc2k8F/3zQSNVkZ2ifJjlcNbQ==",
       "dependencies": [
         "@solid-primitives/trigger",
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
     },
     "@solid-primitives/trigger@1.2.2_solid-js@1.9.9__seroval@1.3.2": {
       "integrity": "sha512-IWoptVc0SWYgmpBPpCMehS5b07+tpFcvw15tOQ3QbXedSYn6KP8zCjPkHNzMxcOvOicTneleeZDP7lqmz+PQ6g==",
       "dependencies": [
         "@solid-primitives/utils",
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
     },
     "@solid-primitives/utils@6.3.2_solid-js@1.9.9__seroval@1.3.2": {
       "integrity": "sha512-hZ/M/qr25QOCcwDPOHtGjxTD8w2mNyVAYvcfgwzBHq2RwNqHNdDNsMZYap20+ruRwW4A3Cdkczyoz0TSxLCAPQ==",
       "dependencies": [
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
     },
     "@solidjs/testing-library@0.8.10_solid-js@1.9.9__seroval@1.3.2": {
       "integrity": "sha512-qdeuIerwyq7oQTIrrKvV0aL9aFeuwTd86VYD3afdq5HYEwoox1OBTJy4y8A3TFZr8oAR0nujYgCzY/8wgHGfeQ==",
       "dependencies": [
         "@testing-library/dom",
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
     },
     "@tailwindcss/node@4.1.16": {
@@ -923,10 +921,10 @@
       "dependencies": [
         "@babel/core",
         "babel-plugin-jsx-dom-expressions",
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ],
       "optionalPeers": [
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
     },
     "base64-js@1.5.1": {
@@ -1814,11 +1812,8 @@
     "solid-icons@1.1.0_solid-js@1.9.9__seroval@1.3.2": {
       "integrity": "sha512-IesTfr/F1ElVwH2E1110s2RPXH4pujKfSs+koT8rwuTAdleO5s26lNSpqJV7D1+QHooJj18mcOiz2PIKs0ic+A==",
       "dependencies": [
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
-    },
-    "solid-js@1.0.0": {
-      "integrity": "sha512-5huTDVyMqZSjg5Sa4mwl15feK4il1cE68n4weL5NYGC8lX2wiDlcHhBdSB8trKgaJ50Q9/pwtLrQngFaDC+5Tw=="
     },
     "solid-js@1.9.9_seroval@1.3.2": {
       "integrity": "sha512-A0ZBPJQldAeGCTW0YRYJmt7RCeh5rbFfPZ2aOttgYnctHE7HgKeHCBB/PVc2P7eOfmNXqMFFFoYYdm3S4dcbkA==",
@@ -1834,7 +1829,7 @@
         "@babel/generator",
         "@babel/helper-module-imports@7.27.1",
         "@babel/types",
-        "solid-js@1.9.9_seroval@1.3.2"
+        "solid-js"
       ]
     },
     "source-map-js@1.2.1": {
@@ -1963,7 +1958,7 @@
         "@types/babel__core",
         "babel-preset-solid",
         "merge-anything",
-        "solid-js@1.9.9_seroval@1.3.2",
+        "solid-js",
         "solid-refresh",
         "vite",
         "vitefu"
@@ -2182,7 +2177,7 @@
         "packageJson": {
           "dependencies": [
             "npm:slate@0.112.0",
-            "npm:solid-js@1.0.0"
+            "npm:solid-js@1.9.9"
           ]
         }
       },
@@ -2191,7 +2186,7 @@
           "dependencies": [
             "npm:@slate-yjs/core@1.0.2",
             "npm:slate@0.112.0",
-            "npm:solid-js@1.0.0",
+            "npm:solid-js@1.9.9",
             "npm:yjs@13.5.29"
           ]
         }

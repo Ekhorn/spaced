@@ -8,7 +8,7 @@
  * - 8: 4th button (typically the "Browser Back" button)
  * - 16 : 5th button (typically the "Browser Forward" button)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const _mouseMap = {
   0: 'none',
   1: 'primary',

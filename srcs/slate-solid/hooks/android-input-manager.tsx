@@ -123,7 +123,7 @@ const RESOLVE_DELAY = 25;
 const FLUSH_DELAY = 200;
 
 // Replace with `const debug = console.log` to debug
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const debug = (..._: unknown[]) => {};
 
 // Type guard to check if a value is a DataTransfer
@@ -276,7 +276,6 @@ export function createAndroidInputManager({
       // pending ranges.
       EDITOR_TO_PENDING_DIFFS.set(
         editor,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
         EDITOR_TO_PENDING_DIFFS.get(editor)?.filter(
           ({ id }) => id !== diff!.id,
         )!,

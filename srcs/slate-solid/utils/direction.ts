@@ -42,6 +42,6 @@ const ltr = new RegExp('^[^' + rtlRange + ']*[' + ltrRange + ']');
  */
 export function getDirection(value: string) {
   const source = String(value || '');
-  // eslint-disable-next-line unicorn/no-nested-ternary
+
   return rtl.test(source) ? 'rtl' : ltr.test(source) ? 'ltr' : 'neutral';
 }

@@ -10,13 +10,13 @@ import {
   type Setter,
   Switch,
 } from 'solid-js';
-import { type Item } from 'types';
+import type { Item } from 'types';
 
-import { TextEditor } from './Editors.jsx';
-import { useIPC } from './IPCProvider.js';
-import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
-import { useViewport } from './ViewportProvider.js';
-import { absoluteToRelative, Vec2D } from '../lib/vector.js';
+import { TextEditor } from './Editors.tsx';
+import { useIPC } from './IPCProvider.tsx';
+import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.tsx';
+import { useViewport } from './ViewportProvider.tsx';
+import { absoluteToRelative, Vec2D } from '../lib/vector.ts';
 
 export interface ContainerProps {
   readonly index: number;
@@ -116,7 +116,6 @@ export function Container(props: ContainerProps) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RenderFallback(_props: ContainerProps) {
   return 'Error occured';
 }

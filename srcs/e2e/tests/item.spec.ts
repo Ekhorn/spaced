@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 import { type Item } from 'types';
 
-import { toEndOfLine } from '../utils/editor.js';
+import { toEndOfLine } from '../utils/editor.ts';
 
 const addItem = async (page: Page, x: number, y: number, width: number) => {
   await page.waitForLoadState('domcontentloaded');

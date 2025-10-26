@@ -7,14 +7,14 @@ import {
   useContext,
 } from 'solid-js';
 
-import { useIPC } from './IPCProvider.jsx';
-import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.js';
-import { useState } from './StateProvider.js';
+import { useIPC } from './IPCProvider.tsx';
+import { ITEM_TO_SELECTION, useSelection } from './SelectionProvider.tsx';
+import { useState } from './StateProvider.tsx';
 import {
   scaleViewportOutFrom,
   scaleViewportUpTo,
   Vec2D,
-} from '../lib/vector.js';
+} from '../lib/vector.ts';
 
 const [wheelFactor, setWheelFactor] = createSignal(1.2);
 const [pinchFactor, setPinchFactor] = createSignal(1.05);
@@ -175,7 +175,6 @@ export function ViewportProvider(props: ViewportProps) {
   });
 
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
     <ViewportContext.Provider>
       <div

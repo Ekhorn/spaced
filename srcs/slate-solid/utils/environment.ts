@@ -59,7 +59,6 @@ export const IS_SAFARI_LEGACY = typeof navigator !== 'undefined' &&
   /Safari/.test(navigator.userAgent) &&
   /Version\/(\d+)/.test(navigator.userAgent) &&
   (navigator.userAgent.match(/Version\/(\d+)/)?.[1]
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     ? Number.parseInt(navigator.userAgent.match(/Version\/(\d+)/)?.[1]!, 10) <
       17
     : false);

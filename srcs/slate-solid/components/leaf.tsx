@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/no-null */
 import { type Element, type Text } from 'slate';
 import {
   createEffect,

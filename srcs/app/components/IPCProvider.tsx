@@ -4,7 +4,7 @@ import { io, type Socket } from 'socket.io-client';
 import { createContext, type JSXElement, useContext } from 'solid-js';
 import { type Asset, type Item } from 'types';
 
-import { isTauri } from '../lib/const.js';
+import { isTauri } from '../lib/const.ts';
 import {
   assetStore,
   type DB,
@@ -12,9 +12,9 @@ import {
   itemAssetsStore,
   itemStore,
   upgrade,
-} from '../lib/idb.js';
-import { processRefs } from '../lib/item.js';
-import { type Storage } from '../lib/types.js';
+} from '../lib/idb.ts';
+import { processRefs } from '../lib/item.ts';
+import { type Storage } from '../lib/types.ts';
 
 const socket = io(window.location.origin, {
   autoConnect: false,
@@ -281,7 +281,6 @@ type IPCProps = {
 
 export function IPCProvider(props: IPCProps) {
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore Ignore since getters and setters are already present
     <IpcContext.Provider>{props.children}</IpcContext.Provider>
   );

@@ -3,9 +3,9 @@ import { createEditor, Text, Transforms } from 'slate';
 import { createEffect } from 'solid-js';
 import { describe, expect, test, vi } from 'vitest';
 
-import { Editable } from './editable.js';
-import { Slate } from './slate.js';
-import { withSolid } from '../plugin/with-solid.js';
+import { Editable } from './editable.tsx';
+import { Slate } from './slate.tsx';
+import { withSolid } from '../plugin/with-solid.ts';
 
 describe('slate-solid', () => {
   describe('Editable', () => {

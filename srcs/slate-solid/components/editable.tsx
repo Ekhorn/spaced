@@ -78,7 +78,6 @@ import {
  * `RenderElementProps` are passed to the `renderElement` handler.
  */
 export interface RenderElementProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: Descendant[];
   element: Element;
   attributes: {
@@ -86,7 +85,7 @@ export interface RenderElementProps {
     'data-slate-inline'?: true;
     'data-slate-void'?: true;
     dir?: 'rtl';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     ref: Ref<Element>;
   };
 }
@@ -95,7 +94,6 @@ export interface RenderElementProps {
  * `RenderLeafProps` are passed to the `renderLeaf` handler.
  */
 export interface RenderLeafProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: Descendant[];
   leaf: Text;
   text: Text;
@@ -114,7 +112,6 @@ const Children = (props: Parameters<typeof createChildren>[0]) => (
  * The props that get passed to renderPlaceholder
  */
 export type RenderPlaceholderProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: Descendant[];
   attributes: {
     'data-slate-placeholder': boolean;
@@ -183,7 +180,7 @@ export function Editable(props: EditableProps) {
   const state = {
     isDraggingInternally: false,
     isUpdatingSelection: false,
-    // eslint-disable-next-line unicorn/no-null
+
     latestElement: null as DOMElement | null,
     hasMarkPlaceholder: false,
   };
@@ -352,7 +349,7 @@ export function Editable(props: EditableProps) {
           );
 
           // Right to left
-          // eslint-disable-next-line unicorn/prefer-ternary
+
           if (firstRange.startContainer === focusNode) {
             anchorNode = lastRange.endContainer;
           } else {
@@ -940,7 +937,6 @@ export function Editable(props: EditableProps) {
   );
 
   return (
-    // eslint-disable-next-line solid/reactivity
     <ReadOnlyContext.Provider value={!!props.readOnly}>
       {/* eslint-disable-next-line solid/reactivity */}
       <ComposingContext.Provider value={isComposing()}>
@@ -962,7 +958,6 @@ export function Editable(props: EditableProps) {
             data-slate-editor
             data-slate-node='value'
             contentEditable={!slate.readOnly}
-            // eslint-disable-next-line solid/reactivity
             ref={callbackRef}
             style={{
               ...(props.disableDefaultStyles ? {} : {
@@ -996,7 +991,6 @@ export function Editable(props: EditableProps) {
               ) {
                 event.preventDefault();
                 if (!SolidEditor.isComposing(editor)) {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const text = event.data as string;
                   Editor.insertText(editor, text);
                 }
@@ -1535,7 +1529,7 @@ export function Editable(props: EditableProps) {
                 // COMPAT: Certain browsers don't support the `beforeinput` event, so we
                 // fall back to guessing at the input intention for hotkeys.
                 // COMPAT: In iOS, some of these hotkeys are handled in the
-                // eslint-disable-next-line unicorn/no-negated-condition
+
                 if (!HAS_BEFORE_INPUT_SUPPORT) {
                   // We don't have a core behavior for these, but they change the
                   // DOM if we don't prevent them, so we have to.

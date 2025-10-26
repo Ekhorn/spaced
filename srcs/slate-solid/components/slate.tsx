@@ -30,7 +30,6 @@ export function Slate(props: {
   onSelectionChange?: (selection: Selection) => void;
   onValueChange?: (value: Descendant[]) => void;
 }) {
-  // eslint-disable-next-line solid/reactivity
   Object.assign(props.editor, { children: props.initialValue });
 
   const [context, setContext] = createSignal<SlateContextValue>(
@@ -44,10 +43,9 @@ export function Slate(props: {
           }`,
         );
       }
-      // eslint-disable-next-line solid/reactivity
+
       if (!Editor.isEditor(props.editor)) {
         throw new Error(
-          // eslint-disable-next-line solid/reactivity
           `[Slate] editor is invalid! You passed: ${
             Scrubber.stringify(props.editor)
           }`,
@@ -56,13 +54,12 @@ export function Slate(props: {
 
       // TODO: allow custom stuff later on...
       // Object.assign(EditorContext.defaultValue.editor, rest);
-      // eslint-disable-next-line solid/reactivity
+
       return { v: 0, editor: props.editor };
     })(),
   );
 
   const { onChange: handleSelectorChange, selectorContext } =
-    // eslint-disable-next-line solid/reactivity
     useSelectorContext(props.editor);
 
   const onContextChange = (options?: { operation?: Operation }) => {

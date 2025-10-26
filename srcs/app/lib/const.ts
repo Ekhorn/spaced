@@ -1,4 +1,4 @@
-import { type ListTypes, type TextAlign } from './editor-types.js';
+import { type ListTypes, type TextAlign } from './editor-types.ts';
 
 export const isTauri = 'isTauri' in window && window.isTauri;
 

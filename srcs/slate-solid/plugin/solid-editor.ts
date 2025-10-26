@@ -384,7 +384,6 @@ export const SolidEditor: SolidEditorInterface = {
     const path: Path = [];
     let child = node;
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const parent = NODE_TO_PARENT.get(child);
 
@@ -411,7 +410,6 @@ export const SolidEditor: SolidEditorInterface = {
     );
   },
 
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
   focus: (editor, options = { retries: 5 }) => {
     // Return if already focused
     if (IS_FOCUSED.get(editor)) {
@@ -673,7 +671,6 @@ export const SolidEditor: SolidEditorInterface = {
   toSlateNode: (_editor, domNode: DOMNode) => {
     let domEl = isDOMElement(domNode) ? domNode : domNode.parentElement;
 
-    // eslint-disable-next-line unicorn/prefer-dom-node-dataset
     if (domEl && !domEl.hasAttribute('data-slate-node')) {
       domEl = domEl.closest(`[data-slate-node]`);
     }
@@ -827,7 +824,7 @@ export const SolidEditor: SolidEditorInterface = {
 
       if (node && SolidEditor.hasDOMNode(editor, node, { editable: true })) {
         const slateNode = SolidEditor.toSlateNode(editor, node);
-        // eslint-disable-next-line prefer-const
+
         let { offset, path } = Editor.start(
           editor,
           SolidEditor.findPath(editor, slateNode),
@@ -892,7 +889,7 @@ export const SolidEditor: SolidEditorInterface = {
             lastRange.startContainer instanceof HTMLTableRowElement
           ) {
             // HTMLElement, becouse Element is a slate element
-            // eslint-disable-next-line no-inner-declarations
+
             const getLastChildren = (element: HTMLElement): HTMLElement => {
               return element.childElementCount > 0
                 ? getLastChildren(<HTMLElement> element.children[0])
@@ -922,7 +919,6 @@ export const SolidEditor: SolidEditorInterface = {
               ? firstNode.childNodes[0]
               : firstNode;
 
-            // eslint-disable-next-line unicorn/prefer-ternary
             if (lastNode instanceof HTMLElement) {
               anchorOffset = (<HTMLElement> lastNode).innerHTML.length;
             } else {

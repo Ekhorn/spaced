@@ -7,8 +7,8 @@ import {
   Transforms,
 } from 'slate';
 
-import { LIST_TYPES, TEXT_ALIGN_TYPES } from './const.js';
-import { type CustomElement, type TextAlign } from './editor-types.js';
+import { LIST_TYPES, TEXT_ALIGN_TYPES } from './const.ts';
+import { type CustomElement, type TextAlign } from './editor-types.ts';
 
 export const withDelBackFix = <T extends Editor>(editor: T): T => {
   const { deleteBackward } = editor;

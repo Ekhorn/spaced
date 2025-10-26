@@ -21,6 +21,7 @@
   "imports": {
     "@std/path": "jsr:@std/path@^1.1.2",
     "slate-solid": "./srcs/slate-solid/index.ts",
-    "slate-yjs-solid": "./srcs/slate-yjs-solid/index.ts"
+    "slate-yjs-solid": "./srcs/slate-yjs-solid/index.ts",
+    "types": "./srcs/types/index.ts"
   }
 }

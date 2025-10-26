@@ -12,8 +12,8 @@ import { Dynamic } from 'solid-js/web';
 import {
   type CheckListElement,
   type CustomElement,
-} from '../lib/editor-types.js';
-import { type CursorData } from '../lib/types.js';
+} from '../lib/editor-types.ts';
+import { type CursorData } from '../lib/types.ts';
 
 type Element = (
   props:
@@ -33,7 +33,6 @@ const block_quote: Element = ({ element: _, ...p }) => <blockquote {...p} />,
   paragraph: Element = ({ element: _, ...props }) => <p {...props} />;
 /* eslint-enable solid/no-destructure, @typescript-eslint/no-unused-vars */
 
-// eslint-disable-next-line solid/no-destructure
 const check_list: Element = ({ children, element, ...attributes }) => {
   const editor = useSlateStatic();
   // const readOnly = useReadOnly()

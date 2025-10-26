@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { render } from 'solid-js/web';
 
-import { App } from './components/App.js';
+import { App } from './components/App.tsx';
 import './index.css';
 
 window.addEventListener('dragover', (e) => {

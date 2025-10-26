@@ -9,7 +9,7 @@ import {
 } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, Slate, SolidEditor, withSolid } from 'slate-solid';
-import isHotkey from 'slate-solid/utils/is-hotkey.js';
+import isHotkey from 'slate-solid/utils/is-hotkey.ts';
 import { useDecorateRemoteCursors } from 'slate-yjs-solid';
 import {
   FaSolidCheck,
@@ -24,17 +24,17 @@ import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 
-import { type RenderProps } from './Container.js';
-import { RenderElement, RenderLeaf } from './Elements.js';
-import { useIPC } from './IPCProvider.js';
-import { toggleMark, Toolbar } from './Toolbar.js';
-import { type CustomEditor } from '../lib/editor-types.js';
+import { type RenderProps } from './Container.tsx';
+import { RenderElement, RenderLeaf } from './Elements.tsx';
+import { useIPC } from './IPCProvider.tsx';
+import { toggleMark, Toolbar } from './Toolbar.tsx';
+import { type CustomEditor } from '../lib/editor-types.d.ts';
 import {
   MD_SHORTCUTS,
   withDelBackFix,
   withShortcuts,
   withValidNode,
-} from '../lib/plugins.js';
+} from '../lib/plugins.ts';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -44,13 +44,11 @@ const HOTKEYS = {
 };
 
 export function CollaborativeEditor(props: RenderProps) {
-  // eslint-disable-next-line solid/reactivity
   const { initialValue } = props;
   // TODO: find better solution
-  // eslint-disable-next-line solid/reactivity
+
   const init = 'initial' in props.item;
   if (init) {
-    // eslint-disable-next-line solid/reactivity
     delete props.item.initial;
   }
 
@@ -62,7 +60,6 @@ export function CollaborativeEditor(props: RenderProps) {
   const sharedDoc = yDoc.get('slate', Y.XmlText);
   const yProvider = new SocketIOProvider(
     window.origin,
-    // eslint-disable-next-line solid/reactivity
     props.item.shared!,
     yDoc,
     {},
@@ -87,9 +84,7 @@ export function CollaborativeEditor(props: RenderProps) {
 
   const wrapper = () => {
     const editor = withCursors(
-      // eslint-disable-next-line solid/reactivity
       withYHistory(withYjs(createEditor(), sharedType())),
-      // eslint-disable-next-line solid/reactivity
       provider()?.awareness,
       {
         // The current user's name and color
@@ -138,7 +133,6 @@ function SlateEditor(
     connected?: boolean;
   },
 ) {
-  // eslint-disable-next-line solid/reactivity
   const isMarkdown = props.item.editor === 'markdown';
   const plugins: (<T extends CustomEditor>(editor: T) => T)[] = [
     withDelBackFix,
@@ -149,10 +143,8 @@ function SlateEditor(
     plugins.push(withShortcuts);
   }
 
-  // eslint-disable-next-line unicorn/no-array-reduce
   const editor = plugins.reduce(
     (acc, fn) => fn(acc),
-    // eslint-disable-next-line solid/reactivity
     props.editor ?? createEditor(),
   );
 
@@ -195,7 +187,6 @@ function SlateEditor(
     <Slate
       initialValue={props.initialValue}
       editor={editor}
-      // eslint-disable-next-line solid/reactivity
       onValueChange={async () => {
         const [item] = await updateItem([
           {
@@ -203,7 +194,7 @@ function SlateEditor(
             schema: JSON.stringify(editor.children),
           },
         ]);
-        // eslint-disable-next-line solid/reactivity
+
         props.setItems((prev) => prev.with(props.index, item));
       }}
     >
@@ -245,7 +236,6 @@ function SlateEditor(
 
 function Footer(props: RenderProps & { editor: Editor }) {
   const [sharing, setShare] = createSignal<'share' | 'configure' | 'sharing'>(
-    // eslint-disable-next-line solid/reactivity
     props.item.shared ? 'sharing' : 'share',
   );
   const { updateItem } = useIPC();
@@ -258,7 +248,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
         shared: undefined,
       },
     ]);
-    // eslint-disable-next-line solid/reactivity
+
     props.setItems((prev) => prev.with(props.index, item));
     setShare('share');
   };
@@ -283,7 +273,7 @@ function Footer(props: RenderProps & { editor: Editor }) {
         shared: crypto.randomUUID(),
       },
     ]);
-    // eslint-disable-next-line solid/reactivity
+
     props.setItems((prev) =>
       // @ts-expect-error TODO: find better solution
       prev.with(props.index, { ...item, initial: true })

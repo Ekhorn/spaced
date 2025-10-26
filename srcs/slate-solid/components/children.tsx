@@ -39,7 +39,6 @@ export function createChildren(props: {
       Editor.hasInlines(editor, props.node);
 
     for (let i = 0; i < props.node.children.length; i++) {
-      // eslint-disable-next-line unicorn/prefer-spread
       const p = path.concat(i);
       const n = props.node.children[i] as Descendant;
       const range = Editor.range(editor, p);

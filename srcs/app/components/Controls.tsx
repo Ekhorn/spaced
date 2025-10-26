@@ -4,13 +4,13 @@ import { FaBrandsMarkdown, FaSolidFileCirclePlus } from 'solid-icons/fa';
 import { HiOutlineCircleStack, HiSolidArrowRight } from 'solid-icons/hi';
 import { createSignal, onMount, Show } from 'solid-js';
 
-import { useAuth } from './AuthProvider.js';
-import { useIPC } from './IPCProvider.js';
-import { useState } from './StateProvider.js';
-import { useViewport } from './ViewportProvider.js';
-import { isTauri } from '../lib/const.js';
-import { type Editors, type Storage } from '../lib/types.js';
-import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
+import { useAuth } from './AuthProvider.tsx';
+import { useIPC } from './IPCProvider.tsx';
+import { useState } from './StateProvider.tsx';
+import { useViewport } from './ViewportProvider.tsx';
+import { isTauri } from '../lib/const.ts';
+import { type Editors, type Storage } from '../lib/types.ts';
+import { relativeToAbsolute, Vec2D } from '../lib/vector.ts';
 
 interface CreateItemProps {
   createBaseItem: (props: {
@@ -178,7 +178,6 @@ export function Controls() {
         [],
       );
 
-      // eslint-disable-next-line unicorn/prefer-spread
       setItems((value) => value.concat(item));
     } catch {
       /**/

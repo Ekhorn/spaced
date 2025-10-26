@@ -66,7 +66,6 @@ export const Text = (props: {
   };
 
   return (
-    // eslint-disable-next-line solid/reactivity
     <span data-slate-node='text' ref={callbackRef}>
       {children}
     </span>

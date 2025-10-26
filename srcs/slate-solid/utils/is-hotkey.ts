@@ -192,7 +192,7 @@ function compareHotkey(object: Record<string, unknown>, event: KeyboardEvent) {
 
 function toKeyCode(name: string) {
   name = toKeyName(name);
-  // eslint-disable-next-line unicorn/prefer-code-point
+
   const code = CODES[name] || name.toUpperCase().charCodeAt(0);
   return code;
 }

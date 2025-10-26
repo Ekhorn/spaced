@@ -1,17 +1,17 @@
 import { Index, onMount } from 'solid-js';
 
-import { AuthProvider } from './AuthProvider.js';
-import { Background } from './Background.js';
-import { Container } from './Container.js';
-import { Controls } from './Controls.jsx';
-import { IPCProvider, useIPC } from './IPCProvider.js';
-import { useState } from './StateProvider.js';
-import { useViewport, ViewportProvider } from './ViewportProvider.js';
-import { allowedMimeTypes } from '../lib/const.js';
-import { type ImageElement } from '../lib/editor-types.js';
-import { type MimeTypes } from '../lib/types.js';
-// import { getBoundingBox, throttle } from '../lib/utils.js';
-import { relativeToAbsolute, Vec2D } from '../lib/vector.js';
+import { AuthProvider } from './AuthProvider.tsx';
+import { Background } from './Background.tsx';
+import { Container } from './Container.tsx';
+import { Controls } from './Controls.tsx';
+import { IPCProvider, useIPC } from './IPCProvider.tsx';
+import { useState } from './StateProvider.tsx';
+import { useViewport, ViewportProvider } from './ViewportProvider.tsx';
+import { allowedMimeTypes } from '../lib/const.ts';
+import { type ImageElement } from '../lib/editor-types.d.ts';
+import { type MimeTypes } from '../lib/types.ts';
+// import { getBoundingBox, throttle } from '../lib/utils.ts';
+import { relativeToAbsolute, Vec2D } from '../lib/vector.ts';
 
 export function App() {
   const { absoluteViewportPosition, lastRelativePointerPosition, scalar } =
@@ -47,7 +47,7 @@ export function App() {
         },
         [[...new Uint8Array(await file.arrayBuffer())]],
       );
-      // eslint-disable-next-line unicorn/prefer-spread
+
       setItems((value) => value.concat(item));
     } catch {
       /**/
@@ -88,7 +88,6 @@ export function App() {
             [],
           );
 
-          // eslint-disable-next-line unicorn/prefer-spread
           setItems((value) => value.concat(item));
         } catch {
           /**/
@@ -120,7 +119,6 @@ export function App() {
         [[...new Uint8Array(await file.arrayBuffer())]],
       );
 
-      // eslint-disable-next-line unicorn/prefer-spread
       setItems((value) => value.concat(item));
     } catch {
       /**/
@@ -161,16 +159,11 @@ export function App() {
   //         | Item[];
   //       if (response) {
   //         setItems((items) => {
-  //           // eslint-disable-next-line unicorn/prefer-array-flat
   //           const newItems = []
-  //             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //             // @ts-ignore
-  //             // eslint-disable-next-line unicorn/prefer-spread
   //             .concat(response)
-  //             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //             // @ts-ignore
   //             .filter((item2) => !items.some((item1) => item1.id === item2.id));
-  //           // eslint-disable-next-line unicorn/prefer-spread
   //           return items.concat(newItems);
   //         });
   //       }
