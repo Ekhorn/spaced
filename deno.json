@@ -18,13 +18,11 @@
       ]
     }
   },
-  "workspace": {
-    "members": [
-      "srcs/app",
-      "srcs/slate-solid",
-      "srcs/slate-yjs-solid",
-      "srcs/types",
-      "srcs/e2e"
-    ]
-  }
+  "workspace": [
+    "srcs/app",
+    "srcs/slate-solid",
+    "srcs/slate-yjs-solid",
+    "srcs/types",
+    "srcs/e2e"
+  ]
 }
