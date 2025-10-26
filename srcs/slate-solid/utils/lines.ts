@@ -4,7 +4,7 @@
 
 import { Editor, Range } from 'slate';
 
-import { SolidEditor } from '../plugin/solid-editor.js';
+import { SolidEditor } from '../plugin/solid-editor.ts';
 
 const doRectsIntersect = (rect: DOMRect, compareRect: DOMRect) => {
   const middle = (compareRect.top + compareRect.bottom) / 2;

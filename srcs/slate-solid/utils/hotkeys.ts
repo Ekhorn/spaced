@@ -1,5 +1,5 @@
-import { IS_APPLE } from './environment.js';
-import { isHotkey } from './is-hotkey.js';
+import { IS_APPLE } from './environment.ts';
+import { isHotkey } from './is-hotkey.ts';
 
 /**
  * Hotkey mappings for each platform.

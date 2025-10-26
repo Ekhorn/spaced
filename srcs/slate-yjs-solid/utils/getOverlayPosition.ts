@@ -2,7 +2,7 @@
 import { type BaseRange, Editor, Path, Range, Text } from 'slate';
 import { SolidEditor } from 'slate-solid';
 
-import { solidEditorToDomRangeSafe } from './solid-editor-to-dom-range-safe.js';
+import { solidEditorToDomRangeSafe } from './solid-editor-to-dom-range-safe.ts';
 
 export type SelectionRect = {
   width: number;

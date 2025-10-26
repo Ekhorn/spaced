@@ -15,12 +15,12 @@ import {
   onMount,
 } from 'solid-js';
 
-import { SlateSelectorContext, useSelectorContext } from './selector.js';
-import { FocusedContext } from '../hooks/use-focused.js';
-import { EditorContext } from '../hooks/use-slate-static.js';
-import { SlateContext, type SlateContextValue } from '../hooks/use-slate.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
-import { EDITOR_TO_ON_CHANGE } from '../utils/weakmaps.js';
+import { SlateSelectorContext, useSelectorContext } from './selector.tsx';
+import { FocusedContext } from '../hooks/use-focused.ts';
+import { EditorContext } from '../hooks/use-slate-static.tsx';
+import { SlateContext, type SlateContextValue } from '../hooks/use-slate.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
+import { EDITOR_TO_ON_CHANGE } from '../utils/weakmaps.ts';
 
 export function Slate(props: {
   editor: SolidEditor;

@@ -10,7 +10,7 @@ import {
   Text,
 } from 'slate';
 
-import { EDITOR_TO_PENDING_DIFFS } from './weakmaps.js';
+import { EDITOR_TO_PENDING_DIFFS } from './weakmaps.ts';
 
 export type StringDiff = {
   start: number;

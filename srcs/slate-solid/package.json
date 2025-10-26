@@ -2,7 +2,10 @@
   "name": "slate-solid",
   "private": true,
   "type": "module",
-  "peerDependencies": {
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
+  "dependencies": {
     "slate": "0.112.0",
     "solid-js": "1.0.0"
   },

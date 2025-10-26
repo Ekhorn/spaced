@@ -3,7 +3,7 @@ import { CursorEditor } from '@slate-yjs/core';
 import { useFocused } from 'slate-solid';
 import { onCleanup, onMount } from 'solid-js';
 
-import { useRemoteCursorEditor } from './useRemoteCursorEditor.js';
+import { useRemoteCursorEditor } from './useRemoteCursorEditor.ts';
 
 export function useUnsetCursorPositionOnBlur() {
   const editor = useRemoteCursorEditor();

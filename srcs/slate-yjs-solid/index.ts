@@ -8,19 +8,19 @@ export {
   type TextWithRemoteCursors,
   useDecorateRemoteCursors,
   type UseDecorateRemoteCursorsOptions,
-} from './hooks/useDecorateRemoteCursors.js';
+} from './hooks/useDecorateRemoteCursors.ts';
 
 export {
   useRemoteCursorStates,
   useRemoteCursorStatesSelector,
-} from './hooks/useRemoteCursorStates.js';
+} from './hooks/useRemoteCursorStates.ts';
 
-export { useUnsetCursorPositionOnBlur } from './hooks/useUnsetCursorPositionOnBlur.js';
+export { useUnsetCursorPositionOnBlur } from './hooks/useUnsetCursorPositionOnBlur.ts';
 
-export { getCursorRange } from './utils/getCursorRange.js';
+export { getCursorRange } from './utils/getCursorRange.ts';
 
 export {
   type CursorOverlayData,
   useRemoteCursorOverlayPositions,
   type UseRemoteCursorOverlayPositionsOptions,
-} from './hooks/useRemoteCursorOverlayPositions.js';
+} from './hooks/useRemoteCursorOverlayPositions.tsx';

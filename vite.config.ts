@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import tailwindcss from '@tailwindcss/vite';
+import { resolve } from '@std/path';
 
 export default defineConfig(() => ({
   plugins: [
@@ -35,6 +36,12 @@ export default defineConfig(() => ({
   // to make use of `TAURI_DEBUG` and other env variables
   // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
   envPrefix: ['VITE_', 'TAURI_'],
+  resolve: {
+    alias: {
+      'slate-solid': resolve(__dirname, 'srcs/slate-solid'),
+      'slate-yjs-solid': resolve(__dirname, 'srcs/slate-yjs-solid'),
+    },
+  },
   build: {
     target: 'esnext',
     outDir: '../../dist',

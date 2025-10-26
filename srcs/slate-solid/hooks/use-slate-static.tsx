@@ -2,7 +2,7 @@
 import { type Editor } from 'slate';
 import { createContext, useContext } from 'solid-js';
 
-import { type SolidEditor } from '../plugin/solid-editor.js';
+import { type SolidEditor } from '../plugin/solid-editor.ts';
 
 /**
  * A React context for sharing the editor object.

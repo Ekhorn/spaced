@@ -23,19 +23,19 @@ import {
   splitProps,
 } from 'solid-js';
 
-import { createChildren } from './children.js';
+import { createChildren } from './children.tsx';
 import {
   type AndroidInputManager,
   useAndroidInputManager,
-} from '../hooks/android-input-manager.js';
-import { ComposingContext } from '../hooks/use-composing.js';
-import { DecorateContext } from '../hooks/use-decorate.js';
-import { ReadOnlyContext } from '../hooks/use-read-only.js';
-import { useSlate, useSlateWithV } from '../hooks/use-slate.js';
-import { useTrackUserInput } from '../hooks/useTrackUserInput.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
-import { TRIPLE_CLICK } from '../utils/constants.js';
-import { getDirection } from '../utils/direction.js';
+} from '../hooks/android-input-manager.tsx';
+import { ComposingContext } from '../hooks/use-composing.ts';
+import { DecorateContext } from '../hooks/use-decorate.ts';
+import { ReadOnlyContext } from '../hooks/use-read-only.ts';
+import { useSlate, useSlateWithV } from '../hooks/use-slate.tsx';
+import { useTrackUserInput } from '../hooks/useTrackUserInput.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
+import { TRIPLE_CLICK } from '../utils/constants.ts';
+import { getDirection } from '../utils/direction.ts';
 import {
   type DOMElement,
   type DOMRange,
@@ -46,7 +46,7 @@ import {
   isDOMElement,
   isDOMNode,
   isPlainTextOnlyPaste,
-} from '../utils/dom.js';
+} from '../utils/dom.ts';
 import {
   CAN_USE_DOM,
   HAS_BEFORE_INPUT_SUPPORT,
@@ -58,8 +58,8 @@ import {
   IS_UC_MOBILE,
   IS_WEBKIT,
   IS_WECHATBROWSER,
-} from '../utils/environment.js';
-import Hotkeys from '../utils/hotkeys.js';
+} from '../utils/environment.ts';
+import Hotkeys from '../utils/hotkeys.ts';
 import {
   EDITOR_TO_ELEMENT,
   EDITOR_TO_PENDING_INSERTION_MARKS,
@@ -72,7 +72,7 @@ import {
   MARK_PLACEHOLDER_SYMBOL,
   NODE_TO_ELEMENT,
   PLACEHOLDER_SYMBOL,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 /**
  * `RenderElementProps` are passed to the `renderElement` handler.

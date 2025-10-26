@@ -7,8 +7,8 @@ import {
 } from '@slate-yjs/core';
 import { type BaseEditor } from 'slate';
 
-import { type Store } from '../types.js';
-import { useRemoteCursorEditor } from './useRemoteCursorEditor.js';
+import { type Store } from '../types.ts';
+import { useRemoteCursorEditor } from './useRemoteCursorEditor.ts';
 
 export type CursorStore<
   TCursorData extends Record<string, unknown> = Record<string, unknown>,

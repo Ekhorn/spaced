@@ -4,15 +4,15 @@ import { createRenderEffect, type JSXElement } from 'solid-js';
 import {
   type RenderLeafProps,
   type RenderPlaceholderProps,
-} from './editable.js';
-import { Leaf } from './leaf.js';
-import { useSlateStatic } from '../hooks/use-slate-static.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
+} from './editable.tsx';
+import { Leaf } from './leaf.tsx';
+import { useSlateStatic } from '../hooks/use-slate-static.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
 import {
   EDITOR_TO_KEY_TO_ELEMENT,
   ELEMENT_TO_NODE,
   NODE_TO_ELEMENT,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 export const Text = (props: {
   decorations: Range[];

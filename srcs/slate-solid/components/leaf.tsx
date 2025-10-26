@@ -10,14 +10,14 @@ import {
 import {
   type RenderLeafProps,
   type RenderPlaceholderProps,
-} from './editable.js';
-import String from './string.js';
-import { useSlateStatic } from '../hooks/use-slate-static.js';
-import { IS_ANDROID, IS_WEBKIT } from '../utils/environment.js';
+} from './editable.tsx';
+import String from './string.tsx';
+import { useSlateStatic } from '../hooks/use-slate-static.tsx';
+import { IS_ANDROID, IS_WEBKIT } from '../utils/environment.ts';
 import {
   EDITOR_TO_PLACEHOLDER_ELEMENT,
   PLACEHOLDER_SYMBOL,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 // Delay the placeholder on Android to prevent the keyboard from closing.
 // (https://github.com/ianstormtaylor/slate/pull/5368)

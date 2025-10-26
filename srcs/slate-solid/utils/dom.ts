@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/no-null */
-import { SolidEditor } from '../plugin/solid-editor.js';
+import { SolidEditor } from '../plugin/solid-editor.ts';
 
 import DOMNode = globalThis.Node;
 import DOMComment = globalThis.Comment;

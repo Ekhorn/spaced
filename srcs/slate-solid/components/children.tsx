@@ -5,15 +5,15 @@ import {
   type RenderElementProps,
   type RenderLeafProps,
   type RenderPlaceholderProps,
-} from './editable.js';
-import { Element as ElementComponent } from './element.js';
-import { Text } from './text.js';
-import { useDecorate } from '../hooks/use-decorate.js';
-import { SelectedContext } from '../hooks/use-selected.js';
-import { useSlateStatic } from '../hooks/use-slate-static.js';
-import { useSlateWithV } from '../hooks/use-slate.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
-import { NODE_TO_INDEX, NODE_TO_PARENT } from '../utils/weakmaps.js';
+} from './editable.tsx';
+import { Element as ElementComponent } from './element.tsx';
+import { Text } from './text.tsx';
+import { useDecorate } from '../hooks/use-decorate.ts';
+import { SelectedContext } from '../hooks/use-selected.ts';
+import { useSlateStatic } from '../hooks/use-slate-static.tsx';
+import { useSlateWithV } from '../hooks/use-slate.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
+import { NODE_TO_INDEX, NODE_TO_PARENT } from '../utils/weakmaps.ts';
 
 export function createChildren(props: {
   decorations: Range[];

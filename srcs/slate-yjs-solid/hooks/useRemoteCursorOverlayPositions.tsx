@@ -1,18 +1,17 @@
-/* eslint-disable unicorn/no-null */
 import { type CursorState } from '@slate-yjs/core';
 import { type BaseRange, type NodeMatch, type Text } from 'slate';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
-import { useRemoteCursorEditor } from './useRemoteCursorEditor.js';
-import { useRemoteCursorStates } from './useRemoteCursorStates.js';
-import { useOnResize, useRequestRerender } from './utils.js';
-import { getCursorRange } from '../utils/getCursorRange.js';
+import { useRemoteCursorEditor } from './useRemoteCursorEditor.ts';
+import { useRemoteCursorStates } from './useRemoteCursorStates.ts';
+import { useOnResize, useRequestRerender } from './utils.ts';
+import { getCursorRange } from '../utils/getCursorRange.ts';
 import {
   type CaretPosition,
   getOverlayPosition,
   type OverlayPosition,
   type SelectionRect,
-} from '../utils/getOverlayPosition.js';
+} from '../utils/getOverlayPosition.ts';
 
 const FROZEN_EMPTY_ARRAY = Object.freeze([]);
 

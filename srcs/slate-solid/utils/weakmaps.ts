@@ -8,9 +8,9 @@ import {
   type Text,
 } from 'slate';
 
-import { type TextDiff } from './diff-text.js';
-import { type Key } from './key.js';
-import { type Action } from '../hooks/android-input-manager.js';
+import { type TextDiff } from './diff-text.ts';
+import { type Key } from './key.ts';
+import { type Action } from '../hooks/android-input-manager.tsx';
 
 /**
  * Two weak maps that allow us rebuild a path given a node. They are populated

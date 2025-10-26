@@ -12,20 +12,20 @@ import {
   Transforms,
 } from 'slate';
 
-import { SolidEditor } from './solid-editor.js';
+import { SolidEditor } from './solid-editor.ts';
 import {
   type TextDiff,
   transformPendingPoint,
   transformPendingRange,
   transformTextDiff,
-} from '../utils/diff-text.js';
+} from '../utils/diff-text.ts';
 import {
   getPlainText,
   getSlateFragmentAttribute,
   isDOMText,
-} from '../utils/dom.js';
-import { type Key } from '../utils/key.js';
-import { findCurrentLineRange } from '../utils/lines.js';
+} from '../utils/dom.ts';
+import { type Key } from '../utils/key.ts';
+import { findCurrentLineRange } from '../utils/lines.ts';
 import {
   EDITOR_TO_KEY_TO_ELEMENT,
   EDITOR_TO_ON_CHANGE,
@@ -37,7 +37,7 @@ import {
   EDITOR_TO_USER_MARKS,
   EDITOR_TO_USER_SELECTION,
   NODE_TO_KEY,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 /**
  * `withSolid` adds Solid and DOM specific behaviors to the editor.

@@ -18,11 +18,9 @@
       ]
     }
   },
-  "workspace": [
-    "srcs/app",
-    "srcs/slate-solid",
-    "srcs/slate-yjs-solid",
-    "srcs/types",
-    "srcs/e2e"
-  ]
+  "imports": {
+    "@std/path": "jsr:@std/path@^1.1.2",
+    "slate-solid": "./srcs/slate-solid/index.ts",
+    "slate-yjs-solid": "./srcs/slate-yjs-solid/index.ts"
+  }
 }

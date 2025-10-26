@@ -2,10 +2,10 @@
 import { Editor, type Element, Node, Path, type Text } from 'slate';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
-import { useSlateStatic } from '../hooks/use-slate-static.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
-import { IS_ANDROID, IS_IOS } from '../utils/environment.js';
-import { MARK_PLACEHOLDER_SYMBOL } from '../utils/weakmaps.js';
+import { useSlateStatic } from '../hooks/use-slate-static.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
+import { IS_ANDROID, IS_IOS } from '../utils/environment.ts';
+import { MARK_PLACEHOLDER_SYMBOL } from '../utils/weakmaps.ts';
 
 /**
  * Leaf content strings.

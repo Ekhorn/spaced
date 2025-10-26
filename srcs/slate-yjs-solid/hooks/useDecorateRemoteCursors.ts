@@ -1,9 +1,9 @@
 import { type CursorState } from '@slate-yjs/core';
 import { type BaseRange, type BaseText, type NodeEntry, Range } from 'slate';
 
-import { useRemoteCursorEditor } from './useRemoteCursorEditor.js';
-import { useRemoteCursorStates } from './useRemoteCursorStates.js';
-import { getCursorRange } from '../utils/getCursorRange.js';
+import { useRemoteCursorEditor } from './useRemoteCursorEditor.ts';
+import { useRemoteCursorStates } from './useRemoteCursorStates.ts';
+import { getCursorRange } from '../utils/getCursorRange.ts';
 
 export const REMOTE_CURSOR_DECORATION_PREFIX = 'remote-cursor-';
 export const REMOTE_CURSOR_CARET_DECORATION_PREFIX = 'remote-caret-';

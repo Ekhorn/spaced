@@ -1,7 +1,7 @@
 import { type Editor } from 'slate';
 import { type Accessor, createContext, useContext } from 'solid-js';
 
-import { type SolidEditor } from '../plugin/solid-editor.js';
+import { type SolidEditor } from '../plugin/solid-editor.ts';
 
 /**
  * A Solid context for sharing the editor object, in a way that re-renders the

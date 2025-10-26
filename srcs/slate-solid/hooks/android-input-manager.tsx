@@ -2,8 +2,8 @@
 import { Editor, Node, Path, Point, Range, Text, Transforms } from 'slate';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
 
-import { useSlateStatic } from './use-slate-static.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
+import { useSlateStatic } from './use-slate-static.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
 import {
   applyStringDiff,
   mergeStringDiffs,
@@ -14,9 +14,9 @@ import {
   targetRange,
   type TextDiff,
   verifyDiffState,
-} from '../utils/diff-text.js';
-import { isDOMSelection, isTrackedMutation } from '../utils/dom.js';
-import { IS_ANDROID } from '../utils/environment.js';
+} from '../utils/diff-text.ts';
+import { isDOMSelection, isTrackedMutation } from '../utils/dom.ts';
+import { IS_ANDROID } from '../utils/environment.ts';
 import {
   EDITOR_TO_FORCE_RENDER,
   EDITOR_TO_PENDING_ACTION,
@@ -27,7 +27,7 @@ import {
   EDITOR_TO_SCHEDULE_FLUSH,
   EDITOR_TO_USER_MARKS,
   IS_COMPOSING,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 type UseAndroidInputManagerOptions =
   & {

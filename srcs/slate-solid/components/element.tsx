@@ -1,24 +1,24 @@
 import { Editor, type Element as SlateElement, Node, type Range } from 'slate';
 import { type JSXElement, Match, Switch } from 'solid-js';
 
-import { createChildren } from './children.js';
+import { createChildren } from './children.tsx';
 import {
   type RenderElementProps,
   type RenderLeafProps,
   type RenderPlaceholderProps,
-} from './editable.js';
-import { Text } from './text.js';
-import { useReadOnly } from '../hooks/use-read-only.js';
-import { useSlateStatic } from '../hooks/use-slate-static.js';
-import { SolidEditor } from '../plugin/solid-editor.js';
-import { getDirection } from '../utils/direction.js';
+} from './editable.tsx';
+import { Text } from './text.tsx';
+import { useReadOnly } from '../hooks/use-read-only.ts';
+import { useSlateStatic } from '../hooks/use-slate-static.tsx';
+import { SolidEditor } from '../plugin/solid-editor.ts';
+import { getDirection } from '../utils/direction.ts';
 import {
   EDITOR_TO_KEY_TO_ELEMENT,
   ELEMENT_TO_NODE,
   NODE_TO_ELEMENT,
   NODE_TO_INDEX,
   NODE_TO_PARENT,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 export const Element = (props: {
   decorations: Range[];

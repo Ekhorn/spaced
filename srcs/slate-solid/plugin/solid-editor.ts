@@ -11,7 +11,7 @@ import {
   Transforms,
 } from 'slate';
 
-import { type TextDiff } from '../utils/diff-text.js';
+import { type TextDiff } from '../utils/diff-text.ts';
 import {
   type DOMElement,
   type DOMNode,
@@ -26,9 +26,9 @@ import {
   isDOMNode,
   isDOMSelection,
   normalizeDOMPoint,
-} from '../utils/dom.js';
-import { IS_ANDROID, IS_CHROME, IS_FIREFOX } from '../utils/environment.js';
-import { Key } from '../utils/key.js';
+} from '../utils/dom.ts';
+import { IS_ANDROID, IS_CHROME, IS_FIREFOX } from '../utils/environment.ts';
+import { Key } from '../utils/key.ts';
 import {
   EDITOR_TO_ELEMENT,
   EDITOR_TO_KEY_TO_ELEMENT,
@@ -42,7 +42,7 @@ import {
   NODE_TO_INDEX,
   NODE_TO_KEY,
   NODE_TO_PARENT,
-} from '../utils/weakmaps.js';
+} from '../utils/weakmaps.ts';
 
 /**
  * A React and DOM-specific version of the `Editor` interface.

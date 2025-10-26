@@ -1,7 +1,7 @@
 import { type CursorState } from '@slate-yjs/core';
 import { createMemo, createSignal, onCleanup } from 'solid-js';
 
-import { useRemoteCursorStateStore } from './useRemoteCursorStateStore.js';
+import { useRemoteCursorStateStore } from './useRemoteCursorStateStore.ts';
 
 // export function useRemoteCursorStatesSelector<
 //   TCursorData extends Record<string, unknown> = Record<string, unknown>,
