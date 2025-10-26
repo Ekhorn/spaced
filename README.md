@@ -1,3 +1,5 @@
+WAITING FOR https://github.com/zed-industries/zed/issues/10108#issuecomment-2625085934 to have type definition support with deno
+
 # Spaced
 
 ### Prerequisites
